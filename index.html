@@ -6,23 +6,30 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
-            background-color: #0d0d0d;
+            /* Fondo de tigre con un filtro oscuro para que resalte el neón */
+            background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.8)), url('https://images.unsplash.com/photo-1561731216-c3a4d99437d5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            
             color: white;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
             padding: 40px;
+            margin: 0;
         }
         .container {
             width: 80%;
-            background: #1a1a1a;
+            background: rgba(26, 26, 26, 0.6); /* Fondo semi-transparente */
             padding: 20px;
             border-radius: 15px;
             box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
-            border: 1px solid #333;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(8px); /* Efecto cristal para ver el tigre de fondo */
         }
-        h1 { color: #FFD700; text-shadow: 0 0 10px #FFD700; }
+        h1 { color: #FFD700; text-shadow: 0 0 10px #FFD700; text-align: center; }
     </style>
 </head>
 <body>
@@ -35,9 +42,9 @@
     <script>
         const ctx = document.getElementById('rankingVentas').getContext('2d');
         
-        // AQUÍ ES DONDE CAMBIAS LOS DATOS
-        const nombres = ['Israel', 'Ana', 'Carlos', 'Lucia', 'Roberto'];
-        const porcentajes = [120, 95, 82, 70, 45]; // El % de cumplimiento
+        // Aquí actualizas las ventas cuando hagas tus cortes semanales
+        const nombres = ['Sasha', 'Jeyko', 'Rickson', 'Italo', 'Isabelle'];
+        const porcentajes = [120, 95, 82, 70, 45]; // El % de cumplimiento a la meta
 
         const colores = porcentajes.map(p => {
             if (p >= 100) return '#FFD700'; // Oro (Pinnacle)
@@ -59,7 +66,7 @@
                 }]
             },
             options: {
-                indexAxis: 'y', // Hace que las barras sean horizontales
+                indexAxis: 'y', 
                 plugins: {
                     legend: { display: false }
                 },
@@ -67,7 +74,7 @@
                     x: {
                         beginAtZero: true,
                         max: 150,
-                        grid: { color: '#333' },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' },
                         ticks: { color: 'white' }
                     },
                     y: {
