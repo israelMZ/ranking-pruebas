@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Ranking de Ventas Élite</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background-color: #0d0d0d;
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px;
+        }
+        .container {
+            width: 80%;
+            background: #1a1a1a;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+            border: 1px solid #333;
+        }
+        h1 { color: #FFD700; text-shadow: 0 0 10px #FFD700; }
+    </style>
+</head>
+<body>
+
+    <h1>🏆 TABLERO DE LEYENDAS</h1>
+    <div class="container">
+        <canvas id="rankingVentas"></canvas>
+    </div>
+
+    <script>
+        const ctx = document.getElementById('rankingVentas').getContext('2d');
+        
+        // AQUÍ ES DONDE CAMBIAS LOS DATOS
+        const nombres = ['Israel', 'Ana', 'Carlos', 'Lucia', 'Roberto'];
+        const porcentajes = [120, 95, 82, 70, 45]; // El % de cumplimiento
+
+        const colores = porcentajes.map(p => {
+            if (p >= 100) return '#FFD700'; // Oro (Pinnacle)
+            if (p >= 80) return '#00FF7F';  // Verde (Master)
+            if (p >= 50) return '#00BFFF';  // Azul (Élite)
+            return '#FF4500';               // Rojo (Prospector)
+        });
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: nombres,
+                datasets: [{
+                    label: '% Logrado',
+                    data: porcentajes,
+                    backgroundColor: colores,
+                    borderRadius: 10,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y', // Hace que las barras sean horizontales
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        max: 150,
+                        grid: { color: '#333' },
+                        ticks: { color: 'white' }
+                    },
+                    y: {
+                        grid: { display: false },
+                        ticks: { color: 'white', font: { size: 16, weight: 'bold' } }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
