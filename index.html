@@ -7,46 +7,23 @@
     <style>
         /* --- ESTILOS GENERALES Y FONDO --- */
         body {
-            margin: 0;
-            padding: 40px;
-            color: white;
+            margin: 0; padding: 40px; color: white;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            overflow-x: hidden;
+            display: flex; flex-direction: column; align-items: center; overflow-x: hidden;
         }
 
-        .video-fondo {
-            position: fixed; right: 0; bottom: 0;
-            min-width: 100%; min-height: 100%;
-            z-index: -2; object-fit: cover;
-        }
+        .video-fondo { position: fixed; right: 0; bottom: 0; min-width: 100%; min-height: 100%; z-index: -2; object-fit: cover; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.75); z-index: -1; }
 
-        .overlay {
-            position: fixed; top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.75);
-            z-index: -1;
-        }
-
-        /* --- CONTENEDOR PRINCIPAL DEL GRÁFICO --- */
+        /* --- CONTENEDOR PRINCIPAL --- */
         .container {
-            width: 90%; max-width: 1300px;
-            background: rgba(20, 20, 25, 0.4);
-            padding: 40px; border-radius: 25px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(15px);
-            z-index: 1; display: flex;
-            flex-direction: column; align-items: center;
+            width: 90%; max-width: 1300px; background: rgba(20, 20, 25, 0.4);
+            padding: 40px; border-radius: 25px; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px);
+            z-index: 1; display: flex; flex-direction: column; align-items: center;
         }
 
-        .chart-wrapper {
-            position: relative; height: 80vh; 
-            min-height: 1000px; width: 100%;
-        }
-
+        .chart-wrapper { position: relative; height: 80vh; min-height: 1000px; width: 100%; }
         #rankingVentas { filter: drop-shadow(0px 0px 10px rgba(255, 255, 255, 0.25)); }
 
         @keyframes flotarYBrillar {
@@ -61,7 +38,7 @@
             animation: flotarYBrillar 3s ease-in-out infinite;
         }
 
-        /* --- BOTÓN PARA ABRIR LA TABLA --- */
+        /* --- BOTÓN --- */
         .btn-estadisticas {
             margin-top: 30px; padding: 15px 40px; font-size: 1.2em; font-weight: bold;
             color: white; background: rgba(0, 191, 255, 0.2);
@@ -71,7 +48,7 @@
         }
         .btn-estadisticas:hover { background: #00BFFF; box-shadow: 0 0 30px rgba(0, 191, 255, 0.8); transform: scale(1.05); }
 
-        /* --- PANEL MODAL (POP-UP) --- */
+        /* --- PANEL MODAL --- */
         #modalStats {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(20px);
@@ -88,33 +65,23 @@
         }
 
         .modal-titulo { color: #00BFFF; font-size: 2em; margin-top: 0; margin-bottom: 20px; text-align: center; text-shadow: 0 0 15px #00BFFF; }
-
-        .btn-cerrar {
-            position: absolute; top: 20px; right: 30px; font-size: 2em; color: white; cursor: pointer; transition: color 0.3s ease;
-        }
+        .btn-cerrar { position: absolute; top: 20px; right: 30px; font-size: 2em; color: white; cursor: pointer; transition: color 0.3s ease; }
         .btn-cerrar:hover { color: #FF4500; }
 
-        /* --- ESTILOS DE LA TABLA TIPO EXCEL (NEÓN) --- */
+        /* --- TABLA EXCEL NEÓN --- */
         .contenedor-tabla { overflow-x: auto; overflow-y: auto; flex-grow: 1; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); }
-        
         table { width: 100%; border-collapse: collapse; text-align: center; white-space: nowrap; }
-        
         th { padding: 15px; font-size: 14px; letter-spacing: 1px; color: white; background: rgba(0,0,0,0.6); position: sticky; top: 0; z-index: 2; border-bottom: 2px solid rgba(255,255,255,0.2); }
         td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); font-weight: bold; font-size: 15px; }
-
         tr:hover td { filter: brightness(1.5); }
 
-        /* Colores basados en tu Excel adaptados al Glassmorphism */
         .col-asesor { background: rgba(50, 50, 50, 0.4); text-align: left; padding-left: 20px; }
-        .col-naranja { background: rgba(255, 140, 0, 0.15); color: #FFB04F; } /* Ingresos, Total, Convertibilidad */
-        .col-rojo { background: rgba(255, 69, 0, 0.15); color: #FF6347; }    /* Canceladas */
-        .col-azul { background: rgba(0, 191, 255, 0.15); color: #00BFFF; }   /* Programa */
-        .col-amarillo { background: rgba(255, 215, 0, 0.15); color: #FFD700; } /* Pendiente */
-        .col-verde { background: rgba(50, 205, 50, 0.15); color: #32CD32; }  /* Instaladas */
-
-        /* Borde divisorio sutil entre bloques de columnas */
+        .col-naranja { background: rgba(255, 140, 0, 0.15); color: #FFB04F; } 
+        .col-rojo { background: rgba(255, 69, 0, 0.15); color: #FF6347; }    
+        .col-azul { background: rgba(0, 191, 255, 0.15); color: #00BFFF; }   
+        .col-amarillo { background: rgba(255, 215, 0, 0.15); color: #FFD700; } 
+        .col-verde { background: rgba(50, 205, 50, 0.15); color: #32CD32; }  
         .border-right { border-right: 1px solid rgba(255,255,255,0.1); }
-
     </style>
 </head>
 <body>
@@ -138,7 +105,6 @@
         <div class="modal-contenido">
             <span id="btnCerrarStats" class="btn-cerrar">✖</span>
             <h2 class="modal-titulo">REPORTE DETALLADO POR ASESOR</h2>
-            
             <div class="contenedor-tabla">
                 <table id="tablaExcel">
                     <thead>
@@ -164,9 +130,10 @@
     <script>
         const ctx = document.getElementById('rankingVentas').getContext('2d');
         
-        // --- 1. BASE DE DATOS (CON LOS DATOS EXACTOS DE TU IMAGEN) ---
-        // 'instaladas' es la variable que determina el ranking principal en el gráfico de barras.
+        // --- 1. BASE DE DATOS FUSIONADA (20 ASESORES) ---
+        // Contiene los 13 del Excel + los 7 anteriores
         const asesoresBase = [
+            // Los 13 del Excel
             { nombre: 'ISABELLE GARCIA', ingresos: 25, cancCliente: 5, cancWow: 2, programa: 3, pendiente: 0, instaladas: 15 },
             { nombre: 'VALERIA VALDERRAMA', ingresos: 19, cancCliente: 7, cancWow: 1, programa: 2, pendiente: 0, instaladas: 8 },
             { nombre: 'JOSEPH LUJAN', ingresos: 18, cancCliente: 4, cancWow: 3, programa: 2, pendiente: 1, instaladas: 8 },
@@ -179,22 +146,27 @@
             { nombre: 'LEONARDO YOBERA', ingresos: 7, cancCliente: 4, cancWow: 2, programa: 0, pendiente: 0, instaladas: 1 },
             { nombre: 'ROMINA SOLIS', ingresos: 6, cancCliente: 3, cancWow: 0, programa: 1, pendiente: 0, instaladas: 2 },
             { nombre: 'BRIANNA CHAVARRI', ingresos: 4, cancCliente: 0, cancWow: 2, programa: 0, pendiente: 0, instaladas: 2 },
-            { nombre: 'DIEGO OLIVARES', ingresos: 3, cancCliente: 0, cancWow: 1, programa: 0, pendiente: 0, instaladas: 2 }
+            { nombre: 'DIEGO OLIVARES', ingresos: 3, cancCliente: 0, cancWow: 1, programa: 0, pendiente: 0, instaladas: 2 },
+            
+            // Los 7 anteriores reintegrados (se conserva su data histórica como ingresos/instaladas)
+            { nombre: 'FABIAN', ingresos: 28, cancCliente: 0, cancWow: 0, programa: 0, pendiente: 0, instaladas: 28 },
+            { nombre: 'EVA', ingresos: 26, cancCliente: 0, cancWow: 0, programa: 0, pendiente: 0, instaladas: 26 },
+            { nombre: 'VALERIA M', ingresos: 22, cancCliente: 0, cancWow: 0, programa: 0, pendiente: 0, instaladas: 22 },
+            { nombre: 'ALVARO', ingresos: 10, cancCliente: 0, cancWow: 0, programa: 0, pendiente: 0, instaladas: 10 },
+            { nombre: 'KENNY', ingresos: 5, cancCliente: 0, cancWow: 0, programa: 0, pendiente: 0, instaladas: 5 },
+            { nombre: 'ARMANDO', ingresos: 1, cancCliente: 0, cancWow: 0, programa: 0, pendiente: 0, instaladas: 1 },
+            { nombre: 'PEDRO', ingresos: 2, cancCliente: 0, cancWow: 0, programa: 0, pendiente: 0, instaladas: 2 }
         ];
 
-        // --- 2. MOTOR MATEMÁTICO Y ORDENAMIENTO ---
         // Ordenamos por Instaladas de mayor a menor para el gráfico
         asesoresBase.sort((a, b) => b.instaladas - a.instaladas);
 
-        // Generamos las filas de la tabla automáticamente
+        // Generamos las filas de la tabla dinámicamente
         const cuerpoTabla = document.getElementById('cuerpoTabla');
-        
         asesoresBase.forEach(as => {
-            // Cálculos automáticos
             const total = as.cancCliente + as.cancWow + as.programa + as.pendiente + as.instaladas;
             const convertibilidad = as.ingresos > 0 ? ((as.instaladas / as.ingresos) * 100).toFixed(2) : "0.00";
 
-            // Inyectamos el HTML de la fila con los colores correspondientes
             const fila = `
                 <tr>
                     <td class="col-asesor border-right">${as.nombre}</td>
@@ -211,12 +183,12 @@
             cuerpoTabla.innerHTML += fila;
         });
 
-        // --- 3. LÓGICA DE APERTURA DEL MODAL ---
+        // Eventos del Modal
         const modal = document.getElementById('modalStats');
         document.getElementById('btnAbrirStats').addEventListener('click', () => modal.classList.add('mostrar'));
         document.getElementById('btnCerrarStats').addEventListener('click', () => modal.classList.remove('mostrar'));
 
-        // --- 4. PREPARACIÓN DE DATOS PARA EL GRÁFICO ---
+        // --- PREPARACIÓN DE DATOS PARA EL GRÁFICO ---
         const nombresConInsignia = asesoresBase.map((as, index) => {
             if (index === 0) return '👑 ' + as.nombre;
             if (index === 1) return '🥈 ' + as.nombre;
@@ -224,33 +196,34 @@
             return as.nombre;
         });
 
-        const ventasOrdenadas = asesoresBase.map(as => as.instaladas); // El ranking usa "Instaladas"
+        const ventasOrdenadas = asesoresBase.map(as => as.instaladas); 
 
+        // Restaurada la escala Oro(30), Verde(25), Azul(20)
         const coloresFondo = ventasOrdenadas.map(v => {
-            if (v >= 10) return 'rgba(255, 215, 0, 0.8)';   // ORO (>10 instaladas)
-            if (v >= 7) return 'rgba(0, 255, 127, 0.8)';    // VERDE
-            if (v >= 4) return 'rgba(0, 191, 255, 0.8)';    // AZUL
+            if (v >= 30) return 'rgba(255, 215, 0, 0.8)';   // ORO 
+            if (v >= 25) return 'rgba(0, 255, 127, 0.8)';    // VERDE
+            if (v >= 20) return 'rgba(0, 191, 255, 0.8)';    // AZUL
             return 'rgba(138, 43, 226, 0.6)';               // MORADO
         });
 
         const coloresBorde = ventasOrdenadas.map(v => {
-            if (v >= 10) return '#FFD700';
-            if (v >= 7) return '#00FF7F';
-            if (v >= 4) return '#00BFFF';
+            if (v >= 30) return '#FFD700';
+            if (v >= 25) return '#00FF7F';
+            if (v >= 20) return '#00BFFF';
             return '#8A2BE2';
         });
 
         const coloresTextoY = ventasOrdenadas.map(v => {
-            if (v >= 10) return '#FFD700';
-            if (v >= 7) return '#00FF7F';
-            if (v >= 4) return '#00BFFF';
+            if (v >= 30) return '#FFD700';
+            if (v >= 25) return '#00FF7F';
+            if (v >= 20) return '#00BFFF';
             return '#E066FF';
         });
 
         Chart.defaults.font.family = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
         let delayed;
 
-        // --- 5. RENDERIZADO DEL GRÁFICO (CHART.JS) ---
+        // --- RENDERIZADO DEL GRÁFICO ---
         new Chart(ctx, {
             type: 'bar',
             data: {
@@ -304,9 +277,9 @@
                 scales: {
                     x: {
                         beginAtZero: true,
-                        max: 20, // Ajustado a los datos de Instaladas actuales
+                        max: 35, // Escala hasta 35 para acomodar a Fabian (28)
                         grid: { color: 'rgba(255, 255, 255, 0.08)', drawBorder: false },
-                        ticks: { color: '#bbbbbb', font: { size: 14 }, stepSize: 2 }
+                        ticks: { color: '#bbbbbb', font: { size: 14 }, stepSize: 5 }
                     },
                     y: {
                         grid: { display: false },
