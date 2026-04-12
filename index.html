@@ -29,14 +29,14 @@
             object-fit: cover;
         }
 
-        /* Capa de oscuridad para resaltar el neón */
+        /* Filtro oscuro para resaltar el brillo neón */
         .overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(0, 0, 0, 0.75);
             z-index: -1;
         }
 
@@ -53,7 +53,7 @@
             z-index: 1;
         }
 
-        /* Espacio para los 20 asesores (Ajustado a 1000px de altura mínima) */
+        /* Altura calculada para 20 asesores sin que se aplasten */
         .chart-wrapper {
             position: relative;
             height: 80vh; 
@@ -61,12 +61,12 @@
             width: 100%;
         }
 
-        /* Efecto de resplandor neón en todo el gráfico */
+        /* Efecto Neón Global al lienzo */
         #rankingVentas {
-            filter: drop-shadow(0px 0px 10px rgba(255, 255, 255, 0.2));
+            filter: drop-shadow(0px 0px 10px rgba(255, 255, 255, 0.25));
         }
 
-        /* Animación del Título Principal */
+        /* Animación del Título */
         @keyframes flotarYBrillar {
             0% { transform: translateY(0px); text-shadow: 0 0 10px #FFD700; }
             50% { transform: translateY(-10px); text-shadow: 0 0 30px #FFD700, 0 0 15px #FFF; }
@@ -103,34 +103,61 @@
     <script>
         const ctx = document.getElementById('rankingVentas').getContext('2d');
         
-        // --- SECCIÓN DE DATOS (Aquí actualizas nombres y ventas) ---
-        const nombres = [
-            'VALERIA V', 'FABIAN', 'EVA', 'VALERIA M', 'JOMAJAIRA', 
-            'ROMINA', 'JOSEPH', 'DIEGO', 'BRIANNA', 'ALVARO', 
-            'FRANKI', 'ALBERT', 'KENNY', 'KIMBERLY', 'ISABELLE', 
-            'HENRY', 'LEONARDO C', 'LEONARDO Y', 'ARMANDO', 'PEDRO'
+        // --- 1. BASE DE DATOS DEL EQUIPO ---
+        // Aquí ingresas a tu gente. No importa el orden, el sistema los ordenará solos.
+        const asesoresBase = [
+            { nombre: 'VALERIA V', ventas: 32 },
+            { nombre: 'FABIAN', ventas: 28 },
+            { nombre: 'EVA', ventas: 26 },
+            { nombre: 'VALERIA M', ventas: 22 },
+            { nombre: 'JOMAJAIRA', ventas: 21 },
+            { nombre: 'ROMINA', ventas: 19 },
+            { nombre: 'JOSEPH', ventas: 15 },
+            { nombre: 'DIEGO', ventas: 14 },
+            { nombre: 'BRIANNA', ventas: 12 },
+            { nombre: 'ALVARO', ventas: 10 },
+            { nombre: 'FRANKI', ventas: 9 },
+            { nombre: 'ALBERT', ventas: 8 },
+            { nombre: 'KENNY', ventas: 5 },
+            { nombre: 'KIMBERLY', ventas: 4 },
+            { nombre: 'ISABELLE', ventas: 3 },
+            { nombre: 'HENRY', ventas: 2 },
+            { nombre: 'LEONARDO C', ventas: 5 },
+            { nombre: 'LEONARDO Y', ventas: 6 },
+            { nombre: 'ARMANDO', ventas: 1 },
+            { nombre: 'PEDRO', ventas: 2 }
         ];
-        
-        // Ventas actuales (Escala de 0 a 30+)
-        const ventas = [32, 28, 26, 22, 21, 19, 15, 14, 12, 10, 9, 8, 5, 4, 3, 2, 5, 6, 1, 2]; 
 
-        // --- LÓGICA DE ESCALAS Y COLORES NEÓN ---
-        const coloresFondo = ventas.map(v => {
-            if (v >= 30) return 'rgba(255, 215, 0, 0.8)';   // ORO (Objetivo 3)
-            if (v >= 25) return 'rgba(0, 255, 127, 0.8)';   // VERDE (Objetivo 2)
-            if (v >= 20) return 'rgba(0, 191, 255, 0.8)';   // AZUL (Objetivo 1)
-            return 'rgba(138, 43, 226, 0.6)';               // MORADO (En camino)
+        // --- 2. MOTOR DE ORDENAMIENTO AUTOMÁTICO ---
+        // Ordena de mayor a menor ventas
+        asesoresBase.sort((a, b) => b.ventas - a.ventas);
+
+        // --- 3. ASIGNACIÓN DE INSIGNIAS Y EXTRACCIÓN DE DATOS ---
+        const nombresConInsignia = asesoresBase.map((as, index) => {
+            if (index === 0) return '👑 ' + as.nombre;
+            if (index === 1) return '🥈 ' + as.nombre;
+            if (index === 2) return '🥉 ' + as.nombre;
+            return as.nombre;
         });
 
-        const coloresBorde = ventas.map(v => {
+        const ventasOrdenadas = asesoresBase.map(as => as.ventas);
+
+        // --- 4. LÓGICA DE COLORES NEÓN SEGÚN OBJETIVOS (20, 25, 30) ---
+        const coloresFondo = ventasOrdenadas.map(v => {
+            if (v >= 30) return 'rgba(255, 215, 0, 0.8)';   // ORO 
+            if (v >= 25) return 'rgba(0, 255, 127, 0.8)';   // VERDE 
+            if (v >= 20) return 'rgba(0, 191, 255, 0.8)';   // AZUL 
+            return 'rgba(138, 43, 226, 0.6)';               // MORADO 
+        });
+
+        const coloresBorde = ventasOrdenadas.map(v => {
             if (v >= 30) return '#FFD700';
             if (v >= 25) return '#00FF7F';
             if (v >= 20) return '#00BFFF';
             return '#8A2BE2';
         });
 
-        // Colores Neón para los Nombres (Eje Y)
-        const coloresTextoY = ventas.map(v => {
+        const coloresTextoY = ventasOrdenadas.map(v => {
             if (v >= 30) return '#FFD700';
             if (v >= 25) return '#00FF7F';
             if (v >= 20) return '#00BFFF';
@@ -141,13 +168,14 @@
 
         let delayed;
 
+        // --- 5. RENDERIZADO DEL GRÁFICO ---
         new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: nombres,
+                labels: nombresConInsignia,
                 datasets: [{
                     label: 'Ventas Logradas',
-                    data: ventas,
+                    data: ventasOrdenadas,
                     backgroundColor: coloresFondo,
                     borderColor: coloresBorde,
                     borderWidth: 2,
@@ -161,7 +189,7 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 
-                // Animación en Cascada (Staggered Load)
+                // Animación en cascada fluida
                 animation: {
                     onComplete: () => { delayed = true; },
                     delay: (context) => {
@@ -188,7 +216,7 @@
                 scales: {
                     x: {
                         beginAtZero: true,
-                        max: 35, // Escala máxima para que el 30 sea casi el final
+                        max: 35, // El techo es 35 para que 30 (Oro) se vea gigante
                         grid: { 
                             color: 'rgba(255, 255, 255, 0.08)',
                             drawBorder: false
@@ -202,7 +230,7 @@
                     y: {
                         grid: { display: false },
                         ticks: { 
-                            color: coloresTextoY, // Aplicamos los colores neón dinámicos
+                            color: coloresTextoY, 
                             font: { size: 17, weight: 'bold' },
                             padding: 15
                         }
