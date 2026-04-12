@@ -50,11 +50,11 @@
             z-index: 1;
         }
 
-        /* Envoltorio de seguridad para que el gráfico NUNCA desaparezca */
+        /* Altura aumentada a 750px para que los 14 asesores entren perfectamente */
         .chart-wrapper {
             position: relative;
-            height: 60vh; /* Ocupa el 60% de la altura de la pantalla */
-            min-height: 400px; /* Pero nunca será menor a 400px */
+            height: 70vh; 
+            min-height: 750px; 
             width: 100%;
         }
 
@@ -95,15 +95,28 @@
         const ctx = document.getElementById('rankingVentas').getContext('2d');
         
         const nombres = ['VALERIA V', 'FABIAN', 'EVA', 'VALERIA M', 'JOMAJAIRA', 'ROMINA', 'JOSEPH','DIEGO','BRIANNA','ALVARO','FRANKI','ALBERT','KENNY','KIMBERLY'];
-        const porcentajes = [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]; 
+        
+        // Ventas de ejemplo para que veas los colores. ¡Cámbialas por las reales!
+        const ventas = [32, 28, 26, 22, 20, 19, 15, 14, 12, 10, 8, 7, 5, 2]; 
 
-        const coloresFondo = porcentajes.map(p => p >= 80 ? 'rgba(0, 255, 127, 0.7)' : 'rgba(138, 43, 226, 0.7)');
-        const coloresBorde = porcentajes.map(p => p >= 80 ? '#00FF7F' : '#8A2BE2');
+        // LÓGICA DE OBJETIVOS (20, 25, 30)
+        const coloresFondo = ventas.map(v => {
+            if (v >= 30) return 'rgba(255, 215, 0, 0.8)';   // Oro (Objetivo 3)
+            if (v >= 25) return 'rgba(0, 255, 127, 0.8)';   // Verde (Objetivo 2)
+            if (v >= 20) return 'rgba(0, 191, 255, 0.8)';   // Azul (Objetivo 1)
+            return 'rgba(138, 43, 226, 0.5)';               // Morado (En camino)
+        });
+
+        const coloresBorde = ventas.map(v => {
+            if (v >= 30) return '#FFD700';
+            if (v >= 25) return '#00FF7F';
+            if (v >= 20) return '#00BFFF';
+            return '#8A2BE2';
+        });
 
         Chart.defaults.color = '#ffffff';
         Chart.defaults.font.family = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
 
-        // Variable segura para controlar la animación
         let delayed;
 
         new Chart(ctx, {
@@ -111,8 +124,8 @@
             data: {
                 labels: nombres,
                 datasets: [{
-                    label: '% Logrado',
-                    data: porcentajes,
+                    label: 'Ventas Logradas',
+                    data: ventas,
                     backgroundColor: coloresFondo,
                     borderColor: coloresBorde,
                     borderWidth: 2,
@@ -124,18 +137,16 @@
             options: {
                 indexAxis: 'y', 
                 responsive: true,
-                maintainAspectRatio: false, // Fundamental para que respete nuestro chart-wrapper
+                maintainAspectRatio: false, 
                 
-                // Lógica de Animación Reparada y Blindada
                 animation: {
                     onComplete: () => {
                         delayed = true;
                     },
                     delay: (context) => {
                         let delay = 0;
-                        // Validamos estrictamente que solo aplique el retraso a las barras (data)
                         if (context.type === 'data' && context.mode === 'default' && !delayed) {
-                            delay = context.dataIndex * 300; 
+                            delay = context.dataIndex * 150; // Lo bajé un poco a 150 para que cargue más rápido al ser 14 personas
                         }
                         return delay;
                     },
@@ -153,21 +164,22 @@
                 scales: {
                     x: {
                         beginAtZero: true,
-                        max: 150,
+                        max: 35, // ESCALA MÁXIMA AJUSTADA PARA QUE EL 30 LUZCA GENIAL
                         grid: { 
-                            color: 'rgba(255, 255, 255, 0.05)',
+                            color: 'rgba(255, 255, 255, 0.1)', // Líneas de guía un poco más visibles
                             drawBorder: false
                         },
                         ticks: { 
                             color: '#aaaaaa',
-                            font: { size: 14 }
+                            font: { size: 14 },
+                            stepSize: 5 // Para que los números abajo vayan de 5 en 5 (5, 10, 15, 20...)
                         }
                     },
                     y: {
                         grid: { display: false },
                         ticks: { 
                             color: 'white', 
-                            font: { size: 18, weight: 'bold' } 
+                            font: { size: 16, weight: 'bold' } // Letra un poquitito más pequeña para que entren todos
                         }
                     }
                 }
