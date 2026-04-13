@@ -2,25 +2,19 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Ranking de Ventas Élite</title>
+    <title>Ranking de Ventas Élite - LIVE</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* --- ESTILOS GENERALES Y FONDO --- */
-        body {
-            margin: 0; padding: 40px; color: white;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex; flex-direction: column; align-items: center; overflow-x: hidden;
-        }
-
+        body { margin: 0; padding: 40px; color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; flex-direction: column; align-items: center; overflow-x: hidden; }
         .video-fondo { position: fixed; right: 0; bottom: 0; min-width: 100%; min-height: 100%; z-index: -2; object-fit: cover; }
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.75); z-index: -1; }
 
         /* --- CONTENEDOR PRINCIPAL --- */
         .container {
-            width: 90%; max-width: 1300px; background: rgba(20, 20, 25, 0.4);
-            padding: 40px; border-radius: 25px; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
-            border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px);
-            z-index: 1; display: flex; flex-direction: column; align-items: center;
+            width: 90%; max-width: 1300px; background: rgba(20, 20, 25, 0.4); padding: 40px; border-radius: 25px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8); border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px); z-index: 1; display: flex; flex-direction: column; align-items: center;
         }
 
         .chart-wrapper { position: relative; height: 80vh; min-height: 1000px; width: 100%; }
@@ -32,35 +26,27 @@
             100% { transform: translateY(0px); text-shadow: 0 0 10px #FFD700; }
         }
 
-        h1 { 
-            color: #FFD700; text-align: center; z-index: 1; 
-            font-size: 3.5em; letter-spacing: 3px; margin-bottom: 30px;
-            animation: flotarYBrillar 3s ease-in-out infinite;
-        }
+        h1 { color: #FFD700; text-align: center; z-index: 1; font-size: 3.5em; letter-spacing: 3px; margin-bottom: 30px; animation: flotarYBrillar 3s ease-in-out infinite; }
 
         /* --- BOTÓN --- */
         .btn-estadisticas {
-            margin-top: 30px; padding: 15px 40px; font-size: 1.2em; font-weight: bold;
-            color: white; background: rgba(0, 191, 255, 0.2);
-            border: 2px solid #00BFFF; border-radius: 50px; cursor: pointer;
-            transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 2px;
-            box-shadow: 0 0 15px rgba(0, 191, 255, 0.4);
+            margin-top: 30px; padding: 15px 40px; font-size: 1.2em; font-weight: bold; color: white;
+            background: rgba(0, 191, 255, 0.2); border: 2px solid #00BFFF; border-radius: 50px; cursor: pointer;
+            transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 2px; box-shadow: 0 0 15px rgba(0, 191, 255, 0.4);
         }
         .btn-estadisticas:hover { background: #00BFFF; box-shadow: 0 0 30px rgba(0, 191, 255, 0.8); transform: scale(1.05); }
 
-        /* --- PANEL MODAL --- */
+        /* --- PANEL MODAL Y TARJETAS GLOBALES --- */
         #modalStats {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(20px);
-            z-index: 999; justify-content: center; align-items: center;
-            opacity: 0; transition: opacity 0.4s ease; padding: 20px; box-sizing: border-box;
+            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(20px); z-index: 999;
+            justify-content: center; align-items: center; opacity: 0; transition: opacity 0.4s ease; padding: 20px; box-sizing: border-box;
         }
         #modalStats.mostrar { display: flex; opacity: 1; }
 
         .modal-contenido {
-            background: rgba(20, 20, 25, 0.8); padding: 40px; border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.1); width: 100%; max-width: 1500px;
-            max-height: 90vh; display: flex; flex-direction: column; position: relative;
+            background: rgba(20, 20, 25, 0.8); padding: 40px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 100%; max-width: 1500px; max-height: 90vh; display: flex; flex-direction: column; position: relative;
             box-shadow: 0 0 50px rgba(0, 191, 255, 0.2);
         }
 
@@ -68,13 +54,21 @@
         .btn-cerrar { position: absolute; top: 20px; right: 30px; font-size: 2em; color: white; cursor: pointer; transition: color 0.3s ease; }
         .btn-cerrar:hover { color: #FF4500; }
 
+        .stats-grid { display: flex; gap: 20px; justify-content: center; margin-bottom: 30px; flex-wrap: wrap; }
+        .stat-card { background: rgba(0, 0, 0, 0.5); padding: 20px 30px; border-radius: 15px; border: 1px solid rgba(255, 255, 255, 0.1); min-width: 150px; text-align: center; }
+        .stat-valor { font-size: 3em; font-weight: bold; margin: 5px 0; }
+        .stat-label { font-size: 1em; color: #bbbbbb; text-transform: uppercase; letter-spacing: 1px; }
+        .color-ingresadas { color: #00BFFF; text-shadow: 0 0 20px #00BFFF; }
+        .color-caidas { color: #FF4500; text-shadow: 0 0 20px #FF4500; }
+        .color-cobertura { color: #FFD700; text-shadow: 0 0 20px #FFD700; }
+
         /* --- TABLA EXCEL NEÓN --- */
         .contenedor-tabla { overflow-x: auto; overflow-y: auto; flex-grow: 1; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); }
         table { width: 100%; border-collapse: collapse; text-align: center; white-space: nowrap; }
         th { padding: 15px; font-size: 14px; letter-spacing: 1px; color: white; background: rgba(0,0,0,0.6); position: sticky; top: 0; z-index: 2; border-bottom: 2px solid rgba(255,255,255,0.2); }
         td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); font-weight: bold; font-size: 15px; }
         tr:hover td { filter: brightness(1.5); }
-
+        
         .col-asesor { background: rgba(50, 50, 50, 0.4); text-align: left; padding-left: 20px; }
         .col-naranja { background: rgba(255, 140, 0, 0.15); color: #FFB04F; } 
         .col-rojo { background: rgba(255, 69, 0, 0.15); color: #FF6347; }    
@@ -92,32 +86,48 @@
 
     <div class="overlay"></div>
 
-    <h1>🏆 RANKING DE VENTAS 🏆</h1>
+    <h1>🏆 RANKING DE VENTAS LIVE 🏆</h1>
     
     <div class="container">
         <div class="chart-wrapper">
             <canvas id="rankingVentas"></canvas>
         </div>
-        <button id="btnAbrirStats" class="btn-estadisticas">📊 TABLA DE DESGLOSE</button>
+        <button id="btnAbrirStats" class="btn-estadisticas">📊 TABLA DE DESGLOSE EN VIVO</button>
     </div>
 
     <div id="modalStats">
         <div class="modal-contenido">
             <span id="btnCerrarStats" class="btn-cerrar">✖</span>
-            <h2 class="modal-titulo">REPORTE DETALLADO POR ASESOR</h2>
+            <h2 class="modal-titulo">REPORTE DETALLADO DEL EQUIPO WOW</h2>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Ingresadas</div>
+                    <div id="valIngresadas" class="stat-valor color-ingresadas">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total Caídas</div>
+                    <div id="valCaidas" class="stat-valor color-caidas">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Cobertibilidad</div>
+                    <div id="valCobertura" class="stat-valor color-cobertura">0%</div>
+                </div>
+            </div>
+
             <div class="contenedor-tabla">
-                <table id="tablaExcel">
+                <table>
                     <thead>
                         <tr>
                             <th class="col-asesor border-right">ASESOR</th>
                             <th class="col-naranja border-right">INGRESOS</th>
-                            <th class="col-rojo">CANCELADA CLIENTE</th>
-                            <th class="col-rojo border-right">CANCELADA OP</th>
-                            <th class="col-azul border-right">PROGRAMADA</th>
+                            <th class="col-rojo">CANC. CLIENTE</th>
+                            <th class="col-rojo border-right">CANC. WOW</th>
+                            <th class="col-azul border-right">PROGRAMA</th>
                             <th class="col-amarillo border-right">PENDIENTE</th>
                             <th class="col-verde border-right">INSTALADAS</th>
-                            <th class="col-naranja">TOTAL</th>
-                            <th class="col-naranja">CONVERTIBILIDAD X ASES</th>
+                            <th class="col-naranja border-right">TOTAL</th>
+                            <th class="col-naranja">CONVERTIBILIDAD</th>
                         </tr>
                     </thead>
                     <tbody id="cuerpoTabla">
@@ -128,166 +138,170 @@
     </div>
 
     <script>
-        const ctx = document.getElementById('rankingVentas').getContext('2d');
-        
-        // --- 1. BASE DE DATOS FUSIONADA (20 ASESORES) ---
-        // Contiene los 13 del Excel + los 7 anteriores
-        const asesoresBase = [
-            // Los 13 del Excel
-            { nombre: 'ISABELLE GARCIA', ingresos: 25, cancCliente: 5, cancWow: 2, programa: 3, pendiente: 0, instaladas: 15 },
-            { nombre: 'VALERIA VALDERRAMA', ingresos: 19, cancCliente: 7, cancWow: 1, programa: 2, pendiente: 0, instaladas: 8 },
-            { nombre: 'JOSEPH LUJAN', ingresos: 18, cancCliente: 4, cancWow: 3, programa: 2, pendiente: 1, instaladas: 8 },
-            { nombre: 'LEONARDO CASTILLO', ingresos: 15, cancCliente: 1, cancWow: 0, programa: 1, pendiente: 1, instaladas: 12 },
-            { nombre: 'FRANKI PALOMINO', ingresos: 13, cancCliente: 2, cancWow: 0, programa: 3, pendiente: 1, instaladas: 7 },
-            { nombre: 'JOMAJAIRA PAJUELO', ingresos: 11, cancCliente: 4, cancWow: 1, programa: 1, pendiente: 1, instaladas: 4 },
-            { nombre: 'KIMBERLY COCK', ingresos: 10, cancCliente: 1, cancWow: 0, programa: 2, pendiente: 2, instaladas: 5 },
-            { nombre: 'HENRY MAMANI', ingresos: 9, cancCliente: 2, cancWow: 1, programa: 2, pendiente: 0, instaladas: 4 },
-            { nombre: 'ALBERT HUAMANI', ingresos: 8, cancCliente: 1, cancWow: 0, programa: 1, pendiente: 1, instaladas: 5 },
-            { nombre: 'LEONARDO YOBERA', ingresos: 7, cancCliente: 4, cancWow: 2, programa: 0, pendiente: 0, instaladas: 1 },
-            { nombre: 'ROMINA SOLIS', ingresos: 6, cancCliente: 3, cancWow: 0, programa: 1, pendiente: 0, instaladas: 2 },
-            { nombre: 'BRIANNA CHAVARRI', ingresos: 4, cancCliente: 0, cancWow: 2, programa: 0, pendiente: 0, instaladas: 2 },
-            { nombre: 'DIEGO OLIVARES', ingresos: 3, cancCliente: 0, cancWow: 1, programa: 0, pendiente: 0, instaladas: 2 },
+        // ==============================================================================
+        // 🚀 AQUÍ ESTÁ TU ENLACE EN VIVO DE GOOGLE SHEETS
+        // ==============================================================================
+        const URL_SHEET = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTfvuQqIcH6Zv8rqvsqeolWoX7Z3lIKZqz2nX-Q0aCRBZcPRvXAXz8rjKyoAZ-OmiI9GfpNkMjK9Uht/pub?output=csv';
+
+        // Variables globales para el gráfico
+        let miGrafico = null;
+
+        async function cargarDatos() {
+            try {
+                // 1. Conectarse a Google Sheets
+                const respuesta = await fetch(URL_SHEET);
+                const dataRaw = await respuesta.text();
+                
+                // 2. Convertir el CSV en datos de JavaScript
+                const filas = dataRaw.split('\n').slice(1); // Ignora la cabecera
+                const asesores = filas.map(linea => {
+                    const c = linea.replace(/\r/g, '').split(','); // Limpia y separa por comas
+                    if(c.length < 7 || c[0].trim() === '') return null; // Evita filas vacías
+                    return {
+                        nombre: c[0].trim(),
+                        ingresos: parseInt(c[1]) || 0,
+                        cancCliente: parseInt(c[2]) || 0,
+                        cancWow: parseInt(c[3]) || 0,
+                        programa: parseInt(c[4]) || 0,
+                        pendiente: parseInt(c[5]) || 0,
+                        instaladas: parseInt(c[6]) || 0
+                    };
+                }).filter(a => a !== null);
+
+                // 3. Ordenar por instaladas de mayor a menor
+                asesores.sort((a, b) => b.instaladas - a.instaladas);
+
+                // 4. Calcular Estadísticas Globales
+                let totalIngresosGlobal = 0;
+                let totalCaidasGlobal = 0;
+                let totalInstaladasGlobal = 0;
+
+                asesores.forEach(as => {
+                    totalIngresosGlobal += as.ingresos;
+                    totalCaidasGlobal += (as.cancCliente + as.cancWow);
+                    totalInstaladasGlobal += as.instaladas;
+                });
+
+                let cobGlobal = totalIngresosGlobal > 0 ? ((totalInstaladasGlobal / totalIngresosGlobal) * 100).toFixed(1) : "0.0";
+                
+                document.getElementById('valIngresadas').innerText = totalIngresosGlobal;
+                document.getElementById('valCaidas').innerText = totalCaidasGlobal;
+                document.getElementById('valCobertura').innerText = cobGlobal + '%';
+
+                // 5. Ejecutar funciones de dibujo
+                llenarTabla(asesores);
+                dibujarGrafico(asesores);
+
+            } catch (error) {
+                console.error("Error cargando Google Sheets:", error);
+                alert("Error de conexión. Verifica que tengas conexión a internet y el documento siga publicado.");
+            }
+        }
+
+        // --- FUNCIÓN PARA LLENAR LA TABLA ---
+        function llenarTabla(asesores) {
+            const cuerpo = document.getElementById('cuerpoTabla');
+            cuerpo.innerHTML = '';
+            asesores.forEach(as => {
+                const totalCalculado = as.cancCliente + as.cancWow + as.programa + as.pendiente + as.instaladas;
+                const convertibilidad = as.ingresos > 0 ? ((as.instaladas / as.ingresos) * 100).toFixed(2) : "0.00";
+                
+                cuerpo.innerHTML += `
+                    <tr>
+                        <td class="col-asesor border-right">${as.nombre}</td>
+                        <td class="col-naranja border-right">${as.ingresos}</td>
+                        <td class="col-rojo">${as.cancCliente}</td>
+                        <td class="col-rojo border-right">${as.cancWow}</td>
+                        <td class="col-azul border-right">${as.programa}</td>
+                        <td class="col-amarillo border-right">${as.pendiente}</td>
+                        <td class="col-verde border-right">${as.instaladas}</td>
+                        <td class="col-naranja border-right">${totalCalculado}</td>
+                        <td class="col-naranja">${convertibilidad} %</td>
+                    </tr>`;
+            });
+        }
+
+        // --- FUNCIÓN PARA DIBUJAR EL GRÁFICO ---
+        function dibujarGrafico(asesores) {
+            const ctx = document.getElementById('rankingVentas').getContext('2d');
             
-            // Los 7 anteriores reintegrados (se conserva su data histórica como ingresos/instaladas)
-            { nombre: 'FABIAN', ingresos: 28, cancCliente: 0, cancWow: 0, programa: 0, pendiente: 0, instaladas: 28 },
-            { nombre: 'EVA', ingresos: 26, cancCliente: 0, cancWow: 0, programa: 0, pendiente: 0, instaladas: 26 },
-            { nombre: 'VALERIA M', ingresos: 22, cancCliente: 0, cancWow: 0, programa: 0, pendiente: 0, instaladas: 22 },
-            { nombre: 'ALVARO', ingresos: 10, cancCliente: 0, cancWow: 0, programa: 0, pendiente: 0, instaladas: 10 },
-            { nombre: 'KENNY', ingresos: 5, cancCliente: 0, cancWow: 0, programa: 0, pendiente: 0, instaladas: 5 },
-            { nombre: 'ARMANDO', ingresos: 1, cancCliente: 0, cancWow: 0, programa: 0, pendiente: 0, instaladas: 1 },
-            { nombre: 'PEDRO', ingresos: 2, cancCliente: 0, cancWow: 0, programa: 0, pendiente: 0, instaladas: 2 }
-        ];
+            // Asignar Coronas y Medallas
+            const nombresInsignia = asesores.map((as, i) => {
+                if (i === 0) return '👑 ' + as.nombre;
+                if (i === 1) return '🥈 ' + as.nombre;
+                if (i === 2) return '🥉 ' + as.nombre;
+                return as.nombre;
+            });
 
-        // Ordenamos por Instaladas de mayor a menor para el gráfico
-        asesoresBase.sort((a, b) => b.instaladas - a.instaladas);
+            const ventas = asesores.map(as => as.instaladas);
 
-        // Generamos las filas de la tabla dinámicamente
-        const cuerpoTabla = document.getElementById('cuerpoTabla');
-        asesoresBase.forEach(as => {
-            const total = as.cancCliente + as.cancWow + as.programa + as.pendiente + as.instaladas;
-            const convertibilidad = as.ingresos > 0 ? ((as.instaladas / as.ingresos) * 100).toFixed(2) : "0.00";
+            // Escala de colores (10 Oro, 7 Verde, 4 Azul) adaptada a "Instaladas"
+            const colores = ventas.map(v => v >= 10 ? 'rgba(255, 215, 0, 0.8)' : v >= 7 ? 'rgba(0, 255, 127, 0.8)' : v >= 4 ? 'rgba(0, 191, 255, 0.8)' : 'rgba(138, 43, 226, 0.6)');
+            const bordes = ventas.map(v => v >= 10 ? '#FFD700' : v >= 7 ? '#00FF7F' : v >= 4 ? '#00BFFF' : '#8A2BE2');
+            const coloresTxt = ventas.map(v => v >= 10 ? '#FFD700' : v >= 7 ? '#00FF7F' : v >= 4 ? '#00BFFF' : '#E066FF');
 
-            const fila = `
-                <tr>
-                    <td class="col-asesor border-right">${as.nombre}</td>
-                    <td class="col-naranja border-right">${as.ingresos}</td>
-                    <td class="col-rojo">${as.cancCliente}</td>
-                    <td class="col-rojo border-right">${as.cancWow}</td>
-                    <td class="col-azul border-right">${as.programa}</td>
-                    <td class="col-amarillo border-right">${as.pendiente}</td>
-                    <td class="col-verde border-right">${as.instaladas}</td>
-                    <td class="col-naranja">${total}</td>
-                    <td class="col-naranja">${convertibilidad} %</td>
-                </tr>
-            `;
-            cuerpoTabla.innerHTML += fila;
-        });
+            Chart.defaults.font.family = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
+            let delayed;
 
-        // Eventos del Modal
+            // Si ya existía un gráfico, lo destruimos para redibujar limpio
+            if (miGrafico) { miGrafico.destroy(); }
+
+            miGrafico = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: nombresInsignia,
+                    datasets: [{
+                        label: 'Ventas Instaladas',
+                        data: ventas,
+                        backgroundColor: colores,
+                        borderColor: bordes,
+                        borderWidth: 2,
+                        borderRadius: 10,
+                        barPercentage: 0.7
+                    }]
+                },
+                options: {
+                    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+                    animation: {
+                        onComplete: () => { delayed = true; },
+                        delay: (context) => {
+                            let delay = 0;
+                            if (context.type === 'data' && context.mode === 'default' && !delayed) { delay = context.dataIndex * 150; }
+                            return delay;
+                        },
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.95)', titleFont: { size: 18, weight: 'bold' }, bodyFont: { size: 15 }, padding: 15, displayColors: false,
+                            callbacks: {
+                                label: function(context) {
+                                    const as = asesores[context.dataIndex];
+                                    const conv = as.ingresos > 0 ? ((as.instaladas / as.ingresos) * 100).toFixed(1) : "0.0";
+                                    return [
+                                        ` ✅ Instaladas: ${as.instaladas}`,
+                                        ` 📥 Ingresadas: ${as.ingresos}`,
+                                        ` 📊 Convertibilidad: ${conv}%`
+                                    ];
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { beginAtZero: true, max: 25, grid: { color: 'rgba(255,255,255,0.08)', drawBorder: false }, ticks: { color: '#bbbbbb', font: { size: 14 }, stepSize: 5 } },
+                        y: { grid: { display: false }, ticks: { color: coloresTxt, font: { size: 15, weight: 'bold' }, padding: 15 } }
+                    }
+                }
+            });
+        }
+
+        // --- EVENTOS DEL MODAL ---
         const modal = document.getElementById('modalStats');
         document.getElementById('btnAbrirStats').addEventListener('click', () => modal.classList.add('mostrar'));
         document.getElementById('btnCerrarStats').addEventListener('click', () => modal.classList.remove('mostrar'));
 
-        // --- PREPARACIÓN DE DATOS PARA EL GRÁFICO ---
-        const nombresConInsignia = asesoresBase.map((as, index) => {
-            if (index === 0) return '👑 ' + as.nombre;
-            if (index === 1) return '🥈 ' + as.nombre;
-            if (index === 2) return '🥉 ' + as.nombre;
-            return as.nombre;
-        });
-
-        const ventasOrdenadas = asesoresBase.map(as => as.instaladas); 
-
-        // Restaurada la escala Oro(30), Verde(25), Azul(20)
-        const coloresFondo = ventasOrdenadas.map(v => {
-            if (v >= 30) return 'rgba(255, 215, 0, 0.8)';   // ORO 
-            if (v >= 25) return 'rgba(0, 255, 127, 0.8)';    // VERDE
-            if (v >= 20) return 'rgba(0, 191, 255, 0.8)';    // AZUL
-            return 'rgba(138, 43, 226, 0.6)';               // MORADO
-        });
-
-        const coloresBorde = ventasOrdenadas.map(v => {
-            if (v >= 30) return '#FFD700';
-            if (v >= 25) return '#00FF7F';
-            if (v >= 20) return '#00BFFF';
-            return '#8A2BE2';
-        });
-
-        const coloresTextoY = ventasOrdenadas.map(v => {
-            if (v >= 30) return '#FFD700';
-            if (v >= 25) return '#00FF7F';
-            if (v >= 20) return '#00BFFF';
-            return '#E066FF';
-        });
-
-        Chart.defaults.font.family = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
-        let delayed;
-
-        // --- RENDERIZADO DEL GRÁFICO ---
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: nombresConInsignia,
-                datasets: [{
-                    label: 'Ventas Instaladas',
-                    data: ventasOrdenadas,
-                    backgroundColor: coloresFondo,
-                    borderColor: coloresBorde,
-                    borderWidth: 2,
-                    borderRadius: 10,
-                    borderSkipped: false,
-                    barPercentage: 0.7
-                }]
-            },
-            options: {
-                indexAxis: 'y', 
-                responsive: true,
-                maintainAspectRatio: false,
-                animation: {
-                    onComplete: () => { delayed = true; },
-                    delay: (context) => {
-                        let delay = 0;
-                        if (context.type === 'data' && context.mode === 'default' && !delayed) {
-                            delay = context.dataIndex * 150; 
-                        }
-                        return delay;
-                    },
-                },
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        backgroundColor: 'rgba(0, 0, 0, 0.95)',
-                        titleFont: { size: 18, weight: 'bold' },
-                        bodyFont: { size: 15 },
-                        padding: 15,
-                        displayColors: false,
-                        callbacks: {
-                            label: function(context) {
-                                const as = asesoresBase[context.dataIndex];
-                                const conv = as.ingresos > 0 ? ((as.instaladas / as.ingresos) * 100).toFixed(1) : "0.0";
-                                return [
-                                    ` ✅ Instaladas: ${as.instaladas}`,
-                                    ` 📥 Ingresadas: ${as.ingresos}`,
-                                    ` 📊 Convertibilidad: ${conv}%`
-                                ];
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    x: {
-                        beginAtZero: true,
-                        max: 35, // Escala hasta 35 para acomodar a Fabian (28)
-                        grid: { color: 'rgba(255, 255, 255, 0.08)', drawBorder: false },
-                        ticks: { color: '#bbbbbb', font: { size: 14 }, stepSize: 5 }
-                    },
-                    y: {
-                        grid: { display: false },
-                        ticks: { color: coloresTextoY, font: { size: 15, weight: 'bold' }, padding: 15 }
-                    }
-                }
-            }
-        });
+        // --- INICIAR TODO ---
+        cargarDatos();
     </script>
 </body>
 </html>
