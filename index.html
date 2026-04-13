@@ -50,7 +50,20 @@
             box-shadow: 0 0 50px rgba(0, 191, 255, 0.2);
         }
 
-        .modal-titulo { color: #00BFFF; font-size: 2em; margin-top: 0; margin-bottom: 30px; text-align: center; text-shadow: 0 0 15px #00BFFF; }
+        .modal-titulo { color: #00BFFF; font-size: 2em; margin-top: 0; margin-bottom: 20px; text-align: center; text-shadow: 0 0 15px #00BFFF; }
+        
+        /* --- ESTILO DE LA FRASE MOTIVACIONAL --- */
+        .frase-motivacional {
+            color: #FFD700;
+            font-size: 1.2em;
+            font-style: italic;
+            text-align: center;
+            margin-top: -10px;
+            margin-bottom: 30px;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+            letter-spacing: 1px;
+        }
+
         .btn-cerrar { position: absolute; top: 20px; right: 30px; font-size: 2em; color: white; cursor: pointer; transition: color 0.3s ease; }
         .btn-cerrar:hover { color: #FF4500; }
 
@@ -77,7 +90,7 @@
 
     <div class="overlay"></div>
 
-    <h1>🏆 RANKING DE VENTAS 🏆</h1>
+    <h1>🏆 RANKING DE VENTAS LIVE 🏆</h1>
     
     <div class="container">
         <div class="chart-wrapper">
@@ -89,7 +102,9 @@
     <div id="modalStats">
         <div class="modal-contenido">
             <span id="btnCerrarStats" class="btn-cerrar">✖</span>
-            <h2 class="modal-titulo">REPORTE DETALLADO DEL EQUIPO </h2>
+            <h2 class="modal-titulo">REPORTE DETALLADO DEL EQUIPO</h2>
+            
+            <p class="frase-motivacional">"Hoy es una oportunidad para ser mejor que el día anterior"</p>
 
             <div class="contenedor-tabla">
                 <table>
@@ -242,7 +257,6 @@
                         }
                     },
                     scales: {
-                        // AQUÍ SE HIZO EL CAMBIO: max: 30
                         x: { beginAtZero: true, max: 30, grid: { color: 'rgba(255,255,255,0.08)', drawBorder: false }, ticks: { color: '#bbbbbb', font: { size: 14 }, stepSize: 5 } },
                         y: { grid: { display: false }, ticks: { color: coloresTxt, font: { size: 15, weight: 'bold' }, padding: 15 } }
                     }
