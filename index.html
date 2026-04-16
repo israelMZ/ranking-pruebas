@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Ranking de Ventas</title>
+    <title>Ranking y Control de Break - Meta Ads Manager</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* --- ESTILOS GENERALES Y FONDO --- */
@@ -17,63 +17,71 @@
             backdrop-filter: blur(15px); z-index: 1; display: flex; flex-direction: column; align-items: center;
         }
 
-        .chart-wrapper { position: relative; height: 80vh; min-height: 1000px; width: 100%; }
-        #rankingVentas { filter: drop-shadow(0px 0px 10px rgba(255, 255, 255, 0.25)); }
-
+        .chart-wrapper { position: relative; height: 60vh; min-height: 500px; width: 100%; }
+        
         @keyframes flotarYBrillar {
             0% { transform: translateY(0px); text-shadow: 0 0 10px #FFD700; }
             50% { transform: translateY(-10px); text-shadow: 0 0 30px #FFD700, 0 0 15px #FFF; }
             100% { transform: translateY(0px); text-shadow: 0 0 10px #FFD700; }
         }
 
-        h1 { color: #FFD700; text-align: center; z-index: 1; font-size: 3.5em; letter-spacing: 3px; margin-bottom: 30px; animation: flotarYBrillar 3s ease-in-out infinite; }
+        h1 { color: #FFD700; text-align: center; z-index: 1; font-size: 3.5em; letter-spacing: 3px; margin-bottom: 20px; animation: flotarYBrillar 3s ease-in-out infinite; }
 
-        /* --- BOTÓN --- */
-        .btn-estadisticas {
-            margin-top: 30px; padding: 15px 40px; font-size: 1.2em; font-weight: bold; color: white;
-            background: rgba(0, 191, 255, 0.2); border: 2px solid #00BFFF; border-radius: 50px; cursor: pointer;
-            transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 2px; box-shadow: 0 0 15px rgba(0, 191, 255, 0.4);
+        /* --- BOTONES --- */
+        .cont-botones { display: flex; gap: 20px; margin-top: 30px; }
+        
+        .btn-general {
+            padding: 15px 40px; font-size: 1.1em; font-weight: bold; color: white;
+            border-radius: 50px; cursor: pointer; transition: all 0.3s ease; 
+            text-transform: uppercase; letter-spacing: 2px; border: 2px solid;
         }
-        .btn-estadisticas:hover { background: #00BFFF; box-shadow: 0 0 30px rgba(0, 191, 255, 0.8); transform: scale(1.05); }
 
-        /* --- PANEL MODAL --- */
-        #modalStats {
+        .btn-stats { background: rgba(0, 191, 255, 0.2); border-color: #00BFFF; box-shadow: 0 0 15px rgba(0, 191, 255, 0.4); }
+        .btn-stats:hover { background: #00BFFF; box-shadow: 0 0 30px rgba(0, 191, 255, 0.8); transform: scale(1.05); }
+
+        .btn-break { background: rgba(255, 69, 0, 0.2); border-color: #FF4500; box-shadow: 0 0 15px rgba(255, 69, 0, 0.4); }
+        .btn-break:hover { background: #FF4500; box-shadow: 0 0 30px rgba(255, 69, 0, 0.8); transform: scale(1.05); }
+
+        /* --- MODALES --- */
+        .modal-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(20px); z-index: 999;
-            justify-content: center; align-items: center; opacity: 0; transition: opacity 0.4s ease; padding: 20px; box-sizing: border-box;
+            justify-content: center; align-items: center; padding: 20px; box-sizing: border-box;
         }
-        #modalStats.mostrar { display: flex; opacity: 1; }
+        .modal-overlay.mostrar { display: flex; }
 
         .modal-contenido {
-            background: rgba(20, 20, 25, 0.8); padding: 40px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.1);
-            width: 100%; max-width: 1500px; max-height: 90vh; display: flex; flex-direction: column; position: relative;
-            box-shadow: 0 0 50px rgba(0, 191, 255, 0.2);
+            background: rgba(20, 20, 25, 0.9); padding: 40px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 100%; max-width: 1300px; max-height: 90vh; display: flex; flex-direction: column; position: relative;
         }
 
-        .modal-titulo { color: #00BFFF; font-size: 2em; margin-top: 0; margin-bottom: 10px; text-align: center; text-shadow: 0 0 15px #00BFFF; }
-        
-        /* --- ESTILO DE LA FRASE MOTIVACIONAL --- */
-        .frase-motivacional {
-            color: #FFD700; font-size: 1.2em; font-style: italic; text-align: center; 
-            margin-top: 0; margin-bottom: 30px; text-shadow: 0 0 10px rgba(255, 215, 0, 0.4); letter-spacing: 1px;
+        .modal-titulo { font-size: 2em; margin-bottom: 20px; text-align: center; }
+        .btn-cerrar { position: absolute; top: 20px; right: 30px; font-size: 2em; color: white; cursor: pointer; }
+
+        /* --- TABLA --- */
+        .contenedor-tabla { overflow-y: auto; flex-grow: 1; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; }
+        table { width: 100%; border-collapse: collapse; text-align: center; }
+        th { padding: 15px; background: #111; position: sticky; top: 0; border-bottom: 2px solid #444; }
+        td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); font-weight: bold; }
+        .col-naranja { color: #FFB04F; } .col-rojo { color: #FF6347; } .col-verde { color: #32CD32; }
+
+        /* --- GRID DE BREAKS --- */
+        .grid-breaks {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px;
+            overflow-y: auto; padding: 10px;
         }
+        .card-break {
+            background: rgba(255, 255, 255, 0.05); padding: 15px; border-radius: 15px; 
+            text-align: center; border: 1px solid rgba(255,255,255,0.1);
+        }
+        .timer-display { font-size: 2.2em; font-weight: bold; margin: 10px 0; color: #00FF7F; font-family: monospace; }
+        .timer-warning { color: #FF4500 !important; animation: parpadeo 1s infinite; }
+        @keyframes parpadeo { 50% { opacity: 0.3; } }
 
-        .btn-cerrar { position: absolute; top: 20px; right: 30px; font-size: 2em; color: white; cursor: pointer; transition: color 0.3s ease; }
-        .btn-cerrar:hover { color: #FF4500; }
-
-        /* --- TABLA EXCEL NEÓN --- */
-        .contenedor-tabla { overflow-x: auto; overflow-y: auto; flex-grow: 1; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); }
-        table { width: 100%; border-collapse: collapse; text-align: center; white-space: nowrap; }
-        th { padding: 15px; font-size: 14px; letter-spacing: 1px; color: white; background: rgba(0,0,0,0.6); position: sticky; top: 0; z-index: 2; border-bottom: 2px solid rgba(255,255,255,0.2); }
-        td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); font-weight: bold; font-size: 15px; }
-        tr:hover td { filter: brightness(1.5); }
-        
-        .col-asesor { background: rgba(50, 50, 50, 0.4); text-align: left; padding-left: 20px; }
-        .col-naranja { background: rgba(255, 140, 0, 0.15); color: #FFB04F; } 
-        .col-rojo { background: rgba(255, 69, 0, 0.15); color: #FF6347; }    
-        .col-azul { background: rgba(0, 191, 255, 0.15); color: #00BFFF; }   
-        .col-verde { background: rgba(50, 205, 50, 0.15); color: #32CD32; }  
-        .border-right { border-right: 1px solid rgba(255,255,255,0.1); }
+        .btn-accion-timer {
+            width: 100%; padding: 10px; border: none; border-radius: 8px; 
+            font-weight: bold; cursor: pointer; color: white; transition: 0.3s;
+        }
     </style>
 </head>
 <body>
@@ -81,7 +89,6 @@
     <video autoplay loop muted playsinline class="video-fondo">
         <source src="tigre.mp4" type="video/mp4">
     </video>
-
     <div class="overlay"></div>
 
     <h1>🏆 RANKING DE VENTAS 🏆</h1>
@@ -90,50 +97,53 @@
         <div class="chart-wrapper">
             <canvas id="rankingVentas"></canvas>
         </div>
-        <button id="btnAbrirStats" class="btn-estadisticas">📊 TABLA DE DESGLOSE</button>
+        <div class="cont-botones">
+            <button id="btnAbrirStats" class="btn-general btn-stats">📊 TABLA DETALLADA</button>
+            <button id="btnAbrirBreak" class="btn-general btn-break">☕ CONTROL BREAK</button>
+        </div>
     </div>
 
-    <div id="modalStats">
+    <div id="modalStats" class="modal-overlay">
         <div class="modal-contenido">
-            <span id="btnCerrarStats" class="btn-cerrar">✖</span>
-            <h2 class="modal-titulo">REPORTE DETALLADO DEL EQUIPO</h2>
-            
-            <p class="frase-motivacional">"Hoy es una oportunidad para ser mejor que el día anterior"</p>
-
+            <span class="btn-cerrar" onclick="cerrarModal('modalStats')">✖</span>
+            <h2 class="modal-titulo" style="color: #00BFFF;">REPORTE DETALLADO DEL EQUIPO</h2>
             <div class="contenedor-tabla">
                 <table>
                     <thead>
                         <tr>
-                            <th class="col-asesor border-right">ASESOR</th>
-                            <th class="col-naranja border-right">INGRESOS</th>
+                            <th>ASESOR</th>
+                            <th class="col-naranja">INGRESOS</th>
                             <th class="col-rojo">CANC. CLIENTE</th>
-                            <th class="col-rojo border-right">CANC. OP</th>
-                            <th class="col-azul border-right">PROGRAMADA</th>
-                            <th class="col-verde border-right">INSTALADAS</th>
-                            <th class="col-naranja border-right">TOTAL</th>
-                            <th class="col-naranja">CONVERTIBILIDAD</th>
+                            <th class="col-rojo">CANC. OP</th>
+                            <th class="col-verde">INSTALADAS</th>
+                            <th class="col-naranja">CONV. %</th>
                         </tr>
                     </thead>
-                    <tbody id="cuerpoTabla">
-                    </tbody>
+                    <tbody id="cuerpoTabla"></tbody>
                 </table>
             </div>
         </div>
     </div>
 
+    <div id="modalBreak" class="modal-overlay">
+        <div class="modal-contenido">
+            <span class="btn-cerrar" onclick="cerrarModal('modalBreak')">✖</span>
+            <h2 class="modal-titulo" style="color: #FF4500;">⏱️ TIEMPO DE BREAK (35 MIN)</h2>
+            <div id="contenedorBreaks" class="grid-breaks"></div>
+        </div>
+    </div>
+
     <script>
         const URL_SHEET = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTfvuQqIcH6Zv8rqvsqeolWoX7Z3lIKZqz2nX-Q0aCRBZcPRvXAXz8rjKyoAZ-OmiI9GfpNkMjK9Uht/pub?output=csv';
-
+        
         let miGrafico = null;
+        let timersActivos = {}; // Para que los tiempos no se borren al refrescar datos
 
         async function cargarDatos() {
             try {
-                // TRUCO ANTI-CACHÉ
                 const urlConFiltro = URL_SHEET + '&t=' + new Date().getTime();
-                
                 const respuesta = await fetch(urlConFiltro);
                 const dataRaw = await respuesta.text();
-                
                 const filas = dataRaw.split('\n').slice(1); 
                 
                 let asesoresMap = new Map();
@@ -150,131 +160,72 @@
                     const instaladas = parseInt(c[5]) || 0;
 
                     if (asesoresMap.has(nombre)) {
-                        const asExistente = asesoresMap.get(nombre);
-                        asesoresMap.set(nombre, { 
-                            nombre, 
-                            ingresos: asExistente.ingresos + ingresos, 
-                            cancCliente: asExistente.cancCliente + cancCliente, 
-                            cancOp: asExistente.cancOp + cancOp, 
-                            programada: asExistente.programada + programada, 
-                            instaladas: asExistente.instaladas + instaladas 
-                        });
+                        const as = asesoresMap.get(nombre);
+                        as.ingresos += ingresos; as.cancCliente += cancCliente; 
+                        as.cancOp += cancOp; as.programada += programada; as.instaladas += instaladas;
                     } else {
                         asesoresMap.set(nombre, { nombre, ingresos, cancCliente, cancOp, programada, instaladas });
                     }
                 });
 
-                let asesoresUnicos = Array.from(asesoresMap.values());
-                asesoresUnicos.sort((a, b) => b.instaladas - a.instaladas);
+                let listaOrdenada = Array.from(asesoresMap.values()).sort((a, b) => b.instaladas - a.instaladas);
 
-                llenarTabla(asesoresUnicos);
-                dibujarGrafico(asesoresUnicos);
+                llenarTabla(listaOrdenada);
+                dibujarGrafico(listaOrdenada);
+                actualizarCardsBreak(listaOrdenada);
 
-                console.log("Datos gráficos actualizados: " + new Date().toLocaleTimeString());
-
-            } catch (error) {
-                console.error("Error cargando datos:", error);
-            }
+            } catch (e) { console.error("Error:", e); }
         }
 
         function llenarTabla(asesores) {
             const cuerpo = document.getElementById('cuerpoTabla');
-            cuerpo.innerHTML = '';
-            asesores.forEach(as => {
-                const totalCalculado = as.cancCliente + as.cancOp + as.programada + as.instaladas;
-                const convertibilidad = as.ingresos > 0 ? ((as.instaladas / as.ingresos) * 100).toFixed(2) : "0.00";
-                
-                cuerpo.innerHTML += `
-                    <tr>
-                        <td class="col-asesor border-right">${as.nombre}</td>
-                        <td class="col-naranja border-right">${as.ingresos}</td>
-                        <td class="col-rojo">${as.cancCliente}</td>
-                        <td class="col-rojo border-right">${as.cancOp}</td>
-                        <td class="col-azul border-right">${as.programada}</td>
-                        <td class="col-verde border-right">${as.instaladas}</td>
-                        <td class="col-naranja border-right">${totalCalculado}</td>
-                        <td class="col-naranja">${convertibilidad} %</td>
-                    </tr>`;
-            });
+            cuerpo.innerHTML = asesores.map(as => {
+                const conv = as.ingresos > 0 ? ((as.instaladas / as.ingresos) * 100).toFixed(1) : "0.0";
+                return `<tr>
+                    <td>${as.nombre}</td>
+                    <td class="col-naranja">${as.ingresos}</td>
+                    <td class="col-rojo">${as.cancCliente}</td>
+                    <td class="col-rojo">${as.cancOp}</td>
+                    <td class="col-verde">${as.instaladas}</td>
+                    <td class="col-naranja">${conv}%</td>
+                </tr>`;
+            }).join('');
         }
 
         function dibujarGrafico(asesores) {
             const ctx = document.getElementById('rankingVentas').getContext('2d');
-            
-            const nombresInsignia = asesores.map((as, i) => {
-                if (i === 0) return '👑 ' + as.nombre;
-                if (i === 1) return '🥈 ' + as.nombre;
-                if (i === 2) return '🥉 ' + as.nombre;
-                return as.nombre;
-            });
+            const labels = asesores.map((as, i) => (i < 3 ? ['👑','🥈','🥉'][i] : '') + ' ' + as.nombre);
+            const valores = asesores.map(as => as.instaladas);
 
-            const ventas = asesores.map(as => as.instaladas);
+            if (miGrafico) miGrafico.destroy();
 
-            const colores = ventas.map(v => v >= 10 ? 'rgba(255, 215, 0, 0.8)' : v >= 7 ? 'rgba(0, 255, 127, 0.8)' : v >= 4 ? 'rgba(0, 191, 255, 0.8)' : 'rgba(138, 43, 226, 0.6)');
-            const bordes = ventas.map(v => v >= 10 ? '#FFD700' : v >= 7 ? '#00FF7F' : v >= 4 ? '#00BFFF' : '#8A2BE2');
-            const coloresTxt = ventas.map(v => v >= 10 ? '#FFD700' : v >= 7 ? '#00FF7F' : v >= 4 ? '#00BFFF' : '#E066FF');
-
-            Chart.defaults.font.family = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
-            
-            // LA SOLUCIÓN: DESTRUIR Y RECONSTRUIR SIEMPRE
-            if (miGrafico) { 
-                miGrafico.destroy();
-            }
-
-            let delayed;
             miGrafico = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: nombresInsignia,
+                    labels: labels,
                     datasets: [{
-                        label: 'Ventas Instaladas',
-                        data: ventas,
-                        backgroundColor: colores,
-                        borderColor: bordes,
+                        label: 'Instaladas',
+                        data: valores,
+                        backgroundColor: 'rgba(0, 191, 255, 0.6)',
+                        borderColor: '#00BFFF',
                         borderWidth: 2,
-                        borderRadius: 10,
-                        barPercentage: 0.7
+                        borderRadius: 10
                     }]
                 },
                 options: {
                     indexAxis: 'y', responsive: true, maintainAspectRatio: false,
-                    animation: {
-                        onComplete: () => { delayed = true; },
-                        delay: (context) => {
-                            let delay = 0;
-                            if (context.type === 'data' && context.mode === 'default' && !delayed) { delay = context.dataIndex * 150; }
-                            return delay;
-                        },
-                    },
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            backgroundColor: 'rgba(0, 0, 0, 0.95)', titleFont: { size: 18, weight: 'bold' }, bodyFont: { size: 15 }, padding: 15, displayColors: false,
-                            callbacks: {
-                                label: function(context) {
-                                    const as = asesores[context.dataIndex];
-                                    const conv = as.ingresos > 0 ? ((as.instaladas / as.ingresos) * 100).toFixed(1) : "0.0";
-                                    return [ ` ✅ Instaladas: ${as.instaladas}`, ` 📥 Ingresadas: ${as.ingresos}`, ` 📊 Convertibilidad: ${conv}%` ];
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        x: { beginAtZero: true, max: 30, grid: { color: 'rgba(255,255,255,0.08)' }, ticks: { color: '#bbbbbb', stepSize: 5 } },
-                        y: { grid: { display: false }, ticks: { color: coloresTxt, font: { weight: 'bold' } } }
-                    }
+                    scales: { x: { beginAtZero: true, grid: { color: '#333' } }, y: { grid: { display: false }, ticks: { color: '#fff', font: { weight: 'bold' } } } },
+                    plugins: { legend: { display: false } }
                 }
             });
         }
 
-        const modal = document.getElementById('modalStats');
-        document.getElementById('btnAbrirStats').addEventListener('click', () => modal.classList.add('mostrar'));
-        document.getElementById('btnCerrarStats').addEventListener('click', () => modal.classList.remove('mostrar'));
-
-        // INICIO Y AUTO-REFRESH (120000ms = 2 MINUTOS)
-        cargarDatos();
-        setInterval(cargarDatos, 120000); 
-
-    </script>
-</body>
-</html>
+        // LÓGICA DE BREAKS
+        function actualizarCardsBreak(asesores) {
+            const contenedor = document.getElementById('contenedorBreaks');
+            
+            asesores.forEach(as => {
+                const idDiv = `card-${as.nombre.replace(/\s+/g, '')}`;
+                if (!document.getElementById(idDiv)) {
+                    const card = document.createElement('div');
+                    card.id = idDiv
