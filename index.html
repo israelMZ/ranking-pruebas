@@ -39,13 +39,20 @@
             background: rgba(0, 0, 0, 0.8); z-index: 1000; justify-content: center; align-items: center;
         }
         .modal.mostrar { display: flex; }
-        .modal-content { background: #1a1a1c; padding: 30px; border-radius: 15px; width: 90%; max-width: 1000px; max-height: 80vh; overflow-y: auto; position: relative; }
+        .modal-content { background: #1a1a1c; padding: 30px; border-radius: 15px; width: 90%; max-width: 1000px; max-height: 80vh; overflow-y: auto; position: relative; border: 1px solid #444; }
         .cerrar { position: absolute; top: 15px; right: 20px; font-size: 2em; cursor: pointer; color: #fff; }
 
         /* --- TABLA --- */
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th { background: #111; color: #00BFFF; padding: 15px; text-align: center; }
         td { padding: 12px; border-bottom: 1px solid #333; text-align: center; font-weight: bold; }
+
+        /* --- ESTILOS BREAK --- */
+        .grid-asesores { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-top: 20px; }
+        .card-break { background: #25252b; padding: 15px; border-radius: 10px; text-align: center; border: 1px solid #444; }
+        .timer-display { font-size: 1.8em; font-family: monospace; color: #FF4500; margin: 10px 0; }
+        .btn-start { background: #FF4500; border: none; color: white; padding: 8px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; }
+        .btn-start:disabled { background: #555; cursor: not-allowed; }
     </style>
 </head>
 <body>
@@ -75,9 +82,19 @@
         </div>
     </div>
 
+    <div id="modalBreak" class="modal">
+        <div class="modal-content">
+            <span class="cerrar" onclick="cerrarModal('modalBreak')">×</span>
+            <h2 style="color:#FF4500; text-align:center">CRONÓMETRO DE BREAK (35 MIN)</h2>
+            <div id="gridAsesores" class="grid-asesores">
+                </div>
+        </div>
+    </div>
+
     <script>
         const URL_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTfvuQqIcH6Zv8rqvsqeolWoX7Z3lIKZqz2nX-Q0aCRBZcPRvXAXz8rjKyoAZ-OmiI9GfpNkMjK9Uht/pub?output=csv';
         let chartInstance = null;
+        let asesoresList = [];
 
         async function updateData() {
             try {
@@ -95,15 +112,59 @@
                     };
                 }).filter(a => a.nombre !== "").sort((a,b) => b.instaladas - a.instaladas);
 
+                asesoresList = stats.map(a => a.nombre);
                 renderChart(stats);
                 renderTable(stats);
+                setupBreakGrid();
             } catch (e) { console.error(e); }
+        }
+
+        function setupBreakGrid() {
+            const grid = document.getElementById('gridAsesores');
+            if (grid.children.length > 0) return; // No recrear si ya existen
+
+            asesoresList.forEach((nombre, index) => {
+                const card = document.createElement('div');
+                card.className = 'card-break';
+                card.innerHTML = `
+                    <div style="font-weight:bold; height: 40px; display:flex; align-items:center; justify-content:center;">${nombre}</div>
+                    <div id="timer-${index}" class="timer-display">35:00</div>
+                    <button id="btn-${index}" class="btn-start" onclick="startBreak(${index})">INICIAR BREAK</button>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function startBreak(index) {
+            const btn = document.getElementById(`btn-${index}`);
+            const display = document.getElementById(`timer-${index}`);
+            let tiempo = 35 * 60; // 35 minutos en segundos
+
+            btn.disabled = true;
+            btn.innerText = "EN BREAK...";
+
+            const intervalo = setInterval(() => {
+                let minutos = Math.floor(tiempo / 60);
+                let segundos = tiempo % 60;
+
+                minutos = minutos < 10 ? '0' + minutos : minutos;
+                segundos = segundos < 10 ? '0' + segundos : segundos;
+
+                display.innerText = `${minutos}:${segundos}`;
+
+                if (tiempo <= 0) {
+                    clearInterval(intervalo);
+                    display.innerText = "TERMINADO";
+                    display.style.color = "#00FF7F";
+                    btn.innerText = "BREAK FINALIZADO";
+                } else {
+                    tiempo--;
+                }
+            }, 1000);
         }
 
         function renderChart(data) {
             const ctx = document.getElementById('rankingVentas').getContext('2d');
-            
-            // Definir colores: Amarillo para Top 8 (según imagen), Verde para el resto
             const colors = data.map((_, i) => i < 8 ? '#D4AF37' : '#00FF7F');
 
             if(chartInstance) chartInstance.destroy();
@@ -136,17 +197,10 @@
                         legend: { display: false },
                         tooltip: {
                             backgroundColor: 'rgba(0,0,0,0.9)',
-                            titleFont: { size: 14 },
-                            bodyFont: { size: 13 },
                             callbacks: {
                                 label: function(context) {
-                                    const i = context.dataIndex;
-                                    const d = data[i];
-                                    return [
-                                        `✅ Instaladas: ${d.instaladas}`,
-                                        `📩 Ingresadas: ${d.ingresadas}`,
-                                        `📊 Convertibilidad: ${d.conv}%`
-                                    ];
+                                    const d = data[context.dataIndex];
+                                    return [`✅ Instaladas: ${d.instaladas}`, `📩 Ingresadas: ${d.ingresadas}`, `📊 Conv: ${d.conv}%` ];
                                 }
                             }
                         }
@@ -168,7 +222,7 @@
         function cerrarModal(id) { document.getElementById(id).classList.remove('mostrar'); }
 
         updateData();
-        setInterval(updateData, 60000); // Actualizar cada minuto
+        setInterval(updateData, 60000);
     </script>
 </body>
 </html>
