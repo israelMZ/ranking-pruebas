@@ -2,76 +2,50 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Ranking de Ventas Neón - Grupo Creed</title>
+    <title>Ranking de Ventas Pro - Meta Ads</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* --- CORE DESIGN --- */
-        body { margin: 0; padding: 40px; color: white; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; display: flex; flex-direction: column; align-items: center; overflow-x: hidden; background: #000; }
-        .video-fondo { position: fixed; right: 0; bottom: 0; min-width: 100%; min-height: 100%; z-index: -2; object-fit: cover; }
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: -1; backdrop-filter: blur(3px); }
+        /* --- ESTILOS GENERALES --- */
+        body { margin: 0; padding: 20px; color: white; font-family: 'Segoe UI', Arial, sans-serif; background: #000; overflow: hidden; display: flex; flex-direction: column; align-items: center; }
+        .video-fondo { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; object-fit: cover; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: -1; }
 
-        /* --- CONTAINER --- */
+        h1 { color: #FFD700; text-align: center; font-size: 3em; letter-spacing: 2px; text-shadow: 2px 2px 10px rgba(0,0,0,0.5); margin: 10px 0; font-weight: 900; }
+
+        /* --- CONTENEDOR PRINCIPAL --- */
         .container {
-            width: 90%; max-width: 1300px; background: rgba(20, 20, 25, 0.5); padding: 40px; border-radius: 30px;
-            box-shadow: 0 0 50px rgba(0, 0, 0, 1); border: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(15px); z-index: 1; display: flex; flex-direction: column; align-items: center;
+            width: 95%; max-width: 1400px; background: rgba(30, 30, 35, 0.7); padding: 30px; border-radius: 20px;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.9); border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px); z-index: 1; position: relative;
         }
 
-        .chart-wrapper { position: relative; height: 70vh; min-height: 600px; width: 100%; }
-        
-        @keyframes glow {
-            0% { text-shadow: 0 0 10px #FFD700, 0 0 20px #FFD700; transform: scale(1); }
-            50% { text-shadow: 0 0 20px #FFD700, 0 0 40px #FFD700, 0 0 10px #FFF; transform: scale(1.02); }
-            100% { text-shadow: 0 0 10px #FFD700, 0 0 20px #FFD700; transform: scale(1); }
+        .chart-wrapper { position: relative; height: 65vh; width: 100%; }
+
+        /* --- BOTONES INFERIORES --- */
+        .cont-botones { display: flex; gap: 20px; justify-content: center; margin-top: 20px; }
+        .btn-ui {
+            padding: 12px 35px; font-size: 1.1em; font-weight: bold; color: white;
+            border-radius: 30px; cursor: pointer; transition: 0.3s; 
+            text-transform: uppercase; letter-spacing: 1px; border: 2px solid; background: rgba(0,0,0,0.5);
         }
+        .btn-azul { border-color: #00BFFF; box-shadow: 0 0 10px rgba(0, 191, 255, 0.5); }
+        .btn-naranja { border-color: #FF4500; box-shadow: 0 0 10px rgba(255, 69, 0, 0.5); }
+        .btn-azul:hover { background: #00BFFF; box-shadow: 0 0 20px #00BFFF; }
+        .btn-naranja:hover { background: #FF4500; box-shadow: 0 0 20px #FF4500; }
 
-        h1 { color: #FFD700; font-size: 3.5em; letter-spacing: 4px; margin-bottom: 25px; animation: glow 3s infinite; font-weight: 900; }
-
-        /* --- BUTTONS --- */
-        .cont-botones { display: flex; gap: 25px; margin-top: 35px; }
-        .btn-neon {
-            padding: 16px 45px; font-size: 1.1em; font-weight: bold; color: white;
-            border-radius: 50px; cursor: pointer; transition: all 0.4s; 
-            text-transform: uppercase; letter-spacing: 2px; border: 2px solid; background: transparent;
-        }
-        .btn-blue { border-color: #00BFFF; box-shadow: 0 0 15px #00BFFF; }
-        .btn-blue:hover { background: #00BFFF; box-shadow: 0 0 40px #00BFFF; transform: translateY(-5px); }
-        
-        .btn-orange { border-color: #FF4500; box-shadow: 0 0 15px #FF4500; }
-        .btn-orange:hover { background: #FF4500; box-shadow: 0 0 40px #FF4500; transform: translateY(-5px); }
-
-        /* --- MODALS --- */
-        .modal-overlay {
+        /* --- MODALES --- */
+        .modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(25px); z-index: 999;
-            justify-content: center; align-items: center; padding: 20px;
+            background: rgba(0, 0, 0, 0.8); z-index: 1000; justify-content: center; align-items: center;
         }
-        .modal-overlay.mostrar { display: flex; }
-        .modal-contenido {
-            background: rgba(15, 15, 20, 0.95); padding: 40px; border-radius: 25px; 
-            width: 95%; max-width: 1400px; max-height: 90vh; border: 1px solid rgba(255,255,255,0.1);
-            display: flex; flex-direction: column; position: relative;
-        }
-        .btn-cerrar { position: absolute; top: 20px; right: 30px; font-size: 2.5em; color: white; cursor: pointer; transition: 0.3s; }
-        .btn-cerrar:hover { color: #FF4500; transform: rotate(90deg); }
+        .modal.mostrar { display: flex; }
+        .modal-content { background: #1a1a1c; padding: 30px; border-radius: 15px; width: 90%; max-width: 1000px; max-height: 80vh; overflow-y: auto; position: relative; }
+        .cerrar { position: absolute; top: 15px; right: 20px; font-size: 2em; cursor: pointer; color: #fff; }
 
-        /* --- TABLE NEON --- */
-        .contenedor-tabla { overflow-y: auto; flex-grow: 1; border-radius: 15px; }
-        table { width: 100%; border-collapse: collapse; font-size: 1.1em; }
-        th { padding: 20px; background: rgba(0,0,0,0.8); color: #00BFFF; position: sticky; top: 0; border-bottom: 2px solid #00BFFF; }
-        td { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: center; font-weight: bold; }
-        tr:hover { background: rgba(255,255,255,0.03); }
-
-        /* --- BREAK CONTROL --- */
-        .grid-breaks { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; padding: 10px; }
-        .card-break { 
-            background: rgba(255,255,255,0.03); padding: 25px; border-radius: 20px; 
-            text-align: center; border: 1px solid rgba(255,255,255,0.1); transition: 0.3s;
-        }
-        .card-break:hover { border-color: #00FF7F; background: rgba(0, 255, 127, 0.05); }
-        .timer-display { font-size: 2.8em; font-weight: 900; margin: 15px 0; color: #00FF7F; text-shadow: 0 0 15px #00FF7F; font-family: 'Courier New', monospace; }
-        .timer-warning { color: #FF4500 !important; text-shadow: 0 0 20px #FF4500 !important; animation: parpadeo 0.8s infinite; }
-        @keyframes parpadeo { 50% { opacity: 0.2; } }
+        /* --- TABLA --- */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th { background: #111; color: #00BFFF; padding: 15px; text-align: center; }
+        td { padding: 12px; border-bottom: 1px solid #333; text-align: center; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -88,154 +62,113 @@
             <canvas id="rankingVentas"></canvas>
         </div>
         <div class="cont-botones">
-            <button id="btnAbrirStats" class="btn-neon btn-blue">📊 TABLA DETALLADA</button>
-            <button id="btnAbrirBreak" class="btn-neon btn-orange">☕ CONTROL BREAK</button>
+            <button onclick="abrirModal('modalStats')" class="btn-ui btn-azul">📊 TABLA DETALLADA</button>
+            <button onclick="abrirModal('modalBreak')" class="btn-ui btn-naranja">☕ CONTROL BREAK</button>
         </div>
     </div>
 
-    <div id="modalStats" class="modal-overlay">
-        <div class="modal-contenido">
-            <span class="btn-cerrar" onclick="cerrarModal('modalStats')">✖</span>
-            <h2 style="color: #00BFFF; text-align: center; font-size: 2.5em; margin-top: 0;">REPORTE DE OPERACIONES</h2>
-            <div class="contenedor-tabla">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ASESOR</th>
-                            <th>INGRESOS</th>
-                            <th>CANC. CLIENTE</th>
-                            <th>CANC. OP</th>
-                            <th style="color: #00FF7F;">INSTALADAS</th>
-                            <th style="color: #FFD700;">CONVERTIBILIDAD</th>
-                        </tr>
-                    </thead>
-                    <tbody id="cuerpoTabla"></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <div id="modalBreak" class="modal-overlay">
-        <div class="modal-contenido">
-            <span class="btn-cerrar" onclick="cerrarModal('modalBreak')">✖</span>
-            <h2 style="color: #FF4500; text-align: center; font-size: 2.5em; margin-top: 0;">CONTROL DE BREAK</h2>
-            <div id="contenedorBreaks" class="grid-breaks"></div>
+    <div id="modalStats" class="modal">
+        <div class="modal-content">
+            <span class="cerrar" onclick="cerrarModal('modalStats')">×</span>
+            <h2 style="color:#00BFFF; text-align:center">DETALLE DE VENTAS</h2>
+            <div id="divTabla"></div>
         </div>
     </div>
 
     <script>
-        const URL_SHEET = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTfvuQqIcH6Zv8rqvsqeolWoX7Z3lIKZqz2nX-Q0aCRBZcPRvXAXz8rjKyoAZ-OmiI9GfpNkMjK9Uht/pub?output=csv';
-        let miGrafico = null;
-        let timersActivos = {}; 
+        const URL_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTfvuQqIcH6Zv8rqvsqeolWoX7Z3lIKZqz2nX-Q0aCRBZcPRvXAXz8rjKyoAZ-OmiI9GfpNkMjK9Uht/pub?output=csv';
+        let chartInstance = null;
 
-        async function cargarDatos() {
+        async function updateData() {
             try {
-                const response = await fetch(`${URL_SHEET}&cb=${Date.now()}`);
-                const csv = await response.text();
-                const filas = csv.split(/\r?\n/).map(f => f.split(',').map(c => c.trim().replace(/^"|"$/g, '')));
+                const res = await fetch(`${URL_CSV}&v=${Date.now()}`);
+                const data = await res.text();
+                const rows = data.split('\n').slice(1);
                 
-                let asesoresMap = new Map();
-                for(let i = 1; i < filas.length; i++) {
-                    const c = filas[i];
-                    if(!c[0] || c[0].toUpperCase() === 'ASESOR') continue;
-                    const n = c[0], ing = +c[1]||0, cli = +c[2]||0, op = +c[3]||0, prog = +c[4]||0, inst = +c[5]||0;
-                    if(asesoresMap.has(n)) {
-                        let a = asesoresMap.get(n);
-                        a.ing += ing; a.cli += cli; a.op += op; a.prog += prog; a.inst += inst;
-                    } else {
-                        asesoresMap.set(n, { n, ing, cli, op, prog, inst });
-                    }
-                }
-                const dataArray = Array.from(asesoresMap.values()).sort((a,b) => b.inst - a.inst);
-                if(dataArray.length > 0) renderizar(dataArray);
-            } catch (e) { console.error("Error Sheet:", e); }
+                let stats = rows.map(row => {
+                    const c = row.split(',');
+                    return {
+                        nombre: c[0].replace(/"/g, '').trim(),
+                        ingresadas: parseInt(c[1]) || 0,
+                        instaladas: parseInt(c[5]) || 0,
+                        conv: c[1] > 0 ? ((c[5]/c[1])*100).toFixed(1) : 0
+                    };
+                }).filter(a => a.nombre !== "").sort((a,b) => b.instaladas - a.instaladas);
+
+                renderChart(stats);
+                renderTable(stats);
+            } catch (e) { console.error(e); }
         }
 
-        function renderizar(data) {
-            // Tabla
-            document.getElementById('cuerpoTabla').innerHTML = data.map(as => `
-                <tr>
-                    <td style="text-align:left; padding-left:40px;">${as.n}</td>
-                    <td>${as.ing}</td>
-                    <td style="color:#FF6347">${as.cli}</td>
-                    <td style="color:#FF6347">${as.op}</td>
-                    <td style="color:#00FF7F; font-size:1.2em;">${as.inst}</td>
-                    <td style="color:#FFD700">${as.ing > 0 ? ((as.inst/as.ing)*100).toFixed(1) : 0}%</td>
-                </tr>
-            `).join('');
-
-            // Gráfico Neón
+        function renderChart(data) {
             const ctx = document.getElementById('rankingVentas').getContext('2d');
-            if(miGrafico) miGrafico.destroy();
             
-            const colores = data.map((_, i) => i === 0 ? '#FFD700' : i === 1 ? '#C0C0C0' : i === 2 ? '#CD7F32' : '#00BFFF');
-            
-            miGrafico = new Chart(ctx, {
+            // Definir colores: Amarillo para Top 8 (según imagen), Verde para el resto
+            const colors = data.map((_, i) => i < 8 ? '#D4AF37' : '#00FF7F');
+
+            if(chartInstance) chartInstance.destroy();
+
+            chartInstance = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: data.map((as, i) => `${i<3?['👑','🥈','🥉'][i]:'👤'} ${as.n}`),
+                    labels: data.map((a, i) => {
+                        let prefijo = i === 0 ? '👑 ' : i === 1 ? '🥈 ' : i === 2 ? '🥉 ' : '👤 ';
+                        return prefijo + a.nombre;
+                    }),
                     datasets: [{
-                        data: data.map(as => as.inst),
-                        backgroundColor: colores.map(c => c + 'AA'),
-                        borderColor: colores,
-                        borderWidth: 3,
-                        borderRadius: 15,
-                        hoverBorderWidth: 5,
-                        hoverShadowBlur: 20
+                        data: data.map(a => a.instaladas),
+                        backgroundColor: colors,
+                        borderColor: colors,
+                        borderWidth: 1,
+                        borderRadius: 5,
+                        barThickness: 15
                     }]
                 },
                 options: {
-                    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
-                    scales: { 
-                        x: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#888' } },
-                        y: { grid: { display: false }, ticks: { color: '#fff', font: { size: 15, weight: 'bold' } } }
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { beginAtZero: true, grid: { color: '#333' }, ticks: { color: '#888' } },
+                        y: { ticks: { color: '#fff', font: { size: 12, weight: 'bold' } }, grid: { display: false } }
                     },
-                    plugins: { 
+                    plugins: {
                         legend: { display: false },
-                        tooltip: { backgroundColor: 'rgba(0,0,0,0.9)', padding: 15, titleFont: { size: 16 } }
+                        tooltip: {
+                            backgroundColor: 'rgba(0,0,0,0.9)',
+                            titleFont: { size: 14 },
+                            bodyFont: { size: 13 },
+                            callbacks: {
+                                label: function(context) {
+                                    const i = context.dataIndex;
+                                    const d = data[i];
+                                    return [
+                                        `✅ Instaladas: ${d.instaladas}`,
+                                        `📩 Ingresadas: ${d.ingresadas}`,
+                                        `📊 Convertibilidad: ${d.conv}%`
+                                    ];
+                                }
+                            }
+                        }
                     }
                 }
             });
+        }
 
-            // Break Cards
-            const contB = document.getElementById('contenedorBreaks');
-            data.forEach(as => {
-                const id = `card-${as.n.replace(/\s+/g, '')}`;
-                if(!document.getElementById(id)) {
-                    const div = document.createElement('div');
-                    div.id = id; div.className = 'card-break';
-                    div.innerHTML = `
-                        <h3 style="margin:0; color:#FFD700;">${as.n}</h3>
-                        <div class="timer-display" id="time-${id}">35:00</div>
-                        <button onclick="controlT('${as.n}','${id}')" id="btn-${id}" class="btn-neon" style="font-size:0.9em; padding:10px 20px; border-color:#00FF7F; color:#00FF7F; width:100%">INICIAR</button>
-                    `;
-                    contB.appendChild(div);
-                }
+        function renderTable(data) {
+            let html = `<table><thead><tr><th>ASESOR</th><th>INGRESADAS</th><th>INSTALADAS</th><th>% CONV</th></tr></thead><tbody>`;
+            data.forEach(a => {
+                html += `<tr><td>${a.nombre}</td><td>${a.ingresadas}</td><td style="color:#00FF7F">${a.instaladas}</td><td style="color:#FFD700">${a.conv}%</td></tr>`;
             });
+            html += `</tbody></table>`;
+            document.getElementById('divTabla').innerHTML = html;
         }
 
-        function controlT(n, id) {
-            const disp = document.getElementById(`time-${id}`), btn = document.getElementById(`btn-${id}`);
-            if(timersActivos[n]) {
-                clearInterval(timersActivos[n]); delete timersActivos[n];
-                btn.innerText = "REANUDAR"; btn.style.borderColor = "#00BFFF"; btn.style.color = "#00BFFF";
-            } else {
-                let [m, s] = disp.innerText.split(':').map(Number);
-                let total = m * 60 + s;
-                btn.innerText = "PAUSAR"; btn.style.borderColor = "#FF4500"; btn.style.color = "#FF4500";
-                timersActivos[n] = setInterval(() => {
-                    if(--total <= 0) { clearInterval(timersActivos[n]); disp.innerText = "00:00"; disp.classList.add('timer-warning'); }
-                    else disp.innerText = `${Math.floor(total/60)}:${(total%60).toString().padStart(2,'0')}`;
-                }, 1000);
-            }
-        }
-
+        function abrirModal(id) { document.getElementById(id).classList.add('mostrar'); }
         function cerrarModal(id) { document.getElementById(id).classList.remove('mostrar'); }
-        document.getElementById('btnAbrirStats').onclick = () => document.getElementById('modalStats').classList.add('mostrar');
-        document.getElementById('btnAbrirBreak').onclick = () => document.getElementById('modalBreak').classList.add('mostrar');
 
-        cargarDatos();
-        setInterval(cargarDatos, 60000);
+        updateData();
+        setInterval(updateData, 60000); // Actualizar cada minuto
     </script>
 </body>
 </html>
