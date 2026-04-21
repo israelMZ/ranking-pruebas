@@ -458,18 +458,25 @@
             guardarBreaksEnStorage();
         }
 
-        function resetearBreak(index) {
-            // Limpiar el intervalo si existe
-            if (intervalosActivos[index]) {
-                clearInterval(intervalosActivos[index]);
-                delete intervalosActivos[index];
+        function resetearBreakConPassword(index) {
+            const passwordInput = prompt("Ingrese la contraseña de administrador para resetear:");
+
+            if (passwordInput === PASS_ADMIN) {
+                // Limpiar el intervalo si existe
+                if (intervalosActivos[index]) {
+                    clearInterval(intervalosActivos[index]);
+                    delete intervalosActivos[index];
+                }
+
+                // Eliminar del storage
+                limpiarBreakTerminado(index);
+
+                // Reconstruir la tarjeta
+                setupBreakGrid();
+                alert("Break reseteado correctamente ✓");
+            } else if (passwordInput !== null) {
+                alert("Contraseña incorrecta.");
             }
-
-            // Eliminar del storage
-            limpiarBreakTerminado(index);
-
-            // Reconstruir la tarjeta
-            setupBreakGrid();
         }
 
         // ========== CARGA Y PROCESAMIENTO DE DATOS ==========
@@ -668,7 +675,7 @@
                 card.innerHTML = `
                     <div class="card-header">
                         <div style="font-weight:bold; flex-grow:1;">${nombre}</div>
-                        <button class="btn-reset" onclick="resetearBreak(${index})" title="Resetear break">🔄</button>
+                        <button class="btn-reset" onclick="resetearBreakConPassword(${index})" title="Resetear break">🔄</button>
                     </div>
                     <div id="timer-${index}" class="timer-display">${timerDisplay}</div>
                     <button id="btn-${index}" class="btn-start" onclick="verificarYIniciar(${index})" ${btnDisabled ? 'disabled' : ''}>
