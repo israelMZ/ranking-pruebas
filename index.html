@@ -384,8 +384,8 @@
         const URL_SHEET = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTfvuQqIcH6Zv8rqvsqeolWoX7Z3lIKZqz2nX-Q0aCRBZcPRvXAXz8rjKyoAZ-OmiI9GfpNkMjK9Uht/pub?output=csv';
         const PASS_ADMIN = "tiger123@";
         
-        // LISTA DE ASESORES A EXCLUIR
-        const ASESORES_EXCLUIDOS = [
+        // LISTA DE ASESORES A EXCLUIR SOLO DEL SISTEMA DE BREAKS
+        const ASESORES_SIN_BREAKS = [
             "ISABELLE GARCIA",
             "LEONARDO CASTILLO",
             "HENRY MAMANI",
@@ -398,6 +398,7 @@
         
         let miGrafico = null;
         let asesoresList = [];
+        let asesoresBreaks = []; // Lista separada para breaks
         let breaksActivos = {}; // Almacenar breaks en memoria
         let intervalosActivos = {}; // Almacenar intervalos para limpiarlos
 
@@ -406,9 +407,9 @@
             document.getElementById(idModal).classList.remove('mostrar');
         }
 
-        // ========== VALIDAR SI ASESOR DEBE EXCLUIRSE ==========
-        function esAsesorExcluido(nombre) {
-            return ASESORES_EXCLUIDOS.some(excluido => nombre.toUpperCase() === excluido);
+        // ========== VALIDAR SI ASESOR DEBE EXCLUIRSE DE BREAKS ==========
+        function esAsesorSinBreaks(nombre) {
+            return ASESORES_SIN_BREAKS.some(excluido => nombre.toUpperCase() === excluido);
         }
 
         // ========== FUNCIONES DE PERSISTENCIA ==========
@@ -447,10 +448,6 @@
                     if(c.length < 6 || c[0].trim() === '' || c[0].trim().toUpperCase() === 'ASESOR') return;
 
                     const nombre = c[0].trim();
-                    
-                    // EXCLUIR ASESORES EN LA LISTA NEGRA
-                    if (esAsesorExcluido(nombre)) return;
-
                     const ingresos = parseInt(c[1]) || 0;
                     const cancCliente = parseInt(c[2]) || 0;
                     const cancOp = parseInt(c[3]) || 0;
@@ -475,8 +472,13 @@
                 let asesoresUnicos = Array.from(asesoresMap.values());
                 asesoresUnicos.sort((a, b) => b.instaladas - a.instaladas);
 
-                // Actualizar lista de asesores para breaks
+                // Actualizar lista de TODOS los asesores para tabla y gráfico
                 asesoresList = asesoresUnicos.map(a => a.nombre);
+                
+                // Actualizar lista solo de asesores para breaks (excluyendo los sin breaks)
+                asesoresBreaks = asesoresUnicos
+                    .filter(a => !esAsesorSinBreaks(a.nombre))
+                    .map(a => a.nombre);
                 
                 llenarTabla(asesoresUnicos);
                 dibujarGrafico(asesoresUnicos);
@@ -602,7 +604,7 @@
             const grid = document.getElementById('gridAsesores');
             grid.innerHTML = '';
             
-            asesoresList.forEach((nombre, index) => {
+            asesoresBreaks.forEach((nombre, index) => {
                 const card = document.createElement('div');
                 card.className = 'card-break';
                 
@@ -648,7 +650,7 @@
         function startBreak(index) {
             const btn = document.getElementById(`btn-${index}`);
             const display = document.getElementById(`timer-${index}`);
-            const nombreAsesor = asesoresList[index];
+            const nombreAsesor = asesoresBreaks[index];
             
             // Determinar duración según asesor
             let duracionMinutos = 35;
