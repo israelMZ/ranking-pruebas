@@ -384,6 +384,18 @@
         const URL_SHEET = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTfvuQqIcH6Zv8rqvsqeolWoX7Z3lIKZqz2nX-Q0aCRBZcPRvXAXz8rjKyoAZ-OmiI9GfpNkMjK9Uht/pub?output=csv';
         const PASS_ADMIN = "tiger123@";
         
+        // LISTA DE ASESORES A EXCLUIR
+        const ASESORES_EXCLUIDOS = [
+            "ISABELLE GARCIA",
+            "LEONARDO CASTILLO",
+            "HENRY MAMANI",
+            "ARMANDO ZAVALETA",
+            "PEDRO LOPEZ",
+            "DIEGO OLIVARES",
+            "LEONARDO YOBERA",
+            "ROMINA SOLIS"
+        ];
+        
         let miGrafico = null;
         let asesoresList = [];
         let breaksActivos = {}; // Almacenar breaks en memoria
@@ -392,6 +404,11 @@
         // ========== FUNCIONES DE MODAL ==========
         function cerrarModal(idModal) {
             document.getElementById(idModal).classList.remove('mostrar');
+        }
+
+        // ========== VALIDAR SI ASESOR DEBE EXCLUIRSE ==========
+        function esAsesorExcluido(nombre) {
+            return ASESORES_EXCLUIDOS.some(excluido => nombre.toUpperCase() === excluido);
         }
 
         // ========== FUNCIONES DE PERSISTENCIA ==========
@@ -430,6 +447,10 @@
                     if(c.length < 6 || c[0].trim() === '' || c[0].trim().toUpperCase() === 'ASESOR') return;
 
                     const nombre = c[0].trim();
+                    
+                    // EXCLUIR ASESORES EN LA LISTA NEGRA
+                    if (esAsesorExcluido(nombre)) return;
+
                     const ingresos = parseInt(c[1]) || 0;
                     const cancCliente = parseInt(c[2]) || 0;
                     const cancOp = parseInt(c[3]) || 0;
@@ -715,7 +736,7 @@
                             
                             if (breaksActivos[index]) {
                                 breaksActivos[index].display = timerStr;
-                                guardasBreaksEnStorage();
+                                guardarBreaksEnStorage();
                             }
 
                             if (tiempoRestante <= 0) {
