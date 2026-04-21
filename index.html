@@ -2,26 +2,67 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Ranking de Ventas</title>
+    <title>Ranking de Ventas + Breaks</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* --- ESTILOS GENERALES Y FONDO --- */
-        body { margin: 0; padding: 40px; color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; flex-direction: column; align-items: center; overflow-x: hidden; background: #000; }
-        .video-fondo { position: fixed; right: 0; bottom: 0; min-width: 100%; min-height: 100%; z-index: -2; object-fit: cover; }
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.75); z-index: -1; }
-        
-        /* Estilo para el canvas de partículas */
-        #canvasParticulas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
+        body { 
+            margin: 0; 
+            padding: 40px; 
+            color: white; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            overflow-x: hidden; 
+        }
+
+        .video-fondo { 
+            position: fixed; 
+            right: 0; 
+            bottom: 0; 
+            min-width: 100%; 
+            min-height: 100%; 
+            z-index: -2; 
+            object-fit: cover; 
+        }
+
+        .overlay { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0, 0, 0, 0.75); 
+            z-index: -1; 
+        }
 
         /* --- CONTENEDOR PRINCIPAL --- */
         .container {
-            width: 90%; max-width: 1300px; background: rgba(20, 20, 25, 0.4); padding: 40px; border-radius: 25px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8); border: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(15px); z-index: 1; display: flex; flex-direction: column; align-items: center;
+            width: 90%; 
+            max-width: 1300px; 
+            background: rgba(20, 20, 25, 0.4); 
+            padding: 40px; 
+            border-radius: 25px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8); 
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px); 
+            z-index: 1; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center;
         }
 
-        .chart-wrapper { position: relative; height: 80vh; min-height: 1000px; width: 100%; }
-        #rankingVentas { filter: drop-shadow(0px 0px 10px rgba(255, 255, 255, 0.25)); }
+        .chart-wrapper { 
+            position: relative; 
+            height: 80vh; 
+            min-height: 1000px; 
+            width: 100%; 
+        }
+
+        #rankingVentas { 
+            filter: drop-shadow(0px 0px 10px rgba(255, 255, 255, 0.25)); 
+        }
 
         @keyframes flotarYBrillar {
             0% { transform: translateY(0px); text-shadow: 0 0 10px #FFD700; }
@@ -29,54 +70,253 @@
             100% { transform: translateY(0px); text-shadow: 0 0 10px #FFD700; }
         }
 
-        h1 { color: #FFD700; text-align: center; z-index: 1; font-size: 3.5em; letter-spacing: 3px; margin-bottom: 30px; animation: flotarYBrillar 3s ease-in-out infinite; }
-
-        /* --- BOTÓN --- */
-        .btn-estadisticas {
-            margin-top: 30px; padding: 15px 40px; font-size: 1.2em; font-weight: bold; color: white;
-            background: rgba(0, 191, 255, 0.2); border: 2px solid #00BFFF; border-radius: 50px; cursor: pointer;
-            transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 2px; box-shadow: 0 0 15px rgba(0, 191, 255, 0.4);
+        h1 { 
+            color: #FFD700; 
+            text-align: center; 
+            z-index: 1; 
+            font-size: 3.5em; 
+            letter-spacing: 3px; 
+            margin-bottom: 30px; 
+            animation: flotarYBrillar 3s ease-in-out infinite; 
         }
-        .btn-estadisticas:hover { background: #00BFFF; box-shadow: 0 0 30px rgba(0, 191, 255, 0.8); transform: scale(1.05); }
+
+        /* --- BOTONES --- */
+        .btn-estadisticas, .btn-break {
+            margin-top: 30px; 
+            margin-right: 15px;
+            padding: 15px 40px; 
+            font-size: 1.2em; 
+            font-weight: bold; 
+            color: white;
+            background: rgba(0, 191, 255, 0.2); 
+            border: 2px solid #00BFFF; 
+            border-radius: 50px; 
+            cursor: pointer;
+            transition: all 0.3s ease; 
+            text-transform: uppercase; 
+            letter-spacing: 2px; 
+            box-shadow: 0 0 15px rgba(0, 191, 255, 0.4);
+        }
+
+        .btn-break {
+            background: rgba(255, 69, 0, 0.2);
+            border: 2px solid #FF4500;
+            box-shadow: 0 0 15px rgba(255, 69, 0, 0.4);
+        }
+
+        .btn-estadisticas:hover, .btn-break:hover { 
+            background: #00BFFF; 
+            box-shadow: 0 0 30px rgba(0, 191, 255, 0.8); 
+            transform: scale(1.05); 
+        }
+
+        .btn-break:hover {
+            background: #FF4500;
+            box-shadow: 0 0 30px rgba(255, 69, 0, 0.8);
+        }
+
+        .botones-container {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
 
         /* --- PANEL MODAL --- */
-        #modalStats {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(20px); z-index: 999;
-            justify-content: center; align-items: center; opacity: 0; transition: opacity 0.4s ease; padding: 20px; box-sizing: border-box;
+        .modal {
+            display: none; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85); 
+            backdrop-filter: blur(20px); 
+            z-index: 999;
+            justify-content: center; 
+            align-items: center; 
+            opacity: 0; 
+            transition: opacity 0.4s ease; 
+            padding: 20px; 
+            box-sizing: border-box;
         }
-        #modalStats.mostrar { display: flex; opacity: 1; }
+
+        .modal.mostrar { 
+            display: flex; 
+            opacity: 1; 
+        }
 
         .modal-contenido {
-            background: rgba(20, 20, 25, 0.8); padding: 40px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.1);
-            width: 100%; max-width: 1500px; max-height: 90vh; display: flex; flex-direction: column; position: relative;
+            background: rgba(20, 20, 25, 0.8); 
+            padding: 40px; 
+            border-radius: 20px; 
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 100%; 
+            max-width: 1500px; 
+            max-height: 90vh; 
+            display: flex; 
+            flex-direction: column; 
+            position: relative;
             box-shadow: 0 0 50px rgba(0, 191, 255, 0.2);
+            overflow-y: auto;
         }
 
-        .modal-titulo { color: #00BFFF; font-size: 2em; margin-top: 0; margin-bottom: 10px; text-align: center; text-shadow: 0 0 15px #00BFFF; }
-        
+        .modal-titulo { 
+            color: #00BFFF; 
+            font-size: 2em; 
+            margin-top: 0; 
+            margin-bottom: 10px; 
+            text-align: center; 
+            text-shadow: 0 0 15px #00BFFF; 
+        }
+
+        .modal-titulo.break-title {
+            color: #FF4500;
+            text-shadow: 0 0 15px #FF4500;
+        }
+
         /* --- ESTILO DE LA FRASE MOTIVACIONAL --- */
         .frase-motivacional {
-            color: #FFD700; font-size: 1.2em; font-style: italic; text-align: center; 
-            margin-top: 0; margin-bottom: 30px; text-shadow: 0 0 10px rgba(255, 215, 0, 0.4); letter-spacing: 1px;
+            color: #FFD700; 
+            font-size: 1.2em; 
+            font-style: italic; 
+            text-align: center; 
+            margin-top: 0; 
+            margin-bottom: 30px; 
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.4); 
+            letter-spacing: 1px;
         }
 
-        .btn-cerrar { position: absolute; top: 20px; right: 30px; font-size: 2em; color: white; cursor: pointer; transition: color 0.3s ease; }
-        .btn-cerrar:hover { color: #FF4500; }
+        .btn-cerrar { 
+            position: absolute; 
+            top: 20px; 
+            right: 30px; 
+            font-size: 2em; 
+            color: white; 
+            cursor: pointer; 
+            transition: color 0.3s ease; 
+        }
+
+        .btn-cerrar:hover { 
+            color: #FF4500; 
+        }
 
         /* --- TABLA EXCEL NEÓN --- */
-        .contenedor-tabla { overflow-x: auto; overflow-y: auto; flex-grow: 1; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); }
-        table { width: 100%; border-collapse: collapse; text-align: center; white-space: nowrap; }
-        th { padding: 15px; font-size: 14px; letter-spacing: 1px; color: white; background: rgba(0,0,0,0.6); position: sticky; top: 0; z-index: 2; border-bottom: 2px solid rgba(255,255,255,0.2); }
-        td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); font-weight: bold; font-size: 15px; }
-        tr:hover td { filter: brightness(1.5); }
-        
-        .col-asesor { background: rgba(50, 50, 50, 0.4); text-align: left; padding-left: 20px; }
-        .col-naranja { background: rgba(255, 140, 0, 0.15); color: #FFB04F; } 
-        .col-rojo { background: rgba(255, 69, 0, 0.15); color: #FF6347; }    
-        .col-azul { background: rgba(0, 191, 255, 0.15); color: #00BFFF; }   
-        .col-verde { background: rgba(50, 205, 50, 0.15); color: #32CD32; }  
-        .border-right { border-right: 1px solid rgba(255,255,255,0.1); }
+        .contenedor-tabla { 
+            overflow-x: auto; 
+            overflow-y: auto; 
+            flex-grow: 1; 
+            border-radius: 10px; 
+            border: 1px solid rgba(255,255,255,0.1); 
+        }
+
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            text-align: center; 
+            white-space: nowrap; 
+        }
+
+        th { 
+            padding: 15px; 
+            font-size: 14px; 
+            letter-spacing: 1px; 
+            color: white; 
+            background: rgba(0,0,0,0.6); 
+            position: sticky; 
+            top: 0; 
+            z-index: 2; 
+            border-bottom: 2px solid rgba(255,255,255,0.2); 
+        }
+
+        td { 
+            padding: 12px; 
+            border-bottom: 1px solid rgba(255,255,255,0.05); 
+            font-weight: bold; 
+            font-size: 15px; 
+        }
+
+        tr:hover td { 
+            filter: brightness(1.5); 
+        }
+
+        .col-asesor { 
+            background: rgba(50, 50, 50, 0.4); 
+            text-align: left; 
+            padding-left: 20px; 
+        }
+
+        .col-naranja { 
+            background: rgba(255, 140, 0, 0.15); 
+            color: #FFB04F; 
+        } 
+
+        .col-rojo { 
+            background: rgba(255, 69, 0, 0.15); 
+            color: #FF6347; 
+        }    
+
+        .col-azul { 
+            background: rgba(0, 191, 255, 0.15); 
+            color: #00BFFF; 
+        }   
+
+        .col-verde { 
+            background: rgba(50, 205, 50, 0.15); 
+            color: #32CD32; 
+        }  
+
+        .border-right { 
+            border-right: 1px solid rgba(255,255,255,0.1); 
+        }
+
+        /* --- ESTILOS PARA BREAKS --- */
+        .grid-asesores { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); 
+            gap: 15px; 
+            margin-top: 20px; 
+        }
+
+        .card-break { 
+            background: #25252b; 
+            padding: 15px; 
+            border-radius: 10px; 
+            text-align: center; 
+            border: 1px solid #444; 
+        }
+
+        .timer-display { 
+            font-size: 1.8em; 
+            font-family: monospace; 
+            color: #FF4500; 
+            margin: 10px 0; 
+        }
+
+        .btn-start { 
+            background: #FF4500; 
+            border: none; 
+            color: white; 
+            padding: 8px 20px; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            width: 100%; 
+        }
+
+        .btn-start:disabled { 
+            background: #333; 
+            color: #777; 
+            cursor: not-allowed; 
+            border: 1px solid #444; 
+        }
+
+        .info-break {
+            color: #aaa;
+            text-align: center;
+            font-size: 0.9em;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
@@ -86,22 +326,26 @@
     </video>
 
     <div class="overlay"></div>
-    <canvas id="canvasParticulas"></canvas>
 
     <h1>🏆 RANKING DE VENTAS 🏆</h1>
-    
+
     <div class="container">
         <div class="chart-wrapper">
             <canvas id="rankingVentas"></canvas>
         </div>
-        <button id="btnAbrirStats" class="btn-estadisticas">📊 TABLA DE DESGLOSE</button>
+
+        <div class="botones-container">
+            <button id="btnAbrirStats" class="btn-estadisticas">📊 TABLA DE DESGLOSE</button>
+            <button id="btnAbrirBreak" class="btn-break">⏱️ ADMINISTRAR BREAKS</button>
+        </div>
     </div>
 
-    <div id="modalStats">
+    <!-- MODAL ESTADÍSTICAS -->
+    <div id="modalStats" class="modal">
         <div class="modal-contenido">
             <span id="btnCerrarStats" class="btn-cerrar">✖</span>
             <h2 class="modal-titulo">REPORTE DETALLADO DEL EQUIPO</h2>
-            
+
             <p class="frase-motivacional">"Hoy es una oportunidad para ser mejor que el día anterior"</p>
 
             <div class="contenedor-tabla">
@@ -125,71 +369,43 @@
         </div>
     </div>
 
+    <!-- MODAL BREAKS -->
+    <div id="modalBreak" class="modal">
+        <div class="modal-contenido">
+            <span class="btn-cerrar" onclick="cerrarModal('modalBreak')">✖</span>
+            <h2 class="modal-titulo break-title">⏱️ ADMINISTRACIÓN DE BREAKS</h2>
+            <p class="info-break">Solo el administrador puede iniciar el tiempo.</p>
+            <div id="gridAsesores" class="grid-asesores"></div>
+        </div>
+    </div>
+
     <script>
-        /* --- FUNCIONALIDAD AGREGADA: PARTÍCULAS --- */
-        const canvas = document.getElementById('canvasParticulas');
-        const ctxP = canvas.getContext('2d');
-        let particles = [];
-
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-
-        class Particle {
-            constructor() {
-                this.init();
-            }
-            init() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 2 + 0.5;
-                this.speedX = (Math.random() - 0.5) * 0.5;
-                this.speedY = (Math.random() - 0.5) * 0.5;
-                this.opacity = Math.random();
-            }
-            update() {
-                this.x += this.speedX;
-                this.y += this.speedY;
-                if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) this.init();
-            }
-            draw() {
-                ctxP.fillStyle = `rgba(255, 215, 0, ${this.opacity})`;
-                ctxP.beginPath();
-                ctxP.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctxP.fill();
-            }
-        }
-
-        for (let i = 0; i < 100; i++) particles.push(new Particle());
-
-        function animateParticles() {
-            ctxP.clearRect(0, 0, canvas.width, canvas.height);
-            particles.forEach(p => { p.update(); p.draw(); });
-            requestAnimationFrame(animateParticles);
-        }
-
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
-        animateParticles();
-
-        /* --- LÓGICA ORIGINAL --- */
+        // ========== CONFIGURACIÓN GENERAL ==========
         const URL_SHEET = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTfvuQqIcH6Zv8rqvsqeolWoX7Z3lIKZqz2nX-Q0aCRBZcPRvXAXz8rjKyoAZ-OmiI9GfpNkMjK9Uht/pub?output=csv';
-
+        const PASS_ADMIN = "tiger123@";
+        
         let miGrafico = null;
+        let asesoresList = [];
 
+        // ========== FUNCIONES DE MODAL ==========
+        function cerrarModal(idModal) {
+            document.getElementById(idModal).classList.remove('mostrar');
+        }
+
+        // ========== CARGA Y PROCESAMIENTO DE DATOS ==========
         async function cargarDatos() {
             try {
                 const urlConFiltro = URL_SHEET + '&t=' + new Date().getTime();
                 const respuesta = await fetch(urlConFiltro);
                 const dataRaw = await respuesta.text();
-                const filas = dataRaw.split('\n').slice(1); 
+                const filas = dataRaw.split('\n').slice(1);
+
                 let asesoresMap = new Map();
 
                 filas.forEach(linea => {
-                    const c = linea.replace(/\r/g, '').split(','); 
-                    if(c.length < 6 || c[0].trim() === '' || c[0].trim().toUpperCase() === 'ASESOR') return; 
-                    
+                    const c = linea.replace(/\r/g, '').split(',');
+                    if(c.length < 6 || c[0].trim() === '' || c[0].trim().toUpperCase() === 'ASESOR') return;
+
                     const nombre = c[0].trim();
                     const ingresos = parseInt(c[1]) || 0;
                     const cancCliente = parseInt(c[2]) || 0;
@@ -199,13 +415,13 @@
 
                     if (asesoresMap.has(nombre)) {
                         const asExistente = asesoresMap.get(nombre);
-                        asesoresMap.set(nombre, { 
-                            nombre, 
-                            ingresos: asExistente.ingresos + ingresos, 
-                            cancCliente: asExistente.cancCliente + cancCliente, 
-                            cancOp: asExistente.cancOp + cancOp, 
-                            programada: asExistente.programada + programada, 
-                            instaladas: asExistente.instaladas + instaladas 
+                        asesoresMap.set(nombre, {
+                            nombre,
+                            ingresos: asExistente.ingresos + ingresos,
+                            cancCliente: asExistente.cancCliente + cancCliente,
+                            cancOp: asExistente.cancOp + cancOp,
+                            programada: asExistente.programada + programada,
+                            instaladas: asExistente.instaladas + instaladas
                         });
                     } else {
                         asesoresMap.set(nombre, { nombre, ingresos, cancCliente, cancOp, programada, instaladas });
@@ -215,19 +431,28 @@
                 let asesoresUnicos = Array.from(asesoresMap.values());
                 asesoresUnicos.sort((a, b) => b.instaladas - a.instaladas);
 
+                // Actualizar lista de asesores para breaks
+                asesoresList = asesoresUnicos.map(a => a.nombre);
+                
                 llenarTabla(asesoresUnicos);
                 dibujarGrafico(asesoresUnicos);
+                setupBreakGrid();
+
+                console.log("Datos gráficos actualizados: " + new Date().toLocaleTimeString());
+
             } catch (error) {
                 console.error("Error cargando datos:", error);
             }
         }
 
+        // ========== TABLA DE ESTADÍSTICAS ==========
         function llenarTabla(asesores) {
             const cuerpo = document.getElementById('cuerpoTabla');
             cuerpo.innerHTML = '';
             asesores.forEach(as => {
                 const totalCalculado = as.cancCliente + as.cancOp + as.programada + as.instaladas;
                 const convertibilidad = as.ingresos > 0 ? ((as.instaladas / as.ingresos) * 100).toFixed(2) : "0.00";
+
                 cuerpo.innerHTML += `
                     <tr>
                         <td class="col-asesor border-right">${as.nombre}</td>
@@ -242,8 +467,10 @@
             });
         }
 
+        // ========== GRÁFICO DE RANKING ==========
         function dibujarGrafico(asesores) {
             const ctx = document.getElementById('rankingVentas').getContext('2d');
+
             const nombresInsignia = asesores.map((as, i) => {
                 if (i === 0) return '👑 ' + as.nombre;
                 if (i === 1) return '🥈 ' + as.nombre;
@@ -252,12 +479,18 @@
             });
 
             const ventas = asesores.map(as => as.instaladas);
+
             const colores = ventas.map(v => v >= 10 ? 'rgba(255, 215, 0, 0.8)' : v >= 7 ? 'rgba(0, 255, 127, 0.8)' : v >= 4 ? 'rgba(0, 191, 255, 0.8)' : 'rgba(138, 43, 226, 0.6)');
             const bordes = ventas.map(v => v >= 10 ? '#FFD700' : v >= 7 ? '#00FF7F' : v >= 4 ? '#00BFFF' : '#8A2BE2');
             const coloresTxt = ventas.map(v => v >= 10 ? '#FFD700' : v >= 7 ? '#00FF7F' : v >= 4 ? '#00BFFF' : '#E066FF');
 
-            if (miGrafico) miGrafico.destroy();
+            Chart.defaults.font.family = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
 
+            if (miGrafico) {
+                miGrafico.destroy();
+            }
+
+            let delayed;
             miGrafico = new Chart(ctx, {
                 type: 'bar',
                 data: {
@@ -273,34 +506,122 @@
                     }]
                 },
                 options: {
-                    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: {
+                        onComplete: () => { delayed = true; },
+                        delay: (context) => {
+                            let delay = 0;
+                            if (context.type === 'data' && context.mode === 'default' && !delayed) {
+                                delay = context.dataIndex * 150;
+                            }
+                            return delay;
+                        },
+                    },
                     plugins: {
                         legend: { display: false },
                         tooltip: {
-                            backgroundColor: 'rgba(0, 0, 0, 0.95)', titleFont: { size: 18, weight: 'bold' }, bodyFont: { size: 15 }, padding: 15,
+                            backgroundColor: 'rgba(0, 0, 0, 0.95)',
+                            titleFont: { size: 18, weight: 'bold' },
+                            bodyFont: { size: 15 },
+                            padding: 15,
+                            displayColors: false,
                             callbacks: {
                                 label: function(context) {
                                     const as = asesores[context.dataIndex];
                                     const conv = as.ingresos > 0 ? ((as.instaladas / as.ingresos) * 100).toFixed(1) : "0.0";
-                                    return [ ` ✅ Instaladas: ${as.instaladas}`, ` 📥 Ingresadas: ${as.ingresos}`, ` 📊 Convertibilidad: ${conv}%` ];
+                                    return [` ✅ Instaladas: ${as.instaladas}`, ` 📥 Ingresadas: ${as.ingresos}`, ` 📊 Convertibilidad: ${conv}%`];
                                 }
                             }
                         }
                     },
                     scales: {
-                        x: { beginAtZero: true, max: 30, grid: { color: 'rgba(255,255,255,0.08)' }, ticks: { color: '#bbbbbb' } },
-                        y: { grid: { display: false }, ticks: { color: coloresTxt, font: { weight: 'bold' } } }
+                        x: {
+                            beginAtZero: true,
+                            max: 30,
+                            grid: { color: 'rgba(255,255,255,0.08)' },
+                            ticks: { color: '#bbbbbb', stepSize: 5 }
+                        },
+                        y: {
+                            grid: { display: false },
+                            ticks: { color: coloresTxt, font: { weight: 'bold' } }
+                        }
                     }
                 }
             });
         }
 
+        // ========== SISTEMA DE BREAKS ==========
+        function setupBreakGrid() {
+            const grid = document.getElementById('gridAsesores');
+            // Limpiar solo si hay cambios
+            if (grid.children.length !== asesoresList.length) {
+                grid.innerHTML = '';
+                asesoresList.forEach((nombre, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'card-break';
+                    card.innerHTML = `
+                        <div style="font-weight:bold; height: 40px; display:flex; align-items:center; justify-content:center;">${nombre}</div>
+                        <div id="timer-${index}" class="timer-display">35:00</div>
+                        <button id="btn-${index}" class="btn-start" onclick="verificarYIniciar(${index})">INICIAR BREAK</button>
+                    `;
+                    grid.appendChild(card);
+                });
+            }
+        }
+
+        function verificarYIniciar(index) {
+            const passwordInput = prompt("Ingrese la contraseña de administrador:");
+
+            if (passwordInput === PASS_ADMIN) {
+                startBreak(index);
+            } else if (passwordInput !== null) {
+                alert("Contraseña incorrecta.");
+            }
+        }
+
+        function startBreak(index) {
+            const btn = document.getElementById(`btn-${index}`);
+            const display = document.getElementById(`timer-${index}`);
+            let tiempo = 35 * 60;
+
+            btn.disabled = true;
+            btn.innerText = "EN BREAK";
+
+            const intervalo = setInterval(() => {
+                let minutos = Math.floor(tiempo / 60);
+                let segundos = tiempo % 60;
+
+                minutos = minutos < 10 ? '0' + minutos : minutos;
+                segundos = segundos < 10 ? '0' + segundos : segundos;
+
+                display.innerText = `${minutos}:${segundos}`;
+
+                if (tiempo <= 0) {
+                    clearInterval(intervalo);
+                    display.innerText = "TERMINADO";
+                    display.style.color = "#00FF7F";
+                    btn.innerText = "FINALIZADO";
+                } else {
+                    tiempo--;
+                }
+            }, 1000);
+        }
+
+        // ========== EVENT LISTENERS ==========
         const modal = document.getElementById('modalStats');
         document.getElementById('btnAbrirStats').addEventListener('click', () => modal.classList.add('mostrar'));
         document.getElementById('btnCerrarStats').addEventListener('click', () => modal.classList.remove('mostrar'));
 
+        const modalBreak = document.getElementById('modalBreak');
+        document.getElementById('btnAbrirBreak').addEventListener('click', () => modalBreak.classList.add('mostrar'));
+
+        // ========== INICIALIZACIÓN Y AUTO-REFRESH ==========
         cargarDatos();
-        setInterval(cargarDatos, 120000); 
+        setInterval(cargarDatos, 120000); // Actualiza cada 2 minutos
+
     </script>
+
 </body>
 </html>
