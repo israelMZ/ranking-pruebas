@@ -584,7 +584,15 @@
         function startBreak(index) {
             const btn = document.getElementById(`btn-${index}`);
             const display = document.getElementById(`timer-${index}`);
-            let tiempo = 35 * 60;
+            const nombreAsesor = asesoresList[index];
+            
+            // LÓGICA: Si es GIANELLA SUAREZ, usar 20 minutos; sino 35 minutos
+            let duracionMinutos = 35;
+            if (nombreAsesor.toUpperCase() === "GIANELLA SUAREZ") {
+                duracionMinutos = 20;
+            }
+            
+            let tiempo = duracionMinutos * 60;
 
             btn.disabled = true;
             btn.innerText = "EN BREAK";
