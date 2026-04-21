@@ -386,10 +386,33 @@
         
         let miGrafico = null;
         let asesoresList = [];
+        let breaksActivos = {}; // Almacenar breaks en memoria
+        let intervalosActivos = {}; // Almacenar intervalos para limpiarlos
 
         // ========== FUNCIONES DE MODAL ==========
         function cerrarModal(idModal) {
             document.getElementById(idModal).classList.remove('mostrar');
+        }
+
+        // ========== FUNCIONES DE PERSISTENCIA ==========
+        function guardarBreaksEnStorage() {
+            localStorage.setItem('breaksActivos', JSON.stringify(breaksActivos));
+        }
+
+        function cargarBreaksDelStorage() {
+            const datos = localStorage.getItem('breaksActivos');
+            if (datos) {
+                try {
+                    breaksActivos = JSON.parse(datos);
+                } catch (e) {
+                    breaksActivos = {};
+                }
+            }
+        }
+
+        function limpiarBreakTerminado(index) {
+            delete breaksActivos[index];
+            guardarBreaksEnStorage();
         }
 
         // ========== CARGA Y PROCESAMIENTO DE DATOS ==========
@@ -437,6 +460,7 @@
                 llenarTabla(asesoresUnicos);
                 dibujarGrafico(asesoresUnicos);
                 setupBreakGrid();
+                reanudarBreaksActivos();
 
                 console.log("Datos gráficos actualizados: " + new Date().toLocaleTimeString());
 
@@ -555,20 +579,39 @@
         // ========== SISTEMA DE BREAKS ==========
         function setupBreakGrid() {
             const grid = document.getElementById('gridAsesores');
-            // Limpiar solo si hay cambios
-            if (grid.children.length !== asesoresList.length) {
-                grid.innerHTML = '';
-                asesoresList.forEach((nombre, index) => {
-                    const card = document.createElement('div');
-                    card.className = 'card-break';
-                    card.innerHTML = `
-                        <div style="font-weight:bold; height: 40px; display:flex; align-items:center; justify-content:center;">${nombre}</div>
-                        <div id="timer-${index}" class="timer-display">35:00</div>
-                        <button id="btn-${index}" class="btn-start" onclick="verificarYIniciar(${index})">INICIAR BREAK</button>
-                    `;
-                    grid.appendChild(card);
-                });
-            }
+            grid.innerHTML = '';
+            
+            asesoresList.forEach((nombre, index) => {
+                const card = document.createElement('div');
+                card.className = 'card-break';
+                
+                // Determinar duración según asesor
+                let duracionMinutos = 35;
+                if (nombre.toUpperCase() === "GIANELLA SUAREZ") {
+                    duracionMinutos = 20;
+                }
+                
+                // Mostrar tiempo correcto
+                let timerDisplay = `${duracionMinutos}:00`;
+                let btnText = "INICIAR BREAK";
+                let btnDisabled = false;
+                
+                // Si hay un break activo, mostrar estado
+                if (breaksActivos[index]) {
+                    btnText = "EN BREAK";
+                    btnDisabled = true;
+                    timerDisplay = breaksActivos[index].display;
+                }
+                
+                card.innerHTML = `
+                    <div style="font-weight:bold; height: 40px; display:flex; align-items:center; justify-content:center;">${nombre}</div>
+                    <div id="timer-${index}" class="timer-display">${timerDisplay}</div>
+                    <button id="btn-${index}" class="btn-start" onclick="verificarYIniciar(${index})" ${btnDisabled ? 'disabled' : ''}>
+                        ${btnText}
+                    </button>
+                `;
+                grid.appendChild(card);
+            });
         }
 
         function verificarYIniciar(index) {
@@ -586,16 +629,27 @@
             const display = document.getElementById(`timer-${index}`);
             const nombreAsesor = asesoresList[index];
             
-            // LÓGICA: Si es GIANELLA SUAREZ, usar 20 minutos; sino 35 minutos
+            // Determinar duración según asesor
             let duracionMinutos = 35;
             if (nombreAsesor.toUpperCase() === "GIANELLA SUAREZ") {
                 duracionMinutos = 20;
             }
             
             let tiempo = duracionMinutos * 60;
+            const horaInicio = Date.now();
 
             btn.disabled = true;
             btn.innerText = "EN BREAK";
+
+            // Guardar en memoria
+            breaksActivos[index] = {
+                inicio: horaInicio,
+                duracion: tiempo,
+                display: `${duracionMinutos}:00`,
+                nombreAsesor: nombreAsesor,
+                intervaloId: null
+            };
+            guardarBreaksEnStorage();
 
             const intervalo = setInterval(() => {
                 let minutos = Math.floor(tiempo / 60);
@@ -604,17 +658,89 @@
                 minutos = minutos < 10 ? '0' + minutos : minutos;
                 segundos = segundos < 10 ? '0' + segundos : segundos;
 
-                display.innerText = `${minutos}:${segundos}`;
+                const timerStr = `${minutos}:${segundos}`;
+                display.innerText = timerStr;
+                
+                // Actualizar en storage
+                if (breaksActivos[index]) {
+                    breaksActivos[index].display = timerStr;
+                    guardarBreaksEnStorage();
+                }
 
                 if (tiempo <= 0) {
                     clearInterval(intervalo);
                     display.innerText = "TERMINADO";
                     display.style.color = "#00FF7F";
                     btn.innerText = "FINALIZADO";
+                    
+                    // Limpiar después de 3 segundos
+                    setTimeout(() => {
+                        limpiarBreakTerminado(index);
+                        setupBreakGrid();
+                    }, 3000);
                 } else {
                     tiempo--;
                 }
             }, 1000);
+
+            intervalosActivos[index] = intervalo;
+        }
+
+        function reanudarBreaksActivos() {
+            Object.keys(breaksActivos).forEach(indexStr => {
+                const index = parseInt(indexStr);
+                const breakData = breaksActivos[index];
+                
+                if (breakData && breakData.inicio) {
+                    const ahora = Date.now();
+                    const tiempoTranscurrido = Math.floor((ahora - breakData.inicio) / 1000);
+                    let tiempoRestante = breakData.duracion - tiempoTranscurrido;
+                    
+                    if (tiempoRestante > 0) {
+                        const btn = document.getElementById(`btn-${index}`);
+                        const display = document.getElementById(`timer-${index}`);
+                        
+                        if (btn) btn.disabled = true;
+                        if (btn) btn.innerText = "EN BREAK";
+                        
+                        const intervalo = setInterval(() => {
+                            let minutos = Math.floor(tiempoRestante / 60);
+                            let segundos = tiempoRestante % 60;
+
+                            minutos = minutos < 10 ? '0' + minutos : minutos;
+                            segundos = segundos < 10 ? '0' + segundos : segundos;
+
+                            const timerStr = `${minutos}:${segundos}`;
+                            if (display) display.innerText = timerStr;
+                            
+                            if (breaksActivos[index]) {
+                                breaksActivos[index].display = timerStr;
+                                guardasBreaksEnStorage();
+                            }
+
+                            if (tiempoRestante <= 0) {
+                                clearInterval(intervalo);
+                                if (display) {
+                                    display.innerText = "TERMINADO";
+                                    display.style.color = "#00FF7F";
+                                }
+                                if (btn) btn.innerText = "FINALIZADO";
+                                
+                                setTimeout(() => {
+                                    limpiarBreakTerminado(index);
+                                    setupBreakGrid();
+                                }, 3000);
+                            } else {
+                                tiempoRestante--;
+                            }
+                        }, 1000);
+
+                        intervalosActivos[index] = intervalo;
+                    } else {
+                        limpiarBreakTerminado(index);
+                    }
+                }
+            });
         }
 
         // ========== EVENT LISTENERS ==========
@@ -626,6 +752,7 @@
         document.getElementById('btnAbrirBreak').addEventListener('click', () => modalBreak.classList.add('mostrar'));
 
         // ========== INICIALIZACIÓN Y AUTO-REFRESH ==========
+        cargarBreaksDelStorage();
         cargarDatos();
         setInterval(cargarDatos, 120000); // Actualiza cada 2 minutos
 
