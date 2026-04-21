@@ -52,7 +52,7 @@
         .card-break { background: #25252b; padding: 15px; border-radius: 10px; text-align: center; border: 1px solid #444; }
         .timer-display { font-size: 1.8em; font-family: monospace; color: #FF4500; margin: 10px 0; }
         .btn-start { background: #FF4500; border: none; color: white; padding: 8px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; }
-        .btn-start:disabled { background: #555; cursor: not-allowed; }
+        .btn-start:disabled { background: #333; color: #777; cursor: not-allowed; border: 1px solid #444; }
     </style>
 </head>
 <body>
@@ -85,14 +85,15 @@
     <div id="modalBreak" class="modal">
         <div class="modal-content">
             <span class="cerrar" onclick="cerrarModal('modalBreak')">×</span>
-            <h2 style="color:#FF4500; text-align:center">CRONÓMETRO DE BREAK (35 MIN)</h2>
-            <div id="gridAsesores" class="grid-asesores">
-                </div>
+            <h2 style="color:#FF4500; text-align:center">ADMINISTRACIÓN DE BREAKS</h2>
+            <p style="text-align:center; color:#aaa;">Solo el administrador puede iniciar el tiempo.</p>
+            <div id="gridAsesores" class="grid-asesores"></div>
         </div>
     </div>
 
     <script>
         const URL_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTfvuQqIcH6Zv8rqvsqeolWoX7Z3lIKZqz2nX-Q0aCRBZcPRvXAXz8rjKyoAZ-OmiI9GfpNkMjK9Uht/pub?output=csv';
+        const PASS_ADMIN = "tiger123@"; // Tu contraseña configurada
         let chartInstance = null;
         let asesoresList = [];
 
@@ -121,7 +122,7 @@
 
         function setupBreakGrid() {
             const grid = document.getElementById('gridAsesores');
-            if (grid.children.length > 0) return; // No recrear si ya existen
+            if (grid.children.length > 0) return;
 
             asesoresList.forEach((nombre, index) => {
                 const card = document.createElement('div');
@@ -129,19 +130,29 @@
                 card.innerHTML = `
                     <div style="font-weight:bold; height: 40px; display:flex; align-items:center; justify-content:center;">${nombre}</div>
                     <div id="timer-${index}" class="timer-display">35:00</div>
-                    <button id="btn-${index}" class="btn-start" onclick="startBreak(${index})">INICIAR BREAK</button>
+                    <button id="btn-${index}" class="btn-start" onclick="verificarYIniciar(${index})">INICIAR BREAK</button>
                 `;
                 grid.appendChild(card);
             });
         }
 
+        function verificarYIniciar(index) {
+            const passwordInput = prompt("Ingrese la contraseña de administrador para iniciar el break:");
+            
+            if (passwordInput === PASS_ADMIN) {
+                startBreak(index);
+            } else if (passwordInput !== null) {
+                alert("Contraseña incorrecta. Acceso denegado.");
+            }
+        }
+
         function startBreak(index) {
             const btn = document.getElementById(`btn-${index}`);
             const display = document.getElementById(`timer-${index}`);
-            let tiempo = 35 * 60; // 35 minutos en segundos
+            let tiempo = 35 * 60;
 
             btn.disabled = true;
-            btn.innerText = "EN BREAK...";
+            btn.innerText = "EN BREAK";
 
             const intervalo = setInterval(() => {
                 let minutos = Math.floor(tiempo / 60);
@@ -156,7 +167,7 @@
                     clearInterval(intervalo);
                     display.innerText = "TERMINADO";
                     display.style.color = "#00FF7F";
-                    btn.innerText = "BREAK FINALIZADO";
+                    btn.innerText = "FINALIZADO";
                 } else {
                     tiempo--;
                 }
