@@ -287,11 +287,27 @@
             position: relative;
         }
 
+        .card-break.lider {
+            background: #1a3a3a;
+            border: 2px solid #00FF7F;
+            box-shadow: 0 0 15px rgba(0, 255, 127, 0.3);
+        }
+
         .card-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 10px;
+        }
+
+        .lider-badge {
+            background: linear-gradient(135deg, #00FF7F, #00BFFF);
+            color: black;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 0.7em;
+            font-weight: bold;
+            margin-left: 5px;
         }
 
         .btn-reset {
@@ -318,6 +334,10 @@
             margin: 10px 0; 
         }
 
+        .card-break.lider .timer-display {
+            color: #00FF7F;
+        }
+
         .btn-start { 
             background: #FF4500; 
             border: none; 
@@ -327,6 +347,11 @@
             cursor: pointer; 
             font-weight: bold; 
             width: 100%; 
+        }
+
+        .card-break.lider .btn-start {
+            background: #00FF7F;
+            color: black;
         }
 
         .btn-start:disabled { 
@@ -420,6 +445,17 @@
             "LEONARDO YOBERA",
             "ROMINA SOLIS"
         ];
+
+        // LISTA DE LÍDERES
+        const LIDERES = [
+            "MIKE ROMERO",
+            "RAMIRO FLORES",
+            "JEYKO BAZALAR",
+            "PAULINA SUTTI",
+            "ICEL MORENO",
+            "ISRAEL OSORIO",
+            "RICKSON FIGUEROA"
+        ];
         
         let miGrafico = null;
         let asesoresList = [];
@@ -435,6 +471,11 @@
         // ========== VALIDAR SI ASESOR DEBE EXCLUIRSE DE BREAKS ==========
         function esAsesorSinBreaks(nombre) {
             return ASESORES_SIN_BREAKS.some(excluido => nombre.toUpperCase() === excluido);
+        }
+
+        // ========== VALIDAR SI ASESOR ES LÍDER ==========
+        function esLider(nombre) {
+            return LIDERES.some(lider => nombre.toUpperCase() === lider);
         }
 
         // ========== FUNCIONES DE PERSISTENCIA ==========
@@ -525,6 +566,13 @@
                 asesoresBreaks = asesoresUnicos
                     .filter(a => !esAsesorSinBreaks(a.nombre))
                     .map(a => a.nombre);
+                
+                // Agregar líderes adicionales que no estén en el Excel
+                LIDERES.forEach(lider => {
+                    if (!asesoresBreaks.some(a => a.toUpperCase() === lider)) {
+                        asesoresBreaks.push(lider);
+                    }
+                });
                 
                 llenarTabla(asesoresUnicos);
                 dibujarGrafico(asesoresUnicos);
@@ -652,7 +700,8 @@
             
             asesoresBreaks.forEach((nombre, index) => {
                 const card = document.createElement('div');
-                card.className = 'card-break';
+                const esLiderAsesor = esLider(nombre);
+                card.className = 'card-break' + (esLiderAsesor ? ' lider' : '');
                 
                 // Determinar duración según asesor
                 let duracionMinutos = 35;
@@ -674,7 +723,10 @@
                 
                 card.innerHTML = `
                     <div class="card-header">
-                        <div style="font-weight:bold; flex-grow:1;">${nombre}</div>
+                        <div style="font-weight:bold; flex-grow:1; display: flex; align-items: center;">
+                            ${nombre}
+                            ${esLiderAsesor ? '<span class="lider-badge">🌟 LÍDER</span>' : ''}
+                        </div>
                         <button class="btn-reset" onclick="resetearBreakConPassword(${index})" title="Resetear break">🔄</button>
                     </div>
                     <div id="timer-${index}" class="timer-display">${timerDisplay}</div>
