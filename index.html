@@ -81,7 +81,7 @@
         }
 
         /* --- BOTONES --- */
-        .btn-estadisticas, .btn-break {
+        .btn-estadisticas, .btn-break, .btn-pizarra {
             margin-top: 30px; 
             margin-right: 15px;
             padding: 15px 40px; 
@@ -104,7 +104,13 @@
             box-shadow: 0 0 15px rgba(255, 69, 0, 0.4);
         }
 
-        .btn-estadisticas:hover, .btn-break:hover { 
+        .btn-pizarra {
+            background: rgba(138, 43, 226, 0.2);
+            border: 2px solid #8A2BE2;
+            box-shadow: 0 0 15px rgba(138, 43, 226, 0.4);
+        }
+
+        .btn-estadisticas:hover, .btn-break:hover, .btn-pizarra:hover { 
             background: #00BFFF; 
             box-shadow: 0 0 30px rgba(0, 191, 255, 0.8); 
             transform: scale(1.05); 
@@ -113,6 +119,11 @@
         .btn-break:hover {
             background: #FF4500;
             box-shadow: 0 0 30px rgba(255, 69, 0, 0.8);
+        }
+
+        .btn-pizarra:hover {
+            background: #8A2BE2;
+            box-shadow: 0 0 30px rgba(138, 43, 226, 0.8);
         }
 
         .botones-container {
@@ -173,6 +184,11 @@
         .modal-titulo.break-title {
             color: #FF4500;
             text-shadow: 0 0 15px #FF4500;
+        }
+
+        .modal-titulo.pizarra-title {
+            color: #8A2BE2;
+            text-shadow: 0 0 15px #8A2BE2;
         }
 
         /* --- ESTILO DE LA FRASE MOTIVACIONAL --- */
@@ -367,6 +383,95 @@
             font-size: 0.9em;
             margin-bottom: 20px;
         }
+
+        /* --- ESTILOS PARA PIZARRA --- */
+        .pizarra-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .pizarra-seccion {
+            background: rgba(30, 30, 40, 0.8);
+            border: 2px solid;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .pizarra-seccion.claro {
+            border-color: #FFD700;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+        }
+
+        .pizarra-seccion.wow {
+            border-color: #FF69B4;
+            box-shadow: 0 0 20px rgba(255, 105, 180, 0.3);
+        }
+
+        .pizarra-seccion.movistar {
+            border-color: #FF4500;
+            box-shadow: 0 0 20px rgba(255, 69, 0, 0.3);
+        }
+
+        .pizarra-titulo {
+            font-size: 1.8em;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px currentColor;
+        }
+
+        .pizarra-seccion.claro .pizarra-titulo {
+            color: #FFD700;
+        }
+
+        .pizarra-seccion.wow .pizarra-titulo {
+            color: #FF69B4;
+        }
+
+        .pizarra-seccion.movistar .pizarra-titulo {
+            color: #FF4500;
+        }
+
+        .pizarra-asesores {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .pizarra-asesor {
+            background: rgba(50, 50, 60, 0.6);
+            padding: 12px 15px;
+            border-radius: 8px;
+            border-left: 4px solid;
+            text-align: left;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .pizarra-asesor:hover {
+            transform: translateX(5px);
+            filter: brightness(1.3);
+        }
+
+        .pizarra-seccion.claro .pizarra-asesor {
+            border-color: #FFD700;
+            color: #FFD700;
+        }
+
+        .pizarra-seccion.wow .pizarra-asesor {
+            border-color: #FF69B4;
+            color: #FF69B4;
+        }
+
+        .pizarra-seccion.movistar .pizarra-asesor {
+            border-color: #FF4500;
+            color: #FF4500;
+        }
     </style>
 </head>
 <body>
@@ -387,6 +492,7 @@
         <div class="botones-container">
             <button id="btnAbrirStats" class="btn-estadisticas">📊 TABLA DE DESGLOSE</button>
             <button id="btnAbrirBreak" class="btn-break">⏱️ ADMINISTRAR BREAKS</button>
+            <button id="btnAbrirPizarra" class="btn-pizarra">📋 PIZARRA</button>
         </div>
     </div>
 
@@ -429,9 +535,21 @@
         </div>
     </div>
 
+    <!-- MODAL PIZARRA -->
+    <div id="modalPizarra" class="modal">
+        <div class="modal-contenido">
+            <span class="btn-cerrar" onclick="cerrarModal('modalPizarra')">✖</span>
+            <h2 class="modal-titulo pizarra-title">📋 PIZARRA DE VENTAS</h2>
+            <div class="pizarra-container" id="pizarraContainer">
+                <!-- Se llena dinámicamente con JS -->
+            </div>
+        </div>
+    </div>
+
     <script>
         // ========== CONFIGURACIÓN GENERAL ==========
         const URL_SHEET = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTfvuQqIcH6Zv8rqvsqeolWoX7Z3lIKZqz2nX-Q0aCRBZcPRvXAXz8rjKyoAZ-OmiI9GfpNkMjK9Uht/pub?output=csv';
+        const URL_SHEET_PIZARRA = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTfvuQqIcH6Zv8rqvsqeolWoX7Z3lIKZqz2nX-Q0aCRBZcPRvXAXz8rjKyoAZ-OmiI9GfpNkMjK9Uht/pub?gid=1&output=csv';
         const PASS_ADMIN = "tiger123@";
         
         // LISTA DE ASESORES A EXCLUIR SOLO DEL SISTEMA DE BREAKS
@@ -459,9 +577,14 @@
         
         let miGrafico = null;
         let asesoresList = [];
-        let asesoresBreaks = []; // Lista separada para breaks
-        let breaksActivos = {}; // Almacenar breaks en memoria
-        let intervalosActivos = {}; // Almacenar intervalos para limpiarlos
+        let asesoresBreaks = [];
+        let breaksActivos = {};
+        let intervalosActivos = {};
+        let pizarraData = {
+            claro: [],
+            wow: [],
+            movistar: []
+        };
 
         // ========== FUNCIONES DE MODAL ==========
         function cerrarModal(idModal) {
@@ -503,21 +626,96 @@
             const passwordInput = prompt("Ingrese la contraseña de administrador para resetear:");
 
             if (passwordInput === PASS_ADMIN) {
-                // Limpiar el intervalo si existe
                 if (intervalosActivos[index]) {
                     clearInterval(intervalosActivos[index]);
                     delete intervalosActivos[index];
                 }
 
-                // Eliminar del storage
                 limpiarBreakTerminado(index);
-
-                // Reconstruir la tarjeta
                 setupBreakGrid();
                 alert("Break reseteado correctamente ✓");
             } else if (passwordInput !== null) {
                 alert("Contraseña incorrecta.");
             }
+        }
+
+        // ========== CARGAR DATOS PIZARRA ==========
+        async function cargarDatosPizarra() {
+            try {
+                const urlConFiltro = URL_SHEET_PIZARRA + '&t=' + new Date().getTime();
+                const respuesta = await fetch(urlConFiltro);
+                const dataRaw = await respuesta.text();
+                const filas = dataRaw.split('\n').slice(1);
+
+                pizarraData = {
+                    claro: [],
+                    wow: [],
+                    movistar: []
+                };
+
+                filas.forEach(linea => {
+                    const c = linea.replace(/\r/g, '').split(',');
+                    if (c.length < 3) return;
+
+                    // Columna A = CLARO
+                    if (c[0].trim() && c[0].trim().toUpperCase() !== 'CLARO') {
+                        pizarraData.claro.push(c[0].trim());
+                    }
+
+                    // Columna B = WOW
+                    if (c[1].trim() && c[1].trim().toUpperCase() !== 'WOW') {
+                        pizarraData.wow.push(c[1].trim());
+                    }
+
+                    // Columna C = MOVISTAR
+                    if (c[2].trim() && c[2].trim().toUpperCase() !== 'MOVISTAR') {
+                        pizarraData.movistar.push(c[2].trim());
+                    }
+                });
+
+                console.log("Datos pizarra cargados:", pizarraData);
+            } catch (error) {
+                console.error("Error cargando datos pizarra:", error);
+            }
+        }
+
+        // ========== CONSTRUIR PIZARRA ==========
+        function construirPizarra() {
+            const container = document.getElementById('pizarraContainer');
+            container.innerHTML = '';
+
+            // CLARO
+            const claroDiv = document.createElement('div');
+            claroDiv.className = 'pizarra-seccion claro';
+            claroDiv.innerHTML = `
+                <div class="pizarra-titulo">📱 CLARO</div>
+                <div class="pizarra-asesores">
+                    ${pizarraData.claro.map(asesor => `<div class="pizarra-asesor">${asesor}</div>`).join('')}
+                </div>
+            `;
+            container.appendChild(claroDiv);
+
+            // WOW
+            const wowDiv = document.createElement('div');
+            wowDiv.className = 'pizarra-seccion wow';
+            wowDiv.innerHTML = `
+                <div class="pizarra-titulo">💜 WOW</div>
+                <div class="pizarra-asesores">
+                    ${pizarraData.wow.map(asesor => `<div class="pizarra-asesor">${asesor}</div>`).join('')}
+                </div>
+            `;
+            container.appendChild(wowDiv);
+
+            // MOVISTAR
+            const movistarDiv = document.createElement('div');
+            movistarDiv.className = 'pizarra-seccion movistar';
+            movistarDiv.innerHTML = `
+                <div class="pizarra-titulo">🔴 MOVISTAR</div>
+                <div class="pizarra-asesores">
+                    ${pizarraData.movistar.map(asesor => `<div class="pizarra-asesor">${asesor}</div>`).join('')}
+                </div>
+            `;
+            container.appendChild(movistarDiv);
         }
 
         // ========== CARGA Y PROCESAMIENTO DE DATOS ==========
@@ -559,15 +757,12 @@
                 let asesoresUnicos = Array.from(asesoresMap.values());
                 asesoresUnicos.sort((a, b) => b.instaladas - a.instaladas);
 
-                // Actualizar lista de TODOS los asesores para tabla y gráfico
                 asesoresList = asesoresUnicos.map(a => a.nombre);
                 
-                // Actualizar lista solo de asesores para breaks (excluyendo los sin breaks)
                 asesoresBreaks = asesoresUnicos
                     .filter(a => !esAsesorSinBreaks(a.nombre))
                     .map(a => a.nombre);
                 
-                // Agregar líderes adicionales que no estén en el Excel
                 LIDERES.forEach(lider => {
                     if (!asesoresBreaks.some(a => a.toUpperCase() === lider)) {
                         asesoresBreaks.push(lider);
@@ -579,7 +774,7 @@
                 setupBreakGrid();
                 reanudarBreaksActivos();
 
-                console.log("Datos gráficos actualizados: " + new Date().toLocaleTimeString());
+                console.log("Datos actualizados: " + new Date().toLocaleTimeString());
 
             } catch (error) {
                 console.error("Error cargando datos:", error);
@@ -703,18 +898,15 @@
                 const esLiderAsesor = esLider(nombre);
                 card.className = 'card-break' + (esLiderAsesor ? ' lider' : '');
                 
-                // Determinar duración según asesor
                 let duracionMinutos = 40;
                 if (nombre.toUpperCase() === "GIANELLA SUAREZ") {
                     duracionMinutos = 20;
                 }
                 
-                // Mostrar tiempo correcto
                 let timerDisplay = `${duracionMinutos}:00`;
                 let btnText = "INICIAR BREAK";
                 let btnDisabled = false;
                 
-                // Si hay un break activo, mostrar estado
                 if (breaksActivos[index]) {
                     btnText = "EN BREAK";
                     btnDisabled = true;
@@ -753,7 +945,6 @@
             const display = document.getElementById(`timer-${index}`);
             const nombreAsesor = asesoresBreaks[index];
             
-            // Determinar duración según asesor
             let duracionMinutos = 40;
             if (nombreAsesor.toUpperCase() === "GIANELLA SUAREZ") {
                 duracionMinutos = 20;
@@ -765,7 +956,6 @@
             btn.disabled = true;
             btn.innerText = "EN BREAK";
 
-            // Guardar en memoria
             breaksActivos[index] = {
                 inicio: horaInicio,
                 duracion: tiempo,
@@ -785,7 +975,6 @@
                 const timerStr = `${minutos}:${segundos}`;
                 display.innerText = timerStr;
                 
-                // Actualizar en storage
                 if (breaksActivos[index]) {
                     breaksActivos[index].display = timerStr;
                     guardarBreaksEnStorage();
@@ -797,7 +986,6 @@
                     display.style.color = "#00FF7F";
                     btn.innerText = "FINALIZADO";
                     
-                    // Limpiar después de 3 segundos
                     setTimeout(() => {
                         limpiarBreakTerminado(index);
                         setupBreakGrid();
@@ -875,10 +1063,18 @@
         const modalBreak = document.getElementById('modalBreak');
         document.getElementById('btnAbrirBreak').addEventListener('click', () => modalBreak.classList.add('mostrar'));
 
+        const modalPizarra = document.getElementById('modalPizarra');
+        document.getElementById('btnAbrirPizarra').addEventListener('click', () => {
+            construirPizarra();
+            modalPizarra.classList.add('mostrar');
+        });
+
         // ========== INICIALIZACIÓN Y AUTO-REFRESH ==========
         cargarBreaksDelStorage();
         cargarDatos();
-        setInterval(cargarDatos, 120000); // Actualiza cada 2 minutos
+        cargarDatosPizarra();
+        setInterval(cargarDatos, 120000);
+        setInterval(cargarDatosPizarra, 120000);
 
     </script>
 
