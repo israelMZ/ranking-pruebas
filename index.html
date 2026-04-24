@@ -2,25 +2,66 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Ranking de Ventas + Breaks - OR Solutions</title>
+    <title>Ranking de Ventas + Breaks</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        /* TU CSS ORIGINAL INTACTO */
         body { 
-            margin: 0; padding: 40px; color: white; 
+            margin: 0; 
+            padding: 40px; 
+            color: white; 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            display: flex; flex-direction: column; align-items: center; overflow-x: hidden; 
-        }
-        .video-fondo { position: fixed; right: 0; bottom: 0; min-width: 100%; min-height: 100%; z-index: -2; object-fit: cover; }
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.75); z-index: -1; }
-        
-        .container {
-            width: 90%; max-width: 1300px; background: rgba(20, 20, 25, 0.4); 
-            padding: 40px; border-radius: 25px; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8); 
-            border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px); z-index: 1; 
-            display: flex; flex-direction: column; align-items: center;
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            overflow-x: hidden; 
         }
 
-        .chart-wrapper { position: relative; height: 80vh; min-height: 800px; width: 100%; }
+        .video-fondo { 
+            position: fixed; 
+            right: 0; 
+            bottom: 0; 
+            min-width: 100%; 
+            min-height: 100%; 
+            z-index: -2; 
+            object-fit: cover; 
+        }
+
+        .overlay { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0, 0, 0, 0.75); 
+            z-index: -1; 
+        }
+
+        .container {
+            width: 90%; 
+            max-width: 1300px; 
+            background: rgba(20, 20, 25, 0.4); 
+            padding: 40px; 
+            border-radius: 25px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8); 
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px); 
+            z-index: 1; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center;
+        }
+
+        .chart-wrapper { 
+            position: relative; 
+            height: 80vh; 
+            min-height: 1000px; 
+            width: 100%; 
+        }
+
+        #rankingVentas { 
+            filter: drop-shadow(0px 0px 10px rgba(255, 255, 255, 0.25)); 
+        }
 
         @keyframes flotarYBrillar {
             0% { transform: translateY(0px); text-shadow: 0 0 10px #FFD700; }
@@ -28,295 +69,961 @@
             100% { transform: translateY(0px); text-shadow: 0 0 10px #FFD700; }
         }
 
-        h1 { color: #FFD700; text-align: center; font-size: 3.5em; letter-spacing: 3px; animation: flotarYBrillar 3s infinite; }
+        h1 { 
+            color: #FFD700; 
+            text-align: center; 
+            z-index: 1; 
+            font-size: 3.5em; 
+            letter-spacing: 3px; 
+            margin-bottom: 30px; 
+            animation: flotarYBrillar 3s ease-in-out infinite; 
+        }
 
-        .botones-container { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-top: 30px; }
+        .btn-estadisticas, .btn-break, .btn-pizarra {
+            margin-top: 30px; 
+            margin-right: 15px;
+            padding: 15px 40px; 
+            font-size: 1.2em; 
+            font-weight: bold; 
+            color: white;
+            background: rgba(0, 191, 255, 0.2); 
+            border: 2px solid #00BFFF; 
+            border-radius: 50px; 
+            cursor: pointer;
+            transition: all 0.3s ease; 
+            text-transform: uppercase; 
+            letter-spacing: 2px; 
+            box-shadow: 0 0 15px rgba(0, 191, 255, 0.4);
+        }
+
+        .btn-break {
+            background: rgba(255, 69, 0, 0.2);
+            border: 2px solid #FF4500;
+            box-shadow: 0 0 15px rgba(255, 69, 0, 0.4);
+        }
+
+        .btn-pizarra {
+            background: rgba(138, 43, 226, 0.2);
+            border: 2px solid #8A2BE2;
+            box-shadow: 0 0 15px rgba(138, 43, 226, 0.4);
+        }
+
+        .btn-estadisticas:hover, .btn-break:hover, .btn-pizarra:hover { 
+            transform: scale(1.05); 
+        }
+
+        .btn-break:hover {
+            background: #FF4500;
+            box-shadow: 0 0 30px rgba(255, 69, 0, 0.8);
+        }
+
+        .btn-pizarra:hover {
+            background: #8A2BE2;
+            box-shadow: 0 0 30px rgba(138, 43, 226, 0.8);
+        }
+
+        .botones-container {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .modal {
+            display: none; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85); 
+            backdrop-filter: blur(20px); 
+            z-index: 999;
+            justify-content: center; 
+            align-items: center; 
+            opacity: 0; 
+            transition: opacity 0.4s ease; 
+            padding: 20px; 
+            box-sizing: border-box;
+        }
+
+        .modal.mostrar { 
+            display: flex; 
+            opacity: 1; 
+        }
+
+        .modal-contenido {
+            background: rgba(20, 20, 25, 0.8); 
+            padding: 40px; 
+            border-radius: 20px; 
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 100%; 
+            max-width: 1500px; 
+            max-height: 90vh; 
+            display: flex; 
+            flex-direction: column; 
+            position: relative;
+            box-shadow: 0 0 50px rgba(0, 191, 255, 0.2);
+            overflow-y: auto;
+        }
+
+        .modal-titulo { 
+            color: #00BFFF; 
+            font-size: 2em; 
+            margin-top: 0; 
+            margin-bottom: 10px; 
+            text-align: center; 
+            text-shadow: 0 0 15px #00BFFF; 
+        }
+
+        .modal-titulo.break-title {
+            color: #FF4500;
+            text-shadow: 0 0 15px #FF4500;
+        }
+
+        .modal-titulo.pizarra-title {
+            color: #8A2BE2;
+            text-shadow: 0 0 15px #8A2BE2;
+        }
+
+        .frase-motivacional {
+            color: #FFD700; 
+            font-size: 1.2em; 
+            font-style: italic; 
+            text-align: center; 
+            margin-top: 0; 
+            margin-bottom: 30px; 
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.4); 
+            letter-spacing: 1px;
+        }
+
+        .btn-cerrar { 
+            position: absolute; 
+            top: 20px; 
+            right: 30px; 
+            font-size: 2em; 
+            color: white; 
+            cursor: pointer; 
+            transition: color 0.3s ease; 
+        }
+
+        .btn-cerrar:hover { 
+            color: #FF4500; 
+        }
+
+        .contenedor-tabla { 
+            overflow-x: auto; 
+            overflow-y: auto; 
+            flex-grow: 1; 
+            border-radius: 10px; 
+            border: 1px solid rgba(255,255,255,0.1); 
+        }
+
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            text-align: center; 
+            white-space: nowrap; 
+        }
+
+        th { 
+            padding: 15px; 
+            font-size: 14px; 
+            letter-spacing: 1px; 
+            color: white; 
+            background: rgba(0,0,0,0.6); 
+            position: sticky; 
+            top: 0; 
+            z-index: 2; 
+            border-bottom: 2px solid rgba(255,255,255,0.2); 
+        }
+
+        td { 
+            padding: 12px; 
+            border-bottom: 1px solid rgba(255,255,255,0.05); 
+            font-weight: bold; 
+            font-size: 15px; 
+        }
+
+        tr:hover td { 
+            filter: brightness(1.5); 
+        }
+
+        .col-asesor { background: rgba(50, 50, 50, 0.4); text-align: left; padding-left: 20px; }
+        .col-naranja { background: rgba(255, 140, 0, 0.15); color: #FFB04F; } 
+        .col-rojo { background: rgba(255, 69, 0, 0.15); color: #FF6347; }    
+        .col-azul { background: rgba(0, 191, 255, 0.15); color: #00BFFF; }   
+        .col-verde { background: rgba(50, 205, 50, 0.15); color: #32CD32; }  
+        .border-right { border-right: 1px solid rgba(255,255,255,0.1); }
+
+        .grid-asesores { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); 
+            gap: 15px; 
+            margin-top: 20px; 
+        }
+
+        .card-break { 
+            background: #25252b; 
+            padding: 15px; 
+            border-radius: 10px; 
+            text-align: center; 
+            border: 1px solid #444; 
+            position: relative;
+        }
+
+        .card-break.lider {
+            background: #1a3a3a;
+            border: 2px solid #00FF7F;
+            box-shadow: 0 0 15px rgba(0, 255, 127, 0.3);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .lider-badge {
+            background: linear-gradient(135deg, #00FF7F, #00BFFF);
+            color: black;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 0.7em;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+
+        .btn-reset {
+            background: #666;
+            border: none;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.8em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .btn-reset:hover { background: #FF6347; box-shadow: 0 0 10px rgba(255, 99, 71, 0.6); }
+
+        .timer-display { 
+            font-size: 1.8em; 
+            font-family: monospace; 
+            color: #FF4500; 
+            margin: 10px 0; 
+        }
+
+        .card-break.lider .timer-display { color: #00FF7F; }
+
+        .btn-start { 
+            background: #FF4500; 
+            border: none; 
+            color: white; 
+            padding: 8px 20px; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            width: 100%; 
+        }
+
+        .card-break.lider .btn-start { background: #00FF7F; color: black; }
+        .btn-start:disabled { background: #333; color: #777; cursor: not-allowed; border: 1px solid #444; }
+        .info-break { color: #aaa; text-align: center; font-size: 0.9em; margin-bottom: 20px; }
+
+        .pizarra-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .pizarra-seccion {
+            background: rgba(30, 30, 40, 0.8);
+            border: 2px solid;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .pizarra-seccion.claro { border-color: #FF0000; box-shadow: 0 0 20px rgba(255, 0, 0, 0.3); }
+        .pizarra-seccion.wow { border-color: #9933FF; box-shadow: 0 0 20px rgba(153, 51, 255, 0.3); }
+        .pizarra-seccion.movistar { border-color: #0099FF; box-shadow: 0 0 20px rgba(0, 153, 255, 0.3); }
+
+        .pizarra-titulo {
+            font-size: 1.8em;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px currentColor;
+        }
+
+        .pizarra-seccion.claro .pizarra-titulo { color: #FF0000; }
+        .pizarra-seccion.wow .pizarra-titulo { color: #9933FF; }
+        .pizarra-seccion.movistar .pizarra-titulo { color: #0099FF; }
+
+        .pizarra-asesores {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .pizarra-asesor {
+            background: rgba(50, 50, 60, 0.6);
+            padding: 12px 15px;
+            border-radius: 8px;
+            border-left: 4px solid;
+            text-align: left;
+            font-size: 0.95em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .pizarra-asesor:hover {
+            transform: translateX(5px);
+            filter: brightness(1.3);
+        }
+
+        .pizarra-asesor-nombre { flex-grow: 1; }
         
-        button { 
-            padding: 15px 30px; font-size: 1.1em; font-weight: bold; color: white; border-radius: 50px; 
-            cursor: pointer; transition: 0.3s; text-transform: uppercase; border: 2px solid;
+        .pizarra-asesor-estrellas {
+            display: flex;
+            gap: 5px;
+            align-items: center;
         }
-        .btn-estadisticas { background: rgba(0, 191, 255, 0.1); border-color: #00BFFF; }
-        .btn-break { background: rgba(255, 69, 0, 0.1); border-color: #FF4500; }
-        .btn-pizarra { background: rgba(138, 43, 226, 0.1); border-color: #8A2BE2; }
-        button:hover { transform: scale(1.05); filter: brightness(1.2); }
 
-        .modal { 
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.9); backdrop-filter: blur(15px); z-index: 1000; 
-            justify-content: center; align-items: center;
+        .estrellas-display {
+            font-size: 1.2em;
+            letter-spacing: 2px;
         }
-        .modal.mostrar { display: flex; }
-        .modal-contenido { 
-            background: #141419; padding: 40px; border-radius: 20px; width: 90%; max-width: 1400px; 
-            max-height: 85vh; overflow-y: auto; position: relative; border: 1px solid #333;
-        }
-        .btn-cerrar { position: absolute; top: 20px; right: 20px; font-size: 2em; cursor: pointer; }
 
-        /* Estilos Pizarra */
-        .pizarra-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
-        .pizarra-seccion { background: rgba(255,255,255,0.03); border: 2px solid; border-radius: 15px; padding: 15px; }
-        .claro { border-color: #FF0000; } .wow { border-color: #9933FF; } .movistar { border-color: #0099FF; }
-        .pizarra-asesor { 
-            display: flex; justify-content: space-between; align-items: center; 
-            background: rgba(255,255,255,0.05); padding: 10px; margin-bottom: 8px; border-radius: 8px;
+        .btn-estrella-pizarra {
+            background: rgba(255, 215, 0, 0.3);
+            border: 1px solid #FFD700;
+            color: #FFD700;
+            padding: 3px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8em;
+            font-weight: bold;
+            transition: all 0.3s ease;
         }
-        .estrellas-display { color: #FFD700; margin-right: 10px; }
-        .btn-estrella-pizarra { background: #FFD700; color: black; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-weight: bold; }
 
-        /* Estilos Breaks */
-        .grid-asesores { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
-        .card-break { background: #1e1e24; padding: 15px; border-radius: 12px; text-align: center; border: 1px solid #333; }
-        .card-break.lider { border-color: #00FF7F; background: #1a2e25; }
-        .timer-display { font-size: 1.7em; font-family: monospace; color: #FF4500; margin: 10px 0; }
-        .btn-start { width: 100%; padding: 10px; background: #FF4500; border: none; color: white; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        .btn-start:disabled { background: #444; }
-        .lider-badge { background: #00FF7F; color: black; font-size: 0.7em; padding: 2px 5px; border-radius: 3px; margin-left: 5px; }
-        
-        table { width: 100%; border-collapse: collapse; }
-        th { background: #000; padding: 15px; sticky: top; }
-        td { padding: 12px; border-bottom: 1px solid #222; text-align: center; }
+        .btn-estrella-pizarra:hover {
+            background: #FFD700;
+            color: black;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+        }
+
+        .pizarra-seccion.claro .pizarra-asesor { border-color: #FF0000; color: #FF0000; }
+        .pizarra-seccion.wow .pizarra-asesor { border-color: #9933FF; color: #9933FF; }
+        .pizarra-seccion.movistar .pizarra-asesor { border-color: #0099FF; color: #0099FF; }
     </style>
 </head>
 <body>
 
-    <video autoplay loop muted playsinline class="video-fondo"><source src="tigre.mp4" type="video/mp4"></video>
+    <video autoplay loop muted playsinline class="video-fondo">
+        <source src="tigre.mp4" type="video/mp4">
+    </video>
+
     <div class="overlay"></div>
 
     <h1>🏆 RANKING DE VENTAS 🏆</h1>
 
     <div class="container">
-        <div class="chart-wrapper"><canvas id="rankingVentas"></canvas></div>
+        <div class="chart-wrapper">
+            <canvas id="rankingVentas"></canvas>
+        </div>
+
         <div class="botones-container">
-            <button id="btnAbrirStats" class="btn-estadisticas">📊 DESGLOSE</button>
-            <button id="btnAbrirBreak" class="btn-break">⏱️ BREAKS</button>
+            <button id="btnAbrirStats" class="btn-estadisticas">📊 TABLA DE DESGLOSE</button>
+            <button id="btnAbrirBreak" class="btn-break">⏱️ ADMINISTRAR BREAKS</button>
             <button id="btnAbrirPizarra" class="btn-pizarra">📋 PIZARRA</button>
         </div>
     </div>
 
-    <div id="modalStats" class="modal"><div class="modal-contenido"><span class="btn-cerrar" onclick="cerrarModal('modalStats')">✖</span><h2>REPORTE DETALLADO</h2><table><thead><tr><th>ASESOR</th><th>INGRESOS</th><th>C. CLI</th><th>C. OP</th><th>PROG</th><th>INST</th><th>TOTAL</th><th>CONV%</th></tr></thead><tbody id="cuerpoTabla"></tbody></table></div></div>
-    
-    <div id="modalBreak" class="modal"><div class="modal-contenido"><span class="btn-cerrar" onclick="cerrarModal('modalBreak')">✖</span><h2>⏱️ GESTIÓN DE BREAKS</h2><div id="gridAsesores" class="grid-asesores"></div></div></div>
+    <div id="modalStats" class="modal">
+        <div class="modal-contenido">
+            <span id="btnCerrarStats" class="btn-cerrar">✖</span>
+            <h2 class="modal-titulo">REPORTE DETALLADO DEL EQUIPO</h2>
+            <p class="frase-motivacional">"Hoy es una oportunidad para ser mejor que el día anterior"</p>
+            <div class="contenedor-tabla">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="col-asesor border-right">ASESOR</th>
+                            <th class="col-naranja border-right">INGRESOS</th>
+                            <th class="col-rojo">CANC. CLIENTE</th>
+                            <th class="col-rojo border-right">CANC. OP</th>
+                            <th class="col-azul border-right">PROGRAMADA</th>
+                            <th class="col-verde border-right">INSTALADAS</th>
+                            <th class="col-naranja border-right">TOTAL</th>
+                            <th class="col-naranja">CONVERTIBILIDAD</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cuerpoTabla">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
-    <div id="modalPizarra" class="modal"><div class="modal-contenido"><span class="btn-cerrar" onclick="cerrarModal('modalPizarra')">✖</span><h2>📋 PIZARRA DE VENTAS</h2><div class="pizarra-container" id="pizarraContainer"></div></div></div>
+    <div id="modalBreak" class="modal">
+        <div class="modal-contenido">
+            <span class="btn-cerrar" onclick="cerrarModal('modalBreak')">✖</span>
+            <h2 class="modal-titulo break-title">⏱️ ADMINISTRACIÓN DE BREAKS</h2>
+            <p class="info-break">Solo el administrador puede iniciar el tiempo.</p>
+            <div id="gridAsesores" class="grid-asesores"></div>
+        </div>
+    </div>
+
+    <div id="modalPizarra" class="modal">
+        <div class="modal-contenido">
+            <span class="btn-cerrar" onclick="cerrarModal('modalPizarra')">✖</span>
+            <h2 class="modal-titulo pizarra-title">📋 PIZARRA DE VENTAS</h2>
+            <div class="pizarra-container" id="pizarraContainer">
+            </div>
+        </div>
+    </div>
 
     <script>
         const URL_SHEET = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTfvuQqIcH6Zv8rqvsqeolWoX7Z3lIKZqz2nX-Q0aCRBZcPRvXAXz8rjKyoAZ-OmiI9GfpNkMjK9Uht/pub?output=csv';
         const URL_SHEET_PIZARRA = 'https://docs.google.com/spreadsheets/d/1u37Zs5aSHL62Z1whx1ixBdrnoiaVf3xztf_FU_w0RKw/export?gid=543637953&format=csv';
         const PASS_ADMIN = "tiger123@";
+        
+        const ASESORES_SIN_BREAKS = [
+            "ISABELLE GARCIA", "LEONARDO CASTILLO", "HENRY MAMANI", 
+            "ARMANDO ZAVALETA", "PEDRO LOPEZ", "DIEGO OLIVARES", 
+            "LEONARDO YOBERA", "ROMINA SOLIS"
+        ];
 
-        const ASESORES_SIN_BREAKS = ["ISABELLE GARCIA", "LEONARDO CASTILLO", "HENRY MAMANI", "ARMANDO ZAVALETA", "PEDRO LOPEZ", "DIEGO OLIVARES", "LEONARDO YOBERA", "ROMINA SOLIS"];
-        const LIDERES = ["MIKE ROMERO", "RAMIRO FLORES", "JEYKO BAZALAR", "PAULINA SUTTI", "ICEL MORENO", "ISRAEL OSORIO", "RICKSON FIGUEROA"];
-
+        const LIDERES = [
+            "MIKE ROMERO", "RAMIRO FLORES", "JEYKO BAZALAR", 
+            "PAULINA SUTTI", "ICEL MORENO", "ISRAEL OSORIO", 
+            "RICKSON FIGUEROA"
+        ];
+        
         let miGrafico = null;
-        let pizarraData = { claro: [], wow: [], movistar: [] };
-        let estrellasData = JSON.parse(localStorage.getItem('estrellas')) || {};
-        let breaksActivos = JSON.parse(localStorage.getItem('breaksActivos')) || {};
-        let intervalosActivos = {};
+        let asesoresList = [];
         let asesoresBreaks = [];
+        let breaksActivos = {};
+        let intervalosActivos = {};
+        let pizarraData = {
+            claro: [],
+            wow: [],
+            movistar: []
+        };
+        
+        // --- LÓGICA DE ESTRELLAS CORREGIDA (NUEVA ESTRUCTURA) ---
+        let estrellasData = {};
 
-        function cerrarModal(id) { document.getElementById(id).classList.remove('mostrar'); }
+        function cerrarModal(idModal) {
+            document.getElementById(idModal).classList.remove('mostrar');
+        }
 
-        // --- LÓGICA PIZARRA CORREGIDA (ESTRELLAS INDIVIDUALES) ---
-        function agregarEstrella(nombre) {
-            const n = nombre.trim();
-            estrellasData[n] = (estrellasData[n] || 0) + 1;
-            localStorage.setItem('estrellas', JSON.stringify(estrellasData));
+        function esAsesorSinBreaks(nombre) {
+            return ASESORES_SIN_BREAKS.some(excluido => nombre.toUpperCase() === excluido);
+        }
+
+        function esLider(nombre) {
+            return LIDERES.some(lider => nombre.toUpperCase() === lider);
+        }
+
+        function guardarBreaksEnStorage() {
+            localStorage.setItem('breaksActivos', JSON.stringify(breaksActivos));
+        }
+
+        function cargarBreaksDelStorage() {
+            const datos = localStorage.getItem('breaksActivos');
+            if (datos) {
+                try {
+                    breaksActivos = JSON.parse(datos);
+                } catch (e) {
+                    breaksActivos = {};
+                }
+            }
+        }
+
+        // Usamos una nueva clave (estrellas_v3) para que no jale el error del pasado
+        function guardarEstrellas() {
+            localStorage.setItem('estrellas_v3', JSON.stringify(estrellasData));
+        }
+
+        function cargarEstrellas() {
+            const datos = localStorage.getItem('estrellas_v3');
+            if (datos) {
+                try {
+                    estrellasData = JSON.parse(datos);
+                } catch (e) {
+                    estrellasData = {};
+                }
+            }
+        }
+
+        // Se agregó la campaña para separar a "Melisa de Claro" de "Melisa de Wow"
+        function agregarEstrella(nombre, campana) {
+            const key = nombre.trim() + '_' + campana;
+            if (!estrellasData[key]) {
+                estrellasData[key] = 0;
+            }
+            estrellasData[key]++;
+            guardarEstrellas();
             construirPizarra();
+        }
+
+        function limpiarBreakTerminado(index) {
+            delete breaksActivos[index];
+            guardarBreaksEnStorage();
+        }
+
+        function resetearBreakConPassword(index) {
+            const passwordInput = prompt("Ingrese la contraseña de administrador para resetear:");
+            if (passwordInput === PASS_ADMIN) {
+                if (intervalosActivos[index]) {
+                    clearInterval(intervalosActivos[index]);
+                    delete intervalosActivos[index];
+                }
+                limpiarBreakTerminado(index);
+                setupBreakGrid();
+                alert("Break reseteado correctamente ✓");
+            } else if (passwordInput !== null) {
+                alert("Contraseña incorrecta.");
+            }
         }
 
         async function cargarDatosPizarra() {
             try {
-                const res = await fetch(URL_SHEET_PIZARRA + '&t=' + Date.now());
-                const csv = await res.text();
-                const filas = csv.split('\n').slice(1);
+                const urlConFiltro = URL_SHEET_PIZARRA + '&t=' + new Date().getTime();
+                const respuesta = await fetch(urlConFiltro);
+                const dataRaw = await respuesta.text();
+                const filas = dataRaw.split('\n').slice(1);
+
                 pizarraData = { claro: [], wow: [], movistar: [] };
-                filas.forEach(f => {
-                    const c = f.replace(/\r/g, '').split(',');
-                    if(c[0] && c[0].trim().toUpperCase() !== 'CLARO') pizarraData.claro.push(c[0].trim());
-                    if(c[1] && c[1].trim().toUpperCase() !== 'WOW') pizarraData.wow.push(c[1].trim());
-                    if(c[2] && c[2].trim().toUpperCase() !== 'MOVISTAR') pizarraData.movistar.push(c[2].trim());
+
+                filas.forEach(linea => {
+                    const c = linea.replace(/\r/g, '').split(',');
+                    if (c.length < 3) return;
+
+                    if (c[0].trim() && c[0].trim().toUpperCase() !== 'CLARO') {
+                        pizarraData.claro.push(c[0].trim());
+                    }
+                    if (c[1].trim() && c[1].trim().toUpperCase() !== 'WOW') {
+                        pizarraData.wow.push(c[1].trim());
+                    }
+                    if (c[2].trim() && c[2].trim().toUpperCase() !== 'MOVISTAR') {
+                        pizarraData.movistar.push(c[2].trim());
+                    }
                 });
-                if(document.getElementById('modalPizarra').classList.contains('mostrar')) construirPizarra();
-            } catch(e) { console.error(e); }
+            } catch (error) {
+                console.error("Error cargando datos pizarra:", error);
+            }
         }
 
+        // --- CONSTRUCTOR DE PIZARRA CORREGIDO (MANTIENE TU HTML EXACTO) ---
         function construirPizarra() {
             const container = document.getElementById('pizarraContainer');
             container.innerHTML = '';
-            const cats = [{k:'claro', t:'📱 CLARO', c:'claro'}, {k:'wow', t:'💜 WOW', c:'wow'}, {k:'movistar', t:'🔵 MOVISTAR', c:'movistar'}];
-            
-            cats.forEach(cat => {
-                const div = document.createElement('div');
-                div.className = `pizarra-seccion ${cat.c}`;
-                let html = `<div class="pizarra-titulo">${cat.t}</div>`;
-                pizarraData[cat.k].forEach(nom => {
-                    const n = nom.trim();
-                    const num = estrellasData[n] || 0;
-                    const nEsc = n.replace(/'/g, "\\'");
-                    html += `<div class="pizarra-asesor"><span>${n}</span><div><span class="estrellas-display">${'⭐'.repeat(num)}</span><button class="btn-estrella-pizarra" onclick="agregarEstrella('${nEsc}')">+</button></div></div>`;
+
+            // SECCIÓN CLARO
+            const claroDiv = document.createElement('div');
+            claroDiv.className = 'pizarra-seccion claro';
+            let claroHTML = '<div class="pizarra-titulo">📱 CLARO</div><div class="pizarra-asesores">';
+            if (pizarraData.claro.length > 0) {
+                claroHTML += pizarraData.claro.map(asesor => {
+                    const nombreLimpio = asesor.trim();
+                    const key = nombreLimpio + '_claro'; // Clave única por campaña
+                    const estrellas = estrellasData[key] || 0;
+                    let estrellasDisplay = '';
+                    for (let i = 0; i < estrellas; i++) {
+                        estrellasDisplay += '⭐';
+                    }
+                    return '<div class="pizarra-asesor"><div class="pizarra-asesor-nombre">' + nombreLimpio + '</div><div class="pizarra-asesor-estrellas"><div class="estrellas-display">' + estrellasDisplay + '</div><button class="btn-estrella-pizarra" onclick="agregarEstrella(\'' + nombreLimpio.replace(/'/g, "\\'") + '\', \'claro\')">+</button></div></div>';
+                }).join('');
+            } else {
+                claroHTML += '<div class="pizarra-asesor">Sin asesores</div>';
+            }
+            claroHTML += '</div>';
+            claroDiv.innerHTML = claroHTML;
+            container.appendChild(claroDiv);
+
+            // SECCIÓN WOW
+            const wowDiv = document.createElement('div');
+            wowDiv.className = 'pizarra-seccion wow';
+            let wowHTML = '<div class="pizarra-titulo">💜 WOW</div><div class="pizarra-asesores">';
+            if (pizarraData.wow.length > 0) {
+                wowHTML += pizarraData.wow.map(asesor => {
+                    const nombreLimpio = asesor.trim();
+                    const key = nombreLimpio + '_wow'; // Clave única por campaña
+                    const estrellas = estrellasData[key] || 0;
+                    let estrellasDisplay = '';
+                    for (let i = 0; i < estrellas; i++) {
+                        estrellasDisplay += '⭐';
+                    }
+                    return '<div class="pizarra-asesor"><div class="pizarra-asesor-nombre">' + nombreLimpio + '</div><div class="pizarra-asesor-estrellas"><div class="estrellas-display">' + estrellasDisplay + '</div><button class="btn-estrella-pizarra" onclick="agregarEstrella(\'' + nombreLimpio.replace(/'/g, "\\'") + '\', \'wow\')">+</button></div></div>';
+                }).join('');
+            } else {
+                wowHTML += '<div class="pizarra-asesor">Sin asesores</div>';
+            }
+            wowHTML += '</div>';
+            wowDiv.innerHTML = wowHTML;
+            container.appendChild(wowDiv);
+
+            // SECCIÓN MOVISTAR
+            const movistarDiv = document.createElement('div');
+            movistarDiv.className = 'pizarra-seccion movistar';
+            let movistarHTML = '<div class="pizarra-titulo">🔵 MOVISTAR</div><div class="pizarra-asesores">';
+            if (pizarraData.movistar.length > 0) {
+                movistarHTML += pizarraData.movistar.map(asesor => {
+                    const nombreLimpio = asesor.trim();
+                    const key = nombreLimpio + '_movistar'; // Clave única por campaña
+                    const estrellas = estrellasData[key] || 0;
+                    let estrellasDisplay = '';
+                    for (let i = 0; i < estrellas; i++) {
+                        estrellasDisplay += '⭐';
+                    }
+                    return '<div class="pizarra-asesor"><div class="pizarra-asesor-nombre">' + nombreLimpio + '</div><div class="pizarra-asesor-estrellas"><div class="estrellas-display">' + estrellasDisplay + '</div><button class="btn-estrella-pizarra" onclick="agregarEstrella(\'' + nombreLimpio.replace(/'/g, "\\'") + '\', \'movistar\')">+</button></div></div>';
+                }).join('');
+            } else {
+                movistarHTML += '<div class="pizarra-asesor">Sin asesores</div>';
+            }
+            movistarHTML += '</div>';
+            movistarDiv.innerHTML = movistarHTML;
+            container.appendChild(movistarDiv);
+        }
+
+        async function cargarDatos() {
+            try {
+                const urlConFiltro = URL_SHEET + '&t=' + new Date().getTime();
+                const respuesta = await fetch(urlConFiltro);
+                const dataRaw = await respuesta.text();
+                const filas = dataRaw.split('\n').slice(1);
+
+                let asesoresMap = new Map();
+
+                filas.forEach(linea => {
+                    const c = linea.replace(/\r/g, '').split(',');
+                    if(c.length < 6 || c[0].trim() === '' || c[0].trim().toUpperCase() === 'ASESOR') return;
+
+                    const nombre = c[0].trim();
+                    const ingresos = parseInt(c[1]) || 0;
+                    const cancCliente = parseInt(c[2]) || 0;
+                    const cancOp = parseInt(c[3]) || 0;
+                    const programada = parseInt(c[4]) || 0;
+                    const instaladas = parseInt(c[5]) || 0;
+
+                    if (asesoresMap.has(nombre)) {
+                        const asExistente = asesoresMap.get(nombre);
+                        asesoresMap.set(nombre, {
+                            nombre,
+                            ingresos: asExistente.ingresos + ingresos,
+                            cancCliente: asExistente.cancCliente + cancCliente,
+                            cancOp: asExistente.cancOp + cancOp,
+                            programada: asExistente.programada + programada,
+                            instaladas: asExistente.instaladas + instaladas
+                        });
+                    } else {
+                        asesoresMap.set(nombre, { nombre, ingresos, cancCliente, cancOp, programada, instaladas });
+                    }
                 });
-                div.innerHTML = html;
-                container.appendChild(div);
+
+                let asesoresUnicos = Array.from(asesoresMap.values());
+                asesoresUnicos.sort((a, b) => b.instaladas - a.instaladas);
+
+                asesoresList = asesoresUnicos.map(a => a.nombre);
+                
+                asesoresBreaks = asesoresUnicos
+                    .filter(a => !esAsesorSinBreaks(a.nombre))
+                    .map(a => a.nombre);
+                
+                LIDERES.forEach(lider => {
+                    if (!asesoresBreaks.some(a => a.toUpperCase() === lider)) {
+                        asesoresBreaks.push(lider);
+                    }
+                });
+                
+                llenarTabla(asesoresUnicos);
+                dibujarGrafico(asesoresUnicos);
+                setupBreakGrid();
+                reanudarBreaksActivos();
+
+            } catch (error) {
+                console.error("Error cargando datos:", error);
+            }
+        }
+
+        function llenarTabla(asesores) {
+            const cuerpo = document.getElementById('cuerpoTabla');
+            cuerpo.innerHTML = '';
+            asesores.forEach(as => {
+                const totalCalculado = as.cancCliente + as.cancOp + as.programada + as.instaladas;
+                const convertibilidad = as.ingresos > 0 ? ((as.instaladas / as.ingresos) * 100).toFixed(2) : "0.00";
+
+                cuerpo.innerHTML += '<tr><td class="col-asesor border-right">' + as.nombre + '</td><td class="col-naranja border-right">' + as.ingresos + '</td><td class="col-rojo">' + as.cancCliente + '</td><td class="col-rojo border-right">' + as.cancOp + '</td><td class="col-azul border-right">' + as.programada + '</td><td class="col-verde border-right">' + as.instaladas + '</td><td class="col-naranja border-right">' + totalCalculado + '</td><td class="col-naranja">' + convertibilidad + ' %</td></tr>';
             });
         }
 
-        // --- LÓGICA BREAKS COMPLETA ---
+        function dibujarGrafico(asesores) {
+            const ctx = document.getElementById('rankingVentas').getContext('2d');
+
+            const nombresInsignia = asesores.map((as, i) => {
+                if (i === 0) return '👑 ' + as.nombre;
+                if (i === 1) return '🥈 ' + as.nombre;
+                if (i === 2) return '🥉 ' + as.nombre;
+                return as.nombre;
+            });
+
+            const ventas = asesores.map(as => as.instaladas);
+            const colores = ventas.map(v => v >= 10 ? 'rgba(255, 215, 0, 0.8)' : v >= 7 ? 'rgba(0, 255, 127, 0.8)' : v >= 4 ? 'rgba(0, 191, 255, 0.8)' : 'rgba(138, 43, 226, 0.6)');
+            const bordes = ventas.map(v => v >= 10 ? '#FFD700' : v >= 7 ? '#00FF7F' : v >= 4 ? '#00BFFF' : '#8A2BE2');
+            const coloresTxt = ventas.map(v => v >= 10 ? '#FFD700' : v >= 7 ? '#00FF7F' : v >= 4 ? '#00BFFF' : '#E066FF');
+
+            Chart.defaults.font.family = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
+
+            if (miGrafico) {
+                miGrafico.destroy();
+            }
+
+            let delayed;
+            miGrafico = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: nombresInsignia,
+                    datasets: [{
+                        label: 'Ventas Instaladas',
+                        data: ventas,
+                        backgroundColor: colores,
+                        borderColor: bordes,
+                        borderWidth: 2,
+                        borderRadius: 10,
+                        barPercentage: 0.7
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: {
+                        onComplete: () => { delayed = true; },
+                        delay: (context) => {
+                            let delay = 0;
+                            if (context.type === 'data' && context.mode === 'default' && !delayed) {
+                                delay = context.dataIndex * 150;
+                            }
+                            return delay;
+                        },
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.95)',
+                            titleFont: { size: 18, weight: 'bold' },
+                            bodyFont: { size: 15 },
+                            padding: 15,
+                            displayColors: false,
+                            callbacks: {
+                                label: function(context) {
+                                    const as = asesores[context.dataIndex];
+                                    const conv = as.ingresos > 0 ? ((as.instaladas / as.ingresos) * 100).toFixed(1) : "0.0";
+                                    return [' ✅ Instaladas: ' + as.instaladas, ' 📥 Ingresadas: ' + as.ingresos, ' 📊 Convertibilidad: ' + conv + '%'];
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            max: 30,
+                            grid: { color: 'rgba(255,255,255,0.08)' },
+                            ticks: { color: '#bbbbbb', stepSize: 5 }
+                        },
+                        y: {
+                            grid: { display: false },
+                            ticks: { color: coloresTxt, font: { weight: 'bold' } }
+                        }
+                    }
+                }
+            });
+        }
+
         function setupBreakGrid() {
             const grid = document.getElementById('gridAsesores');
             grid.innerHTML = '';
-            asesoresBreaks.forEach((nombre, idx) => {
-                const esLid = LIDERES.includes(nombre.toUpperCase());
+            
+            asesoresBreaks.forEach((nombre, index) => {
                 const card = document.createElement('div');
-                card.className = `card-break ${esLid?'lider':''}`;
+                const esLiderAsesor = esLider(nombre);
+                card.className = 'card-break' + (esLiderAsesor ? ' lider' : '');
                 
-                let duracion = nombre.toUpperCase() === "GIANELLA SUAREZ" ? 20 : 40;
-                let display = breaksActivos[idx] ? breaksActivos[idx].display : `${duracion}:00`;
-                let status = breaksActivos[idx] ? "EN BREAK" : "INICIAR";
-
-                card.innerHTML = `
-                    <div style="font-weight:bold">${nombre}${esLid?'<span class="lider-badge">LÍDER</span>':''}</div>
-                    <div id="timer-${idx}" class="timer-display">${display}</div>
-                    <button id="btn-${idx}" class="btn-start" onclick="pedirPass(${idx})" ${breaksActivos[idx]?'disabled':''}>${status}</button>
-                    <button onclick="resetBreak(${idx})" style="margin-top:5px; font-size:0.7em; background:none; border:none; color:#666; cursor:pointer">Resetear</button>
-                `;
+                let duracionMinutos = 40;
+                if (nombre.toUpperCase() === "GIANELLA SUAREZ") {
+                    duracionMinutos = 20;
+                }
+                
+                let timerDisplay = duracionMinutos + ':00';
+                let btnText = "INICIAR BREAK";
+                let btnDisabled = false;
+                
+                if (breaksActivos[index]) {
+                    btnText = "EN BREAK";
+                    btnDisabled = true;
+                    timerDisplay = breaksActivos[index].display;
+                }
+                
+                card.innerHTML = '<div class="card-header"><div style="font-weight:bold; flex-grow:1; display: flex; align-items: center;">' + nombre + (esLiderAsesor ? '<span class="lider-badge">🌟 LÍDER</span>' : '') + '</div><button class="btn-reset" onclick="resetearBreakConPassword(' + index + ')" title="Resetear break">🔄</button></div><div id="timer-' + index + '" class="timer-display">' + timerDisplay + '</div><button id="btn-' + index + '" class="btn-start" onclick="verificarYIniciar(' + index + ')" ' + (btnDisabled ? 'disabled' : '') + '>' + btnText + '</button>';
                 grid.appendChild(card);
             });
         }
 
-        function pedirPass(idx) {
-            if(prompt("Contraseña Admin:") === PASS_ADMIN) startBreak(idx);
-            else alert("Error");
-        }
-
-        function startBreak(idx) {
-            const nom = asesoresBreaks[idx];
-            let segs = (nom.toUpperCase() === "GIANELLA SUAREZ" ? 20 : 40) * 60;
-            
-            breaksActivos[idx] = { inicio: Date.now(), duracion: segs, display: "" };
-            localStorage.setItem('breaksActivos', JSON.stringify(breaksActivos));
-            ejecutarTimer(idx, segs);
-        }
-
-        function ejecutarTimer(idx, tiempo) {
-            const btn = document.getElementById('btn-'+idx);
-            const disp = document.getElementById('timer-'+idx);
-            if(btn) { btn.disabled = true; btn.innerText = "EN BREAK"; }
-
-            intervalosActivos[idx] = setInterval(() => {
-                let m = Math.floor(tiempo / 60);
-                let s = tiempo % 60;
-                let str = `${m}:${s < 10 ? '0' : ''}${s}`;
-                if(disp) disp.innerText = str;
-                
-                if(breaksActivos[idx]) { breaksActivos[idx].display = str; localStorage.setItem('breaksActivos', JSON.stringify(breaksActivos)); }
-
-                if(tiempo <= 0) {
-                    clearInterval(intervalosActivos[idx]);
-                    if(disp) disp.innerText = "TERMINADO";
-                    delete breaksActivos[idx];
-                    localStorage.setItem('breaksActivos', JSON.stringify(breaksActivos));
-                }
-                tiempo--;
-            }, 1000);
-        }
-
-        function resetBreak(idx) {
-            if(prompt("Pass para reset:") === PASS_ADMIN) {
-                clearInterval(intervalosActivos[idx]);
-                delete breaksActivos[idx];
-                localStorage.setItem('breaksActivos', JSON.stringify(breaksActivos));
-                setupBreakGrid();
+        function verificarYIniciar(index) {
+            const passwordInput = prompt("Ingrese la contraseña de administrador:");
+            if (passwordInput === PASS_ADMIN) {
+                startBreak(index);
+            } else if (passwordInput !== null) {
+                alert("Contraseña incorrecta.");
             }
         }
 
-        // --- CARGA DE DATOS PRINCIPALES ---
-        async function cargarDatos() {
-            try {
-                const res = await fetch(URL_SHEET + '&t=' + Date.now());
-                const csv = await res.text();
-                const filas = csv.split('\n').slice(1);
-                let mapAsesores = new Map();
+        function startBreak(index) {
+            const btn = document.getElementById('btn-' + index);
+            const display = document.getElementById('timer-' + index);
+            const nombreAsesor = asesoresBreaks[index];
+            
+            let duracionMinutos = 40;
+            if (nombreAsesor.toUpperCase() === "GIANELLA SUAREZ") {
+                duracionMinutos = 20;
+            }
+            
+            let tiempo = duracionMinutos * 60;
+            const horaInicio = Date.now();
 
-                filas.forEach(f => {
-                    const c = f.replace(/\r/g, '').split(',');
-                    if(c.length < 6 || !c[0].trim()) return;
-                    let n = c[0].trim();
-                    let data = {
-                        n, 
-                        ing: parseInt(c[1])||0, 
-                        ccl: parseInt(c[2])||0, 
-                        cop: parseInt(c[3])||0, 
-                        prg: parseInt(c[4])||0, 
-                        ins: parseInt(c[5])||0
-                    };
-                    if(mapAsesores.has(n)) {
-                        let prev = mapAsesores.get(n);
-                        mapAsesores.set(n, { ...data, ing: data.ing+prev.ing, ins: data.ins+prev.ins, prg: data.prg+prev.prg, ccl: data.ccl+prev.ccl, cop: data.cop+prev.cop });
-                    } else mapAsesores.set(n, data);
-                });
+            btn.disabled = true;
+            btn.innerText = "EN BREAK";
 
-                let lista = Array.from(mapAsesores.values()).sort((a,b) => b.ins - a.ins);
+            breaksActivos[index] = {
+                inicio: horaInicio,
+                duracion: tiempo,
+                display: duracionMinutos + ':00',
+                nombreAsesor: nombreAsesor,
+                intervaloId: null
+            };
+            guardarBreaksEnStorage();
+
+            const intervalo = setInterval(() => {
+                let minutos = Math.floor(tiempo / 60);
+                let segundos = tiempo % 60;
+
+                minutos = minutos < 10 ? '0' + minutos : minutos;
+                segundos = segundos < 10 ? '0' + segundos : segundos;
+
+                const timerStr = minutos + ':' + segundos;
+                display.innerText = timerStr;
                 
-                // Actualizar lista para breaks
-                asesoresBreaks = lista.filter(a => !ASESORES_SIN_BREAKS.includes(a.n.toUpperCase())).map(a => a.n);
-                LIDERES.forEach(l => { if(!asesoresBreaks.includes(l)) asesoresBreaks.push(l); });
+                if (breaksActivos[index]) {
+                    breaksActivos[index].display = timerStr;
+                    guardarBreaksEnStorage();
+                }
 
-                dibujarGrafico(lista);
-                llenarTabla(lista);
-                setupBreakGrid();
-                reanudarTimers();
-            } catch(e) { console.error(e); }
+                if (tiempo <= 0) {
+                    clearInterval(intervalo);
+                    display.innerText = "TERMINADO";
+                    display.style.color = "#00FF7F";
+                    btn.innerText = "FINALIZADO";
+                    
+                    setTimeout(() => {
+                        limpiarBreakTerminado(index);
+                        setupBreakGrid();
+                    }, 3000);
+                } else {
+                    tiempo--;
+                }
+            }, 1000);
+
+            intervalosActivos[index] = intervalo;
         }
 
-        function reanudarTimers() {
-            Object.keys(breaksActivos).forEach(idx => {
-                if(!intervalosActivos[idx]) {
-                    const b = breaksActivos[idx];
-                    const transcurrido = Math.floor((Date.now() - b.inicio) / 1000);
-                    const restante = b.duracion - transcurrido;
-                    if(restante > 0) ejecutarTimer(idx, restante);
-                    else { delete breaksActivos[idx]; localStorage.setItem('breaksActivos', JSON.stringify(breaksActivos)); }
+        function reanudarBreaksActivos() {
+            Object.keys(breaksActivos).forEach(indexStr => {
+                const index = parseInt(indexStr);
+                const breakData = breaksActivos[index];
+                
+                if (breakData && breakData.inicio) {
+                    const ahora = Date.now();
+                    const tiempoTranscurrido = Math.floor((ahora - breakData.inicio) / 1000);
+                    let tiempoRestante = breakData.duracion - tiempoTranscurrido;
+                    
+                    if (tiempoRestante > 0) {
+                        const btn = document.getElementById('btn-' + index);
+                        const display = document.getElementById('timer-' + index);
+                        
+                        if (btn) btn.disabled = true;
+                        if (btn) btn.innerText = "EN BREAK";
+                        
+                        const intervalo = setInterval(() => {
+                            let minutos = Math.floor(tiempoRestante / 60);
+                            let segundos = tiempoRestante % 60;
+
+                            minutos = minutos < 10 ? '0' + minutos : minutos;
+                            segundos = segundos < 10 ? '0' + segundos : segundos;
+
+                            const timerStr = minutos + ':' + segundos;
+                            if (display) display.innerText = timerStr;
+                            
+                            if (breaksActivos[index]) {
+                                breaksActivos[index].display = timerStr;
+                                guardarBreaksEnStorage();
+                            }
+
+                            if (tiempoRestante <= 0) {
+                                clearInterval(intervalo);
+                                if (display) {
+                                    display.innerText = "TERMINADO";
+                                    display.style.color = "#00FF7F";
+                                }
+                                if (btn) btn.innerText = "FINALIZADO";
+                                
+                                setTimeout(() => {
+                                    limpiarBreakTerminado(index);
+                                    setupBreakGrid();
+                                }, 3000);
+                            } else {
+                                tiempoRestante--;
+                            }
+                        }, 1000);
+
+                        intervalosActivos[index] = intervalo;
+                    } else {
+                        limpiarBreakTerminado(index);
+                    }
                 }
             });
         }
 
-        function dibujarGrafico(lista) {
-            const ctx = document.getElementById('rankingVentas').getContext('2d');
-            if(miGrafico) miGrafico.destroy();
-            miGrafico = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: lista.map((a,i) => (i===0?'👑 ':i===1?'🥈 ':i===2?'🥉 ':'') + a.n),
-                    datasets: [{
-                        label: 'INSTALADAS',
-                        data: lista.map(a => a.ins),
-                        backgroundColor: lista.map((a,i) => i<3?'rgba(255,215,0,0.6)':'rgba(0,191,255,0.4)'),
-                        borderColor: '#fff', borderWidth: 1
-                    }]
-                },
-                options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false }
-            });
-        }
+        const modal = document.getElementById('modalStats');
+        document.getElementById('btnAbrirStats').addEventListener('click', () => modal.classList.add('mostrar'));
+        document.getElementById('btnCerrarStats').addEventListener('click', () => modal.classList.remove('mostrar'));
 
-        function llenarTabla(lista) {
-            const tbody = document.getElementById('cuerpoTabla');
-            tbody.innerHTML = lista.map(a => {
-                const tot = a.ccl + a.cop + a.prg + a.ins;
-                const conv = a.ing > 0 ? ((a.ins/a.ing)*100).toFixed(1) : 0;
-                return `<tr><td>${a.n}</td><td>${a.ing}</td><td>${a.ccl}</td><td>${a.cop}</td><td>${a.prg}</td><td style="color:#00FF7F">${a.ins}</td><td>${tot}</td><td>${conv}%</td></tr>`;
-            }).join('');
-        }
+        const modalBreak = document.getElementById('modalBreak');
+        document.getElementById('btnAbrirBreak').addEventListener('click', () => modalBreak.classList.add('mostrar'));
 
-        // Listeners
-        document.getElementById('btnAbrirStats').onclick = () => document.getElementById('modalStats').classList.add('mostrar');
-        document.getElementById('btnAbrirBreak').onclick = () => document.getElementById('modalBreak').classList.add('mostrar');
-        document.getElementById('btnAbrirPizarra').onclick = () => { cargarDatosPizarra(); document.getElementById('modalPizarra').classList.add('mostrar'); };
+        const modalPizarra = document.getElementById('modalPizarra');
+        document.getElementById('btnAbrirPizarra').addEventListener('click', () => {
+            construirPizarra();
+            modalPizarra.classList.add('mostrar');
+        });
 
-        // Inicio
+        cargarBreaksDelStorage();
+        cargarEstrellas();
         cargarDatos();
         cargarDatosPizarra();
         setInterval(cargarDatos, 120000);
+        setInterval(cargarDatosPizarra, 120000);
+
     </script>
 </body>
 </html>
