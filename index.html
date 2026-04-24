@@ -392,18 +392,18 @@
         }
 
         .pizarra-seccion.claro {
-            border-color: #FFD700;
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+            border-color: #FF0000;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
         }
 
         .pizarra-seccion.wow {
-            border-color: #FF69B4;
-            box-shadow: 0 0 20px rgba(255, 105, 180, 0.3);
+            border-color: #9933FF;
+            box-shadow: 0 0 20px rgba(153, 51, 255, 0.3);
         }
 
         .pizarra-seccion.movistar {
-            border-color: #FF4500;
-            box-shadow: 0 0 20px rgba(255, 69, 0, 0.3);
+            border-color: #0099FF;
+            box-shadow: 0 0 20px rgba(0, 153, 255, 0.3);
         }
 
         .pizarra-titulo {
@@ -415,15 +415,15 @@
         }
 
         .pizarra-seccion.claro .pizarra-titulo {
-            color: #FFD700;
+            color: #FF0000;
         }
 
         .pizarra-seccion.wow .pizarra-titulo {
-            color: #FF69B4;
+            color: #9933FF;
         }
 
         .pizarra-seccion.movistar .pizarra-titulo {
-            color: #FF4500;
+            color: #0099FF;
         }
 
         .pizarra-asesores {
@@ -449,18 +449,18 @@
         }
 
         .pizarra-seccion.claro .pizarra-asesor {
-            border-color: #FFD700;
-            color: #FFD700;
+            border-color: #FF0000;
+            color: #FF0000;
         }
 
         .pizarra-seccion.wow .pizarra-asesor {
-            border-color: #FF69B4;
-            color: #FF69B4;
+            border-color: #9933FF;
+            color: #9933FF;
         }
 
         .pizarra-seccion.movistar .pizarra-asesor {
-            border-color: #FF4500;
-            color: #FF4500;
+            border-color: #0099FF;
+            color: #0099FF;
         }
     </style>
 </head>
@@ -672,7 +672,7 @@
 
             const movistarDiv = document.createElement('div');
             movistarDiv.className = 'pizarra-seccion movistar';
-            movistarDiv.innerHTML = '<div class="pizarra-titulo">🔴 MOVISTAR</div><div class="pizarra-asesores">' + 
+            movistarDiv.innerHTML = '<div class="pizarra-titulo">🔵 MOVISTAR</div><div class="pizarra-asesores">' + 
                 pizarraData.movistar.map(asesor => '<div class="pizarra-asesor">' + asesor + '</div>').join('') + 
                 '</div>';
             container.appendChild(movistarDiv);
