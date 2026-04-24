@@ -532,7 +532,7 @@
 
     <script>
         const URL_SHEET = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTfvuQqIcH6Zv8rqvsqeolWoX7Z3lIKZqz2nX-Q0aCRBZcPRvXAXz8rjKyoAZ-OmiI9GfpNkMjK9Uht/pub?output=csv';
-        const URL_SHEET_PIZARRA = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTfvuQqIcH6Zv8rqvsqeolWoX7Z3lIKZqz2nX-Q0aCRBZcPRvXAXz8rjKyoAZ-OmiI9GfpNkMjK9Uht/pub?gid=1&output=csv';
+        const URL_SHEET_PIZARRA = 'https://docs.google.com/spreadsheets/d/1u37Zs5aSHL62Z1whx1ixBdrnoiaVf3xztf_FU_w0RKw/export?format=csv&gid=543637953';
         const PASS_ADMIN = "tiger123@";
         
         const ASESORES_SIN_BREAKS = [
@@ -646,7 +646,7 @@
                     }
                 });
 
-                console.log("Datos pizarra cargados");
+                console.log("Datos pizarra cargados:", pizarraData);
             } catch (error) {
                 console.error("Error cargando datos pizarra:", error);
             }
@@ -659,21 +659,21 @@
             const claroDiv = document.createElement('div');
             claroDiv.className = 'pizarra-seccion claro';
             claroDiv.innerHTML = '<div class="pizarra-titulo">📱 CLARO</div><div class="pizarra-asesores">' + 
-                pizarraData.claro.map(asesor => '<div class="pizarra-asesor">' + asesor + '</div>').join('') + 
+                (pizarraData.claro.length > 0 ? pizarraData.claro.map(asesor => '<div class="pizarra-asesor">' + asesor + '</div>').join('') : '<div class="pizarra-asesor">Sin asesores</div>') + 
                 '</div>';
             container.appendChild(claroDiv);
 
             const wowDiv = document.createElement('div');
             wowDiv.className = 'pizarra-seccion wow';
             wowDiv.innerHTML = '<div class="pizarra-titulo">💜 WOW</div><div class="pizarra-asesores">' + 
-                pizarraData.wow.map(asesor => '<div class="pizarra-asesor">' + asesor + '</div>').join('') + 
+                (pizarraData.wow.length > 0 ? pizarraData.wow.map(asesor => '<div class="pizarra-asesor">' + asesor + '</div>').join('') : '<div class="pizarra-asesor">Sin asesores</div>') + 
                 '</div>';
             container.appendChild(wowDiv);
 
             const movistarDiv = document.createElement('div');
             movistarDiv.className = 'pizarra-seccion movistar';
             movistarDiv.innerHTML = '<div class="pizarra-titulo">🔵 MOVISTAR</div><div class="pizarra-asesores">' + 
-                pizarraData.movistar.map(asesor => '<div class="pizarra-asesor">' + asesor + '</div>').join('') + 
+                (pizarraData.movistar.length > 0 ? pizarraData.movistar.map(asesor => '<div class="pizarra-asesor">' + asesor + '</div>').join('') : '<div class="pizarra-asesor">Sin asesores</div>') + 
                 '</div>';
             container.appendChild(movistarDiv);
         }
