@@ -78,27 +78,30 @@
             animation: flotarYBrillar 3s ease-in-out infinite; 
         }
 
-        .btn-estadisticas, .btn-break, .btn-pizarra {
+        .btn-estadisticas, .btn-break, .btn-pizarra, .btn-reset-diario {
             margin-top: 30px; 
             margin-right: 15px;
             padding: 15px 40px; 
             font-size: 1.2em; 
             font-weight: bold; 
             color: white;
-            background: rgba(0, 191, 255, 0.2); 
-            border: 2px solid #00BFFF; 
             border-radius: 50px; 
             cursor: pointer;
             transition: all 0.3s ease; 
             text-transform: uppercase; 
             letter-spacing: 2px; 
+        }
+
+        .btn-estadisticas {
+            background: rgba(0, 191, 255, 0.2); 
+            border: 2px solid #00BFFF; 
             box-shadow: 0 0 15px rgba(0, 191, 255, 0.4);
         }
 
         .btn-break {
-            background: rgba(255, 69, 0, 0.2);
-            border: 2px solid #FF4500;
-            box-shadow: 0 0 15px rgba(255, 69, 0, 0.4);
+            background: rgba(255, 165, 0, 0.2);
+            border: 2px solid #FFA500;
+            box-shadow: 0 0 15px rgba(255, 165, 0, 0.4);
         }
 
         .btn-pizarra {
@@ -107,12 +110,16 @@
             box-shadow: 0 0 15px rgba(138, 43, 226, 0.4);
         }
 
-        .btn-estadisticas:hover, .btn-break:hover, .btn-pizarra:hover { 
-            transform: scale(1.05); 
+        .btn-reset-diario {
+            background: rgba(255, 0, 0, 0.2);
+            border: 2px solid #FF0000;
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.4);
         }
 
-        .btn-break:hover { background: #FF4500; box-shadow: 0 0 30px rgba(255, 69, 0, 0.8); }
-        .btn-pizarra:hover { background: #8A2BE2; box-shadow: 0 0 30px rgba(138, 43, 226, 0.8); }
+        .btn-estadisticas:hover { transform: scale(1.05); background: #00BFFF; box-shadow: 0 0 30px rgba(0, 191, 255, 0.8); }
+        .btn-break:hover { transform: scale(1.05); background: #FFA500; box-shadow: 0 0 30px rgba(255, 165, 0, 0.8); }
+        .btn-pizarra:hover { transform: scale(1.05); background: #8A2BE2; box-shadow: 0 0 30px rgba(138, 43, 226, 0.8); }
+        .btn-reset-diario:hover { transform: scale(1.05); background: #FF0000; box-shadow: 0 0 30px rgba(255, 0, 0, 0.8); }
 
         .botones-container { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; }
 
@@ -133,7 +140,7 @@
         }
 
         .modal-titulo { color: #00BFFF; font-size: 2em; margin-top: 0; margin-bottom: 10px; text-align: center; text-shadow: 0 0 15px #00BFFF; }
-        .modal-titulo.break-title { color: #FF4500; text-shadow: 0 0 15px #FF4500; }
+        .modal-titulo.break-title { color: #FFA500; text-shadow: 0 0 15px #FFA500; }
         .modal-titulo.pizarra-title { color: #8A2BE2; text-shadow: 0 0 15px #8A2BE2; }
 
         .frase-motivacional {
@@ -165,9 +172,9 @@
         .btn-reset { background: #666; border: none; color: white; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 0.8em; font-weight: bold; transition: all 0.3s ease; }
         .btn-reset:hover { background: #FF6347; box-shadow: 0 0 10px rgba(255, 99, 71, 0.6); }
 
-        .timer-display { font-size: 1.8em; font-family: monospace; color: #FF4500; margin: 10px 0; }
+        .timer-display { font-size: 1.8em; font-family: monospace; color: #FFA500; margin: 10px 0; }
         .card-break.lider .timer-display { color: #00FF7F; }
-        .btn-start { background: #FF4500; border: none; color: white; padding: 8px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; }
+        .btn-start { background: #FFA500; border: none; color: black; padding: 8px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; }
         .card-break.lider .btn-start { background: #00FF7F; color: black; }
         .btn-start:disabled { background: #333; color: #777; cursor: not-allowed; border: 1px solid #444; }
         .info-break { color: #aaa; text-align: center; font-size: 0.9em; margin-bottom: 20px; }
@@ -190,7 +197,6 @@
         .pizarra-asesor-estrellas { display: flex; gap: 5px; align-items: center; }
         .estrellas-display { font-size: 1.2em; letter-spacing: 2px; display: flex; gap: 2px; }
 
-        /* NUEVOS BOTONES DE COLORES MANTENIENDO TU DISEÑO */
         .btn-mini-estrella {
             padding: 3px 8px;
             border-radius: 4px;
@@ -234,6 +240,7 @@
             <button id="btnAbrirStats" class="btn-estadisticas">📊 TABLA DE DESGLOSE</button>
             <button id="btnAbrirBreak" class="btn-break">⏱️ ADMINISTRAR BREAKS</button>
             <button id="btnAbrirPizarra" class="btn-pizarra">📋 PIZARRA</button>
+            <button id="btnResetDiario" class="btn-reset-diario">♻️ RESET DIARIO</button>
         </div>
     </div>
 
@@ -315,7 +322,6 @@
             if (datos) { try { breaksActivos = JSON.parse(datos); } catch (e) { breaksActivos = {}; } }
         }
 
-        // Nueva llave de memoria v4
         function guardarEstrellas() { localStorage.setItem('estrellas_v4', JSON.stringify(estrellasData)); }
         function cargarEstrellas() {
             const datos = localStorage.getItem('estrellas_v4');
@@ -361,7 +367,6 @@
             } catch (error) { console.error("Error cargando datos pizarra:", error); }
         }
 
-        // --- CONSTRUCTOR DE PIZARRA CON 3 BOTONES Y ESTRELLAS DE COLORES ---
         function generarHTMLAsesor(asesor) {
             const nombreLimpio = asesor.trim();
             const nEscapado = nombreLimpio.replace(/'/g, "\\'");
@@ -372,7 +377,6 @@
             
             let estrellasDisplay = '';
             
-            // Usamos el símbolo de estrella ★ que se puede pintar con color CSS
             if (claroStars > 0) estrellasDisplay += `<span style="color: #FF0000; text-shadow: 0 0 5px #FF0000;">${'★'.repeat(claroStars)}</span>`;
             if (wowStars > 0) estrellasDisplay += `<span style="color: #9933FF; text-shadow: 0 0 5px #9933FF;">${'★'.repeat(wowStars)}</span>`;
             if (movistarStars > 0) estrellasDisplay += `<span style="color: #0099FF; text-shadow: 0 0 5px #0099FF;">${'★'.repeat(movistarStars)}</span>`;
@@ -393,7 +397,6 @@
             const container = document.getElementById('pizarraContainer');
             container.innerHTML = '';
 
-            // SECCIÓN CLARO
             const claroDiv = document.createElement('div');
             claroDiv.className = 'pizarra-seccion claro';
             let claroHTML = '<div class="pizarra-titulo">📱 CLARO</div><div class="pizarra-asesores">';
@@ -403,7 +406,6 @@
             claroDiv.innerHTML = claroHTML;
             container.appendChild(claroDiv);
 
-            // SECCIÓN WOW
             const wowDiv = document.createElement('div');
             wowDiv.className = 'pizarra-seccion wow';
             let wowHTML = '<div class="pizarra-titulo">💜 WOW</div><div class="pizarra-asesores">';
@@ -413,7 +415,6 @@
             wowDiv.innerHTML = wowHTML;
             container.appendChild(wowDiv);
 
-            // SECCIÓN MOVISTAR
             const movistarDiv = document.createElement('div');
             movistarDiv.className = 'pizarra-seccion movistar';
             let movistarHTML = '<div class="pizarra-titulo">🔵 MOVISTAR</div><div class="pizarra-asesores">';
@@ -585,6 +586,28 @@
                 }
             });
         }
+
+        // --- LÓGICA DEL NUEVO BOTÓN RESET DIARIO ---
+        document.getElementById('btnResetDiario').addEventListener('click', () => {
+            const pwd = prompt("Ingrese contraseña de administrador para el RESET DIARIO:");
+            if (pwd === PASS_ADMIN) {
+                if(confirm("¿Está seguro? Esto borrará TODAS las estrellas y reiniciará los breaks actuales.")) {
+                    estrellasData = {};
+                    guardarEstrellas();
+                    
+                    Object.keys(intervalosActivos).forEach(idx => clearInterval(intervalosActivos[idx]));
+                    intervalosActivos = {};
+                    breaksActivos = {};
+                    guardarBreaksEnStorage();
+                    
+                    construirPizarra();
+                    setupBreakGrid();
+                    alert("Se ha reiniciado el día correctamente.");
+                }
+            } else if (pwd !== null) {
+                alert("Contraseña incorrecta.");
+            }
+        });
 
         const modal = document.getElementById('modalStats');
         document.getElementById('btnAbrirStats').addEventListener('click', () => modal.classList.add('mostrar'));
