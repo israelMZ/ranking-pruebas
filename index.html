@@ -202,7 +202,6 @@
         .btn-mini-movistar { border: 1px solid #0099FF; color: #0099FF; background: rgba(0,153,255,0.2); }
         .btn-mini-movistar:hover { background: #0099FF; color: white; box-shadow: 0 0 10px rgba(0,153,255,0.8); }
 
-        /* Estilo para el nuevo botón "-" */
         .btn-restar-estrella {
             background: rgba(255, 69, 0, 0.1);
             border: 1px solid #FF4500;
@@ -232,8 +231,11 @@
             display: block;
             margin: -10px auto 20px auto;
         }
-
         .btn-limpiar-pizarra:hover { background: #FF0000; color: white; box-shadow: 0 0 15px rgba(255, 0, 0, 0.6); }
+
+        .pizarra-seccion.claro .pizarra-asesor { border-color: #FF0000; color: #FF0000; }
+        .pizarra-seccion.wow .pizarra-asesor { border-color: #9933FF; color: #9933FF; }
+        .pizarra-seccion.movistar .pizarra-asesor { border-color: #0099FF; color: #0099FF; }
     </style>
 </head>
 <body>
@@ -327,7 +329,6 @@
         let intervalosActivos = {};
         let pizarraData = { claro: [], wow: [], movistar: [] };
         
-        // --- CAMBIO DE LÓGICA: Ahora guardamos un historial de array por asesor ---
         let estrellasData = {};
 
         function cerrarModal(idModal) { document.getElementById(idModal).classList.remove('mostrar'); }
@@ -340,7 +341,6 @@
             if (datos) { try { breaksActivos = JSON.parse(datos); } catch (e) { breaksActivos = {}; } }
         }
 
-        // Nueva llave v5 para soportar el historial de estrellas (Array)
         function guardarEstrellas() { localStorage.setItem('estrellas_v5', JSON.stringify(estrellasData)); }
         function cargarEstrellas() {
             const datos = localStorage.getItem('estrellas_v5');
@@ -349,8 +349,8 @@
 
         function agregarEstrella(nombre, campana) {
             const n = nombre.trim();
-            if (!estrellasData[n]) { estrellasData[n] = []; } // Ahora es un array
-            estrellasData[n].push(campana); // Agrega la campaña al historial
+            if (!estrellasData[n]) { estrellasData[n] = []; } 
+            estrellasData[n].push(campana);
             guardarEstrellas();
             construirPizarra();
         }
@@ -358,7 +358,7 @@
         function restarEstrella(nombre) {
             const n = nombre.trim();
             if (estrellasData[n] && estrellasData[n].length > 0) {
-                estrellasData[n].pop(); // Elimina la última estrella ingresada
+                estrellasData[n].pop();
                 guardarEstrellas();
                 construirPizarra();
             }
@@ -412,8 +412,6 @@
         function generarHTMLAsesor(asesor) {
             const nombreLimpio = asesor.trim();
             const nEscapado = nombreLimpio.replace(/'/g, "\\'");
-            
-            // Leemos del historial (array)
             const historial = estrellasData[nombreLimpio] || [];
             
             let estrellasDisplay = '';
