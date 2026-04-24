@@ -243,6 +243,18 @@
             color: white;
         }
 
+        /* Estilo para los contadores de colores */
+        .contadores-campanas {
+            font-size: 1.5em;
+            font-weight: bold;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 10px 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            gap: 20px;
+        }
+
         .btn-limpiar-pizarra {
             background: rgba(255, 0, 0, 0.1);
             border: 1px solid #FF0000;
@@ -323,6 +335,13 @@
                 <div class="meta-pizza">
                     🍕 META PIZZA: <span id="metaPizzaContador" style="color: #FFD700;">Faltan 28</span>
                 </div>
+                
+                <div class="contadores-campanas">
+                    <span style="color: #FF0000; text-shadow: 0 0 5px #FF0000;">★ <span id="contadorClaro">0</span></span>
+                    <span style="color: #9933FF; text-shadow: 0 0 5px #9933FF;">★ <span id="contadorWow">0</span></span>
+                    <span style="color: #0099FF; text-shadow: 0 0 5px #0099FF;">★ <span id="contadorMovistar">0</span></span>
+                </div>
+
                 <button id="btnResetPizarra" class="btn-limpiar-pizarra">♻️ REINICIAR PIZARRA</button>
             </div>
 
@@ -415,10 +434,20 @@
             }
         });
 
-        function actualizarMetaPizza() {
+        // Actualizamos los contadores de la pizza y de cada color
+        function actualizarContadores() {
             let totalEstrellas = 0;
+            let totalClaro = 0;
+            let totalWow = 0;
+            let totalMovistar = 0;
+
             Object.values(estrellasData).forEach(historial => {
                 totalEstrellas += historial.length;
+                historial.forEach(campana => {
+                    if (campana === 'claro') totalClaro++;
+                    if (campana === 'wow') totalWow++;
+                    if (campana === 'movistar') totalMovistar++;
+                });
             });
             
             const faltantes = 28 - totalEstrellas;
@@ -433,6 +462,10 @@
                 metaContador.style.color = "#00FF7F"; 
                 metaContador.style.textShadow = "0 0 10px #00FF7F";
             }
+
+            document.getElementById('contadorClaro').innerText = totalClaro;
+            document.getElementById('contadorWow').innerText = totalWow;
+            document.getElementById('contadorMovistar').innerText = totalMovistar;
         }
 
         async function cargarDatosPizarra() {
@@ -488,7 +521,6 @@
 
             const claroDiv = document.createElement('div');
             claroDiv.className = 'pizarra-seccion claro';
-            // CAMBIO DE TÍTULO A FRASE MOTIVADORA AQUÍ
             let claroHTML = '<div class="pizarra-titulo">"La disciplina vence al talento"</div><div class="pizarra-asesores">';
             if (pizarraData.claro.length > 0) { claroHTML += pizarraData.claro.map(generarHTMLAsesor).join(''); } 
             else { claroHTML += '<div class="pizarra-asesor">Sin asesores</div>'; }
@@ -498,7 +530,6 @@
 
             const wowDiv = document.createElement('div');
             wowDiv.className = 'pizarra-seccion wow';
-            // CAMBIO DE TÍTULO A FRASE MOTIVADORA AQUÍ
             let wowHTML = '<div class="pizarra-titulo">"El éxito es la suma de pequeños esfuerzos"</div><div class="pizarra-asesores">';
             if (pizarraData.wow.length > 0) { wowHTML += pizarraData.wow.map(generarHTMLAsesor).join(''); } 
             else { wowHTML += '<div class="pizarra-asesor">Sin asesores</div>'; }
@@ -508,7 +539,6 @@
 
             const movistarDiv = document.createElement('div');
             movistarDiv.className = 'pizarra-seccion movistar';
-            // CAMBIO DE TÍTULO A FRASE MOTIVADORA AQUÍ
             let movistarHTML = '<div class="pizarra-titulo">"Tu única competencia eres tú mismo"</div><div class="pizarra-asesores">';
             if (pizarraData.movistar.length > 0) { movistarHTML += pizarraData.movistar.map(generarHTMLAsesor).join(''); } 
             else { movistarHTML += '<div class="pizarra-asesor">Sin asesores</div>'; }
@@ -516,7 +546,7 @@
             movistarDiv.innerHTML = movistarHTML;
             container.appendChild(movistarDiv);
 
-            actualizarMetaPizza();
+            actualizarContadores();
         }
 
         async function cargarDatos() {
