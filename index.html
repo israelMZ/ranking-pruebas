@@ -78,7 +78,7 @@
             animation: flotarYBrillar 3s ease-in-out infinite; 
         }
 
-        .btn-estadisticas, .btn-break, .btn-pizarra, .btn-reset-diario {
+        .btn-estadisticas, .btn-break, .btn-pizarra {
             margin-top: 30px; 
             margin-right: 15px;
             padding: 15px 40px; 
@@ -110,16 +110,9 @@
             box-shadow: 0 0 15px rgba(138, 43, 226, 0.4);
         }
 
-        .btn-reset-diario {
-            background: rgba(255, 0, 0, 0.2);
-            border: 2px solid #FF0000;
-            box-shadow: 0 0 15px rgba(255, 0, 0, 0.4);
-        }
-
         .btn-estadisticas:hover { transform: scale(1.05); background: #00BFFF; box-shadow: 0 0 30px rgba(0, 191, 255, 0.8); }
         .btn-break:hover { transform: scale(1.05); background: #FFA500; box-shadow: 0 0 30px rgba(255, 165, 0, 0.8); }
         .btn-pizarra:hover { transform: scale(1.05); background: #8A2BE2; box-shadow: 0 0 30px rgba(138, 43, 226, 0.8); }
-        .btn-reset-diario:hover { transform: scale(1.05); background: #FF0000; box-shadow: 0 0 30px rgba(255, 0, 0, 0.8); }
 
         .botones-container { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; }
 
@@ -219,6 +212,26 @@
         .pizarra-seccion.claro .pizarra-asesor { border-color: #FF0000; color: #FF0000; }
         .pizarra-seccion.wow .pizarra-asesor { border-color: #9933FF; color: #9933FF; }
         .pizarra-seccion.movistar .pizarra-asesor { border-color: #0099FF; color: #0099FF; }
+
+        /* Estilo para el botón de reinicio dentro de la pizarra */
+        .btn-limpiar-pizarra {
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid #FF0000;
+            color: #FF0000;
+            padding: 8px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: block;
+            margin: -10px auto 20px auto;
+        }
+
+        .btn-limpiar-pizarra:hover {
+            background: #FF0000;
+            color: white;
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.6);
+        }
     </style>
 </head>
 <body>
@@ -240,7 +253,6 @@
             <button id="btnAbrirStats" class="btn-estadisticas">📊 TABLA DE DESGLOSE</button>
             <button id="btnAbrirBreak" class="btn-break">⏱️ ADMINISTRAR BREAKS</button>
             <button id="btnAbrirPizarra" class="btn-pizarra">📋 PIZARRA</button>
-            <button id="btnResetDiario" class="btn-reset-diario">♻️ RESET DIARIO</button>
         </div>
     </div>
 
@@ -282,6 +294,9 @@
         <div class="modal-contenido">
             <span class="btn-cerrar" onclick="cerrarModal('modalPizarra')">✖</span>
             <h2 class="modal-titulo pizarra-title">📋 PIZARRA DE VENTAS</h2>
+            
+            <button id="btnResetPizarra" class="btn-limpiar-pizarra">♻️ REINICIAR PIZARRA</button>
+
             <div class="pizarra-container" id="pizarraContainer"></div>
         </div>
     </div>
@@ -347,6 +362,21 @@
                 alert("Break reseteado correctamente ✓");
             } else if (passwordInput !== null) { alert("Contraseña incorrecta."); }
         }
+
+        // --- LÓGICA DEL BOTÓN REINICIAR PIZARRA ---
+        document.getElementById('btnResetPizarra').addEventListener('click', () => {
+            const pwd = prompt("Ingrese la contraseña de administrador para limpiar la pizarra:");
+            if (pwd === PASS_ADMIN) {
+                if(confirm("¿Está seguro? Esto borrará TODAS las estrellas de la pizarra actual.")) {
+                    estrellasData = {};
+                    guardarEstrellas();
+                    construirPizarra();
+                    alert("Pizarra reiniciada correctamente.");
+                }
+            } else if (pwd !== null) {
+                alert("Contraseña incorrecta.");
+            }
+        });
 
         async function cargarDatosPizarra() {
             try {
@@ -586,28 +616,6 @@
                 }
             });
         }
-
-        // --- LÓGICA DEL NUEVO BOTÓN RESET DIARIO ---
-        document.getElementById('btnResetDiario').addEventListener('click', () => {
-            const pwd = prompt("Ingrese contraseña de administrador para el RESET DIARIO:");
-            if (pwd === PASS_ADMIN) {
-                if(confirm("¿Está seguro? Esto borrará TODAS las estrellas y reiniciará los breaks actuales.")) {
-                    estrellasData = {};
-                    guardarEstrellas();
-                    
-                    Object.keys(intervalosActivos).forEach(idx => clearInterval(intervalosActivos[idx]));
-                    intervalosActivos = {};
-                    breaksActivos = {};
-                    guardarBreaksEnStorage();
-                    
-                    construirPizarra();
-                    setupBreakGrid();
-                    alert("Se ha reiniciado el día correctamente.");
-                }
-            } else if (pwd !== null) {
-                alert("Contraseña incorrecta.");
-            }
-        });
 
         const modal = document.getElementById('modalStats');
         document.getElementById('btnAbrirStats').addEventListener('click', () => modal.classList.add('mostrar'));
