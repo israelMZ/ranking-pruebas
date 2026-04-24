@@ -627,4 +627,77 @@
             let duracionMinutos = 40;
             if (nombreAsesor.toUpperCase() === "GIANELLA SUAREZ") { duracionMinutos = 20; }
             let tiempo = duracionMinutos * 60;
-            const hora
+            const horaInicio = Date.now();
+            btn.disabled = true; btn.innerText = "EN BREAK";
+            breaksActivos[index] = { inicio: horaInicio, duracion: tiempo, display: duracionMinutos + ':00', nombreAsesor: nombreAsesor, intervaloId: null };
+            guardarBreaksEnStorage();
+
+            const intervalo = setInterval(() => {
+                let minutos = Math.floor(tiempo / 60); let segundos = tiempo % 60;
+                minutos = minutos < 10 ? '0' + minutos : minutos; segundos = segundos < 10 ? '0' + segundos : segundos;
+                const timerStr = minutos + ':' + segundos;
+                display.innerText = timerStr;
+                if (breaksActivos[index]) { breaksActivos[index].display = timerStr; guardarBreaksEnStorage(); }
+
+                if (tiempo <= 0) {
+                    clearInterval(intervalo);
+                    display.innerText = "TERMINADO"; display.style.color = "#00FF7F"; btn.innerText = "FINALIZADO";
+                    setTimeout(() => { limpiarBreakTerminado(index); setupBreakGrid(); }, 3000);
+                } else { tiempo--; }
+            }, 1000);
+            intervalosActivos[index] = intervalo;
+        }
+
+        function reanudarBreaksActivos() {
+            Object.keys(breaksActivos).forEach(indexStr => {
+                const index = parseInt(indexStr);
+                const breakData = breaksActivos[index];
+                if (breakData && breakData.inicio) {
+                    const ahora = Date.now();
+                    const tiempoTranscurrido = Math.floor((ahora - breakData.inicio) / 1000);
+                    let tiempoRestante = breakData.duracion - tiempoTranscurrido;
+                    if (tiempoRestante > 0) {
+                        const btn = document.getElementById('btn-' + index);
+                        const display = document.getElementById('timer-' + index);
+                        if (btn) btn.disabled = true; if (btn) btn.innerText = "EN BREAK";
+                        
+                        const intervalo = setInterval(() => {
+                            let minutos = Math.floor(tiempoRestante / 60); let segundos = tiempoRestante % 60;
+                            minutos = minutos < 10 ? '0' + minutos : minutos; segundos = segundos < 10 ? '0' + segundos : segundos;
+                            const timerStr = minutos + ':' + segundos;
+                            if (display) display.innerText = timerStr;
+                            if (breaksActivos[index]) { breaksActivos[index].display = timerStr; guardarBreaksEnStorage(); }
+
+                            if (tiempoRestante <= 0) {
+                                clearInterval(intervalo);
+                                if (display) { display.innerText = "TERMINADO"; display.style.color = "#00FF7F"; }
+                                if (btn) btn.innerText = "FINALIZADO";
+                                setTimeout(() => { limpiarBreakTerminado(index); setupBreakGrid(); }, 3000);
+                            } else { tiempoRestante--; }
+                        }, 1000);
+                        intervalosActivos[index] = intervalo;
+                    } else { limpiarBreakTerminado(index); }
+                }
+            });
+        }
+
+        const modal = document.getElementById('modalStats');
+        document.getElementById('btnAbrirStats').addEventListener('click', () => modal.classList.add('mostrar'));
+        document.getElementById('btnCerrarStats').addEventListener('click', () => modal.classList.remove('mostrar'));
+
+        const modalBreak = document.getElementById('modalBreak');
+        document.getElementById('btnAbrirBreak').addEventListener('click', () => modalBreak.classList.add('mostrar'));
+
+        const modalPizarra = document.getElementById('modalPizarra');
+        document.getElementById('btnAbrirPizarra').addEventListener('click', () => { construirPizarra(); modalPizarra.classList.add('mostrar'); });
+
+        cargarBreaksDelStorage();
+        cargarEstrellas();
+        cargarDatos();
+        cargarDatosPizarra();
+        setInterval(cargarDatos, 120000);
+        setInterval(cargarDatosPizarra, 120000);
+
+    </script>
+</body>
+</html>
