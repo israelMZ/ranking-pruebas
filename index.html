@@ -170,7 +170,7 @@
         .pizarra-seccion.movistar .pizarra-titulo { color: #0099FF; }
 
         .pizarra-asesores { display: flex; flex-direction: column; gap: 12px; }
-        .pizarra-asesor { background: rgba(50, 50, 60, 0.6); padding: 12px 15px; border-radius: 8px; border-left: 4px solid; text-align: left; font-size: 0.95em; font-weight: bold; transition: all 0.3s ease; display: flex; justify-content: space-between; align-items: center; }
+        .pizarra-asesor { padding: 12px 15px; border-radius: 8px; border-left: 4px solid; text-align: left; font-size: 0.95em; font-weight: bold; transition: all 0.3s ease; display: flex; justify-content: space-between; align-items: center; }
         .pizarra-asesor:hover { transform: translateX(5px); filter: brightness(1.3); }
         
         .pizarra-asesor-nombre { 
@@ -213,29 +213,50 @@
             font-size: 0.9em;
             transition: all 0.3s ease;
         }
-        .btn-restar-estrella:hover {
-            background: #FF4500;
+        .btn-restar-estrella:hover { background: #FF4500; color: white; box-shadow: 0 0 8px rgba(255, 69, 0, 0.6); }
+
+        .pizarra-seccion.claro .pizarra-asesor { border-color: #FF0000; color: #FF0000; background: rgba(255, 0, 0, 0.15); }
+        .pizarra-seccion.wow .pizarra-asesor { border-color: #9933FF; color: #9933FF; background: rgba(153, 51, 255, 0.15); }
+        .pizarra-seccion.movistar .pizarra-asesor { border-color: #0099FF; color: #0099FF; background: rgba(0, 153, 255, 0.15); }
+
+        /* Estilos del header de la pizarra (Meta Pizza y Botón Reset) */
+        .header-pizarra {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 0 10px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .meta-pizza {
+            font-size: 1.4em;
+            font-weight: bold;
+            background: rgba(255, 215, 0, 0.15);
+            padding: 10px 20px;
+            border-radius: 12px;
+            border: 2px solid #FFD700;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
             color: white;
-            box-shadow: 0 0 8px rgba(255, 69, 0, 0.6);
         }
 
         .btn-limpiar-pizarra {
             background: rgba(255, 0, 0, 0.1);
             border: 1px solid #FF0000;
             color: #FF0000;
-            padding: 8px 20px;
-            border-radius: 5px;
+            padding: 10px 20px;
+            border-radius: 8px;
             cursor: pointer;
             font-weight: bold;
             transition: all 0.3s ease;
-            display: block;
-            margin: -10px auto 20px auto;
+            font-size: 1em;
         }
         .btn-limpiar-pizarra:hover { background: #FF0000; color: white; box-shadow: 0 0 15px rgba(255, 0, 0, 0.6); }
 
-        .pizarra-seccion.claro .pizarra-asesor { border-color: #FF0000; color: #FF0000; }
-        .pizarra-seccion.wow .pizarra-asesor { border-color: #9933FF; color: #9933FF; }
-        .pizarra-seccion.movistar .pizarra-asesor { border-color: #0099FF; color: #0099FF; }
     </style>
 </head>
 <body>
@@ -299,7 +320,12 @@
             <span class="btn-cerrar" onclick="cerrarModal('modalPizarra')">✖</span>
             <h2 class="modal-titulo pizarra-title">📋 PIZARRA DE VENTAS</h2>
             
-            <button id="btnResetPizarra" class="btn-limpiar-pizarra">♻️ REINICIAR PIZARRA</button>
+            <div class="header-pizarra">
+                <div class="meta-pizza">
+                    🍕 META PIZZA: <span id="metaPizzaContador" style="color: #FFD700;">Faltan 28</span>
+                </div>
+                <button id="btnResetPizarra" class="btn-limpiar-pizarra">♻️ REINICIAR PIZARRA</button>
+            </div>
 
             <div class="pizarra-container" id="pizarraContainer"></div>
         </div>
@@ -390,6 +416,27 @@
             }
         });
 
+        // Función que actualiza el contador matemático de la meta pizza
+        function actualizarMetaPizza() {
+            let totalEstrellas = 0;
+            Object.values(estrellasData).forEach(historial => {
+                totalEstrellas += historial.length;
+            });
+            
+            const faltantes = 28 - totalEstrellas;
+            const metaContador = document.getElementById('metaPizzaContador');
+            
+            if (faltantes > 0) {
+                metaContador.innerText = `Faltan ${faltantes}`;
+                metaContador.style.color = "#FFD700"; // Dorado
+                metaContador.style.textShadow = "none";
+            } else {
+                metaContador.innerText = "¡LOGRADO! 🎉";
+                metaContador.style.color = "#00FF7F"; // Verde neón
+                metaContador.style.textShadow = "0 0 10px #00FF7F";
+            }
+        }
+
         async function cargarDatosPizarra() {
             try {
                 const urlConFiltro = URL_SHEET_PIZARRA + '&t=' + new Date().getTime();
@@ -467,6 +514,9 @@
             movistarHTML += '</div>';
             movistarDiv.innerHTML = movistarHTML;
             container.appendChild(movistarDiv);
+
+            // ACTUALIZAR LA META DE LA PIZZA CADA VEZ QUE SE REDIBUJA LA PIZARRA
+            actualizarMetaPizza();
         }
 
         async function cargarDatos() {
@@ -577,77 +627,4 @@
             let duracionMinutos = 40;
             if (nombreAsesor.toUpperCase() === "GIANELLA SUAREZ") { duracionMinutos = 20; }
             let tiempo = duracionMinutos * 60;
-            const horaInicio = Date.now();
-            btn.disabled = true; btn.innerText = "EN BREAK";
-            breaksActivos[index] = { inicio: horaInicio, duracion: tiempo, display: duracionMinutos + ':00', nombreAsesor: nombreAsesor, intervaloId: null };
-            guardarBreaksEnStorage();
-
-            const intervalo = setInterval(() => {
-                let minutos = Math.floor(tiempo / 60); let segundos = tiempo % 60;
-                minutos = minutos < 10 ? '0' + minutos : minutos; segundos = segundos < 10 ? '0' + segundos : segundos;
-                const timerStr = minutos + ':' + segundos;
-                display.innerText = timerStr;
-                if (breaksActivos[index]) { breaksActivos[index].display = timerStr; guardarBreaksEnStorage(); }
-
-                if (tiempo <= 0) {
-                    clearInterval(intervalo);
-                    display.innerText = "TERMINADO"; display.style.color = "#00FF7F"; btn.innerText = "FINALIZADO";
-                    setTimeout(() => { limpiarBreakTerminado(index); setupBreakGrid(); }, 3000);
-                } else { tiempo--; }
-            }, 1000);
-            intervalosActivos[index] = intervalo;
-        }
-
-        function reanudarBreaksActivos() {
-            Object.keys(breaksActivos).forEach(indexStr => {
-                const index = parseInt(indexStr);
-                const breakData = breaksActivos[index];
-                if (breakData && breakData.inicio) {
-                    const ahora = Date.now();
-                    const tiempoTranscurrido = Math.floor((ahora - breakData.inicio) / 1000);
-                    let tiempoRestante = breakData.duracion - tiempoTranscurrido;
-                    if (tiempoRestante > 0) {
-                        const btn = document.getElementById('btn-' + index);
-                        const display = document.getElementById('timer-' + index);
-                        if (btn) btn.disabled = true; if (btn) btn.innerText = "EN BREAK";
-                        
-                        const intervalo = setInterval(() => {
-                            let minutos = Math.floor(tiempoRestante / 60); let segundos = tiempoRestante % 60;
-                            minutos = minutos < 10 ? '0' + minutos : minutos; segundos = segundos < 10 ? '0' + segundos : segundos;
-                            const timerStr = minutos + ':' + segundos;
-                            if (display) display.innerText = timerStr;
-                            if (breaksActivos[index]) { breaksActivos[index].display = timerStr; guardarBreaksEnStorage(); }
-
-                            if (tiempoRestante <= 0) {
-                                clearInterval(intervalo);
-                                if (display) { display.innerText = "TERMINADO"; display.style.color = "#00FF7F"; }
-                                if (btn) btn.innerText = "FINALIZADO";
-                                setTimeout(() => { limpiarBreakTerminado(index); setupBreakGrid(); }, 3000);
-                            } else { tiempoRestante--; }
-                        }, 1000);
-                        intervalosActivos[index] = intervalo;
-                    } else { limpiarBreakTerminado(index); }
-                }
-            });
-        }
-
-        const modal = document.getElementById('modalStats');
-        document.getElementById('btnAbrirStats').addEventListener('click', () => modal.classList.add('mostrar'));
-        document.getElementById('btnCerrarStats').addEventListener('click', () => modal.classList.remove('mostrar'));
-
-        const modalBreak = document.getElementById('modalBreak');
-        document.getElementById('btnAbrirBreak').addEventListener('click', () => modalBreak.classList.add('mostrar'));
-
-        const modalPizarra = document.getElementById('modalPizarra');
-        document.getElementById('btnAbrirPizarra').addEventListener('click', () => { construirPizarra(); modalPizarra.classList.add('mostrar'); });
-
-        cargarBreaksDelStorage();
-        cargarEstrellas();
-        cargarDatos();
-        cargarDatosPizarra();
-        setInterval(cargarDatos, 120000);
-        setInterval(cargarDatosPizarra, 120000);
-
-    </script>
-</body>
-</html>
+            const hora
