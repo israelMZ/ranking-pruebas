@@ -438,14 +438,50 @@
             border-radius: 8px;
             border-left: 4px solid;
             text-align: left;
-            font-size: 1.1em;
+            font-size: 0.95em;
             font-weight: bold;
             transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .pizarra-asesor:hover {
             transform: translateX(5px);
             filter: brightness(1.3);
+        }
+
+        .pizarra-asesor-nombre {
+            flex-grow: 1;
+        }
+
+        .pizarra-asesor-estrellas {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        .estrellas-display {
+            font-size: 1.2em;
+            letter-spacing: 2px;
+        }
+
+        .btn-estrella-pizarra {
+            background: rgba(255, 215, 0, 0.3);
+            border: 1px solid #FFD700;
+            color: #FFD700;
+            padding: 3px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .btn-estrella-pizarra:hover {
+            background: #FFD700;
+            color: black;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
         }
 
         .pizarra-seccion.claro .pizarra-asesor {
@@ -532,7 +568,7 @@
 
     <script>
         const URL_SHEET = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTfvuQqIcH6Zv8rqvsqeolWoX7Z3lIKZqz2nX-Q0aCRBZcPRvXAXz8rjKyoAZ-OmiI9GfpNkMjK9Uht/pub?output=csv';
-        const URL_SHEET_PIZARRA = 'https://docs.google.com/spreadsheets/d/1u37Zs5aSHL62Z1whx1ixBdrnoiaVf3xztf_FU_w0RKw/export?format=csv&gid=543637953';
+        const URL_SHEET_PIZARRA = 'https://docs.google.com/spreadsheets/d/1u37Zs5aSHL62Z1whx1ixBdrnoiaVf3xztf_FU_w0RKw/pub?gid=543637953&output=csv';
         const PASS_ADMIN = "tiger123@";
         
         const ASESORES_SIN_BREAKS = [
@@ -566,6 +602,7 @@
             wow: [],
             movistar: []
         };
+        let estrellasData = {};
 
         function cerrarModal(idModal) {
             document.getElementById(idModal).classList.remove('mostrar');
@@ -591,6 +628,38 @@
                 } catch (e) {
                     breaksActivos = {};
                 }
+            }
+        }
+
+        function guardarEstrellas() {
+            localStorage.setItem('estrellas', JSON.stringify(estrellasData));
+        }
+
+        function cargarEstrellas() {
+            const datos = localStorage.getItem('estrellas');
+            if (datos) {
+                try {
+                    estrellasData = JSON.parse(datos);
+                } catch (e) {
+                    estrellasData = {};
+                }
+            }
+        }
+
+        function agregarEstrella(nombre) {
+            if (!estrellasData[nombre]) {
+                estrellasData[nombre] = 0;
+            }
+            estrellasData[nombre]++;
+            guardarEstrellas();
+            construirPizarra();
+        }
+
+        function restarEstrella(nombre) {
+            if (estrellasData[nombre] && estrellasData[nombre] > 0) {
+                estrellasData[nombre]--;
+                guardarEstrellas();
+                construirPizarra();
             }
         }
 
@@ -646,7 +715,7 @@
                     }
                 });
 
-                console.log("Datos pizarra cargados:", pizarraData);
+                console.log("Datos pizarra cargados");
             } catch (error) {
                 console.error("Error cargando datos pizarra:", error);
             }
@@ -658,23 +727,59 @@
 
             const claroDiv = document.createElement('div');
             claroDiv.className = 'pizarra-seccion claro';
-            claroDiv.innerHTML = '<div class="pizarra-titulo">📱 CLARO</div><div class="pizarra-asesores">' + 
-                (pizarraData.claro.length > 0 ? pizarraData.claro.map(asesor => '<div class="pizarra-asesor">' + asesor + '</div>').join('') : '<div class="pizarra-asesor">Sin asesores</div>') + 
-                '</div>';
+            let claroHTML = '<div class="pizarra-titulo">📱 CLARO</div><div class="pizarra-asesores">';
+            if (pizarraData.claro.length > 0) {
+                claroHTML += pizarraData.claro.map(asesor => {
+                    const estrellas = estrellasData[asesor] || 0;
+                    let estrellasDisplay = '';
+                    for (let i = 0; i < estrellas; i++) {
+                        estrellasDisplay += '⭐';
+                    }
+                    return '<div class="pizarra-asesor"><div class="pizarra-asesor-nombre">' + asesor + '</div><div class="pizarra-asesor-estrellas"><div class="estrellas-display">' + estrellasDisplay + '</div><button class="btn-estrella-pizarra" onclick="agregarEstrella(\'' + asesor.replace(/'/g, "\\'") + '\')">+</button></div></div>';
+                }).join('');
+            } else {
+                claroHTML += '<div class="pizarra-asesor">Sin asesores</div>';
+            }
+            claroHTML += '</div>';
+            claroDiv.innerHTML = claroHTML;
             container.appendChild(claroDiv);
 
             const wowDiv = document.createElement('div');
             wowDiv.className = 'pizarra-seccion wow';
-            wowDiv.innerHTML = '<div class="pizarra-titulo">💜 WOW</div><div class="pizarra-asesores">' + 
-                (pizarraData.wow.length > 0 ? pizarraData.wow.map(asesor => '<div class="pizarra-asesor">' + asesor + '</div>').join('') : '<div class="pizarra-asesor">Sin asesores</div>') + 
-                '</div>';
+            let wowHTML = '<div class="pizarra-titulo">💜 WOW</div><div class="pizarra-asesores">';
+            if (pizarraData.wow.length > 0) {
+                wowHTML += pizarraData.wow.map(asesor => {
+                    const estrellas = estrellasData[asesor] || 0;
+                    let estrellasDisplay = '';
+                    for (let i = 0; i < estrellas; i++) {
+                        estrellasDisplay += '⭐';
+                    }
+                    return '<div class="pizarra-asesor"><div class="pizarra-asesor-nombre">' + asesor + '</div><div class="pizarra-asesor-estrellas"><div class="estrellas-display">' + estrellasDisplay + '</div><button class="btn-estrella-pizarra" onclick="agregarEstrella(\'' + asesor.replace(/'/g, "\\'") + '\')">+</button></div></div>';
+                }).join('');
+            } else {
+                wowHTML += '<div class="pizarra-asesor">Sin asesores</div>';
+            }
+            wowHTML += '</div>';
+            wowDiv.innerHTML = wowHTML;
             container.appendChild(wowDiv);
 
             const movistarDiv = document.createElement('div');
             movistarDiv.className = 'pizarra-seccion movistar';
-            movistarDiv.innerHTML = '<div class="pizarra-titulo">🔵 MOVISTAR</div><div class="pizarra-asesores">' + 
-                (pizarraData.movistar.length > 0 ? pizarraData.movistar.map(asesor => '<div class="pizarra-asesor">' + asesor + '</div>').join('') : '<div class="pizarra-asesor">Sin asesores</div>') + 
-                '</div>';
+            let movistarHTML = '<div class="pizarra-titulo">🔵 MOVISTAR</div><div class="pizarra-asesores">';
+            if (pizarraData.movistar.length > 0) {
+                movistarHTML += pizarraData.movistar.map(asesor => {
+                    const estrellas = estrellasData[asesor] || 0;
+                    let estrellasDisplay = '';
+                    for (let i = 0; i < estrellas; i++) {
+                        estrellasDisplay += '⭐';
+                    }
+                    return '<div class="pizarra-asesor"><div class="pizarra-asesor-nombre">' + asesor + '</div><div class="pizarra-asesor-estrellas"><div class="estrellas-display">' + estrellasDisplay + '</div><button class="btn-estrella-pizarra" onclick="agregarEstrella(\'' + asesor.replace(/'/g, "\\'") + '\')">+</button></div></div>';
+                }).join('');
+            } else {
+                movistarHTML += '<div class="pizarra-asesor">Sin asesores</div>';
+            }
+            movistarHTML += '</div>';
+            movistarDiv.innerHTML = movistarHTML;
             container.appendChild(movistarDiv);
         }
 
@@ -1001,6 +1106,7 @@
         });
 
         cargarBreaksDelStorage();
+        cargarEstrellas();
         cargarDatos();
         cargarDatosPizarra();
         setInterval(cargarDatos, 120000);
