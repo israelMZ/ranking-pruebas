@@ -164,7 +164,7 @@
         .pizarra-seccion.wow { border-color: #9933FF; box-shadow: 0 0 20px rgba(153, 51, 255, 0.3); }
         .pizarra-seccion.movistar { border-color: #0099FF; box-shadow: 0 0 20px rgba(0, 153, 255, 0.3); }
 
-        .pizarra-titulo { font-size: 1.8em; font-weight: bold; text-align: center; margin-bottom: 20px; text-shadow: 0 0 10px currentColor; }
+        .pizarra-titulo { font-size: 1.5em; font-weight: bold; text-align: center; margin-bottom: 20px; text-shadow: 0 0 10px currentColor; font-style: italic; line-height: 1.3; }
         .pizarra-seccion.claro .pizarra-titulo { color: #FF0000; }
         .pizarra-seccion.wow .pizarra-titulo { color: #9933FF; }
         .pizarra-seccion.movistar .pizarra-titulo { color: #0099FF; }
@@ -219,7 +219,6 @@
         .pizarra-seccion.wow .pizarra-asesor { border-color: #9933FF; color: #9933FF; background: rgba(153, 51, 255, 0.15); }
         .pizarra-seccion.movistar .pizarra-asesor { border-color: #0099FF; color: #0099FF; background: rgba(0, 153, 255, 0.15); }
 
-        /* Estilos del header de la pizarra (Meta Pizza y Botón Reset) */
         .header-pizarra {
             display: flex;
             justify-content: space-between;
@@ -416,7 +415,6 @@
             }
         });
 
-        // Función que actualiza el contador matemático de la meta pizza
         function actualizarMetaPizza() {
             let totalEstrellas = 0;
             Object.values(estrellasData).forEach(historial => {
@@ -428,11 +426,11 @@
             
             if (faltantes > 0) {
                 metaContador.innerText = `Faltan ${faltantes}`;
-                metaContador.style.color = "#FFD700"; // Dorado
+                metaContador.style.color = "#FFD700"; 
                 metaContador.style.textShadow = "none";
             } else {
                 metaContador.innerText = "¡LOGRADO! 🎉";
-                metaContador.style.color = "#00FF7F"; // Verde neón
+                metaContador.style.color = "#00FF7F"; 
                 metaContador.style.textShadow = "0 0 10px #00FF7F";
             }
         }
@@ -490,7 +488,8 @@
 
             const claroDiv = document.createElement('div');
             claroDiv.className = 'pizarra-seccion claro';
-            let claroHTML = '<div class="pizarra-titulo">📱 CLARO</div><div class="pizarra-asesores">';
+            // CAMBIO DE TÍTULO A FRASE MOTIVADORA AQUÍ
+            let claroHTML = '<div class="pizarra-titulo">"La disciplina vence al talento"</div><div class="pizarra-asesores">';
             if (pizarraData.claro.length > 0) { claroHTML += pizarraData.claro.map(generarHTMLAsesor).join(''); } 
             else { claroHTML += '<div class="pizarra-asesor">Sin asesores</div>'; }
             claroHTML += '</div>';
@@ -499,7 +498,8 @@
 
             const wowDiv = document.createElement('div');
             wowDiv.className = 'pizarra-seccion wow';
-            let wowHTML = '<div class="pizarra-titulo">💜 WOW</div><div class="pizarra-asesores">';
+            // CAMBIO DE TÍTULO A FRASE MOTIVADORA AQUÍ
+            let wowHTML = '<div class="pizarra-titulo">"El éxito es la suma de pequeños esfuerzos"</div><div class="pizarra-asesores">';
             if (pizarraData.wow.length > 0) { wowHTML += pizarraData.wow.map(generarHTMLAsesor).join(''); } 
             else { wowHTML += '<div class="pizarra-asesor">Sin asesores</div>'; }
             wowHTML += '</div>';
@@ -508,14 +508,14 @@
 
             const movistarDiv = document.createElement('div');
             movistarDiv.className = 'pizarra-seccion movistar';
-            let movistarHTML = '<div class="pizarra-titulo">🔵 MOVISTAR</div><div class="pizarra-asesores">';
+            // CAMBIO DE TÍTULO A FRASE MOTIVADORA AQUÍ
+            let movistarHTML = '<div class="pizarra-titulo">"Tu única competencia eres tú mismo"</div><div class="pizarra-asesores">';
             if (pizarraData.movistar.length > 0) { movistarHTML += pizarraData.movistar.map(generarHTMLAsesor).join(''); } 
             else { movistarHTML += '<div class="pizarra-asesor">Sin asesores</div>'; }
             movistarHTML += '</div>';
             movistarDiv.innerHTML = movistarHTML;
             container.appendChild(movistarDiv);
 
-            // ACTUALIZAR LA META DE LA PIZZA CADA VEZ QUE SE REDIBUJA LA PIZARRA
             actualizarMetaPizza();
         }
 
