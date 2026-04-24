@@ -5,7 +5,6 @@
     <title>Ranking de Ventas + Breaks</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* TU CSS ORIGINAL INTACTO */
         body { 
             margin: 0; 
             padding: 40px; 
@@ -112,142 +111,44 @@
             transform: scale(1.05); 
         }
 
-        .btn-break:hover {
-            background: #FF4500;
-            box-shadow: 0 0 30px rgba(255, 69, 0, 0.8);
-        }
+        .btn-break:hover { background: #FF4500; box-shadow: 0 0 30px rgba(255, 69, 0, 0.8); }
+        .btn-pizarra:hover { background: #8A2BE2; box-shadow: 0 0 30px rgba(138, 43, 226, 0.8); }
 
-        .btn-pizarra:hover {
-            background: #8A2BE2;
-            box-shadow: 0 0 30px rgba(138, 43, 226, 0.8);
-        }
-
-        .botones-container {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
+        .botones-container { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; }
 
         .modal {
-            display: none; 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%;
-            background: rgba(0, 0, 0, 0.85); 
-            backdrop-filter: blur(20px); 
-            z-index: 999;
-            justify-content: center; 
-            align-items: center; 
-            opacity: 0; 
-            transition: opacity 0.4s ease; 
-            padding: 20px; 
-            box-sizing: border-box;
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(20px); z-index: 999;
+            justify-content: center; align-items: center; opacity: 0; transition: opacity 0.4s ease; 
+            padding: 20px; box-sizing: border-box;
         }
 
-        .modal.mostrar { 
-            display: flex; 
-            opacity: 1; 
-        }
+        .modal.mostrar { display: flex; opacity: 1; }
 
         .modal-contenido {
-            background: rgba(20, 20, 25, 0.8); 
-            padding: 40px; 
-            border-radius: 20px; 
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            width: 100%; 
-            max-width: 1500px; 
-            max-height: 90vh; 
-            display: flex; 
-            flex-direction: column; 
-            position: relative;
-            box-shadow: 0 0 50px rgba(0, 191, 255, 0.2);
-            overflow-y: auto;
+            background: rgba(20, 20, 25, 0.8); padding: 40px; border-radius: 20px; 
+            border: 1px solid rgba(255, 255, 255, 0.1); width: 100%; max-width: 1500px; 
+            max-height: 90vh; display: flex; flex-direction: column; position: relative;
+            box-shadow: 0 0 50px rgba(0, 191, 255, 0.2); overflow-y: auto;
         }
 
-        .modal-titulo { 
-            color: #00BFFF; 
-            font-size: 2em; 
-            margin-top: 0; 
-            margin-bottom: 10px; 
-            text-align: center; 
-            text-shadow: 0 0 15px #00BFFF; 
-        }
-
-        .modal-titulo.break-title {
-            color: #FF4500;
-            text-shadow: 0 0 15px #FF4500;
-        }
-
-        .modal-titulo.pizarra-title {
-            color: #8A2BE2;
-            text-shadow: 0 0 15px #8A2BE2;
-        }
+        .modal-titulo { color: #00BFFF; font-size: 2em; margin-top: 0; margin-bottom: 10px; text-align: center; text-shadow: 0 0 15px #00BFFF; }
+        .modal-titulo.break-title { color: #FF4500; text-shadow: 0 0 15px #FF4500; }
+        .modal-titulo.pizarra-title { color: #8A2BE2; text-shadow: 0 0 15px #8A2BE2; }
 
         .frase-motivacional {
-            color: #FFD700; 
-            font-size: 1.2em; 
-            font-style: italic; 
-            text-align: center; 
-            margin-top: 0; 
-            margin-bottom: 30px; 
-            text-shadow: 0 0 10px rgba(255, 215, 0, 0.4); 
-            letter-spacing: 1px;
+            color: #FFD700; font-size: 1.2em; font-style: italic; text-align: center; 
+            margin-top: 0; margin-bottom: 30px; text-shadow: 0 0 10px rgba(255, 215, 0, 0.4); letter-spacing: 1px;
         }
 
-        .btn-cerrar { 
-            position: absolute; 
-            top: 20px; 
-            right: 30px; 
-            font-size: 2em; 
-            color: white; 
-            cursor: pointer; 
-            transition: color 0.3s ease; 
-        }
+        .btn-cerrar { position: absolute; top: 20px; right: 30px; font-size: 2em; color: white; cursor: pointer; transition: color 0.3s ease; }
+        .btn-cerrar:hover { color: #FF4500; }
 
-        .btn-cerrar:hover { 
-            color: #FF4500; 
-        }
-
-        .contenedor-tabla { 
-            overflow-x: auto; 
-            overflow-y: auto; 
-            flex-grow: 1; 
-            border-radius: 10px; 
-            border: 1px solid rgba(255,255,255,0.1); 
-        }
-
-        table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            text-align: center; 
-            white-space: nowrap; 
-        }
-
-        th { 
-            padding: 15px; 
-            font-size: 14px; 
-            letter-spacing: 1px; 
-            color: white; 
-            background: rgba(0,0,0,0.6); 
-            position: sticky; 
-            top: 0; 
-            z-index: 2; 
-            border-bottom: 2px solid rgba(255,255,255,0.2); 
-        }
-
-        td { 
-            padding: 12px; 
-            border-bottom: 1px solid rgba(255,255,255,0.05); 
-            font-weight: bold; 
-            font-size: 15px; 
-        }
-
-        tr:hover td { 
-            filter: brightness(1.5); 
-        }
+        .contenedor-tabla { overflow-x: auto; overflow-y: auto; flex-grow: 1; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); }
+        table { width: 100%; border-collapse: collapse; text-align: center; white-space: nowrap; }
+        th { padding: 15px; font-size: 14px; letter-spacing: 1px; color: white; background: rgba(0,0,0,0.6); position: sticky; top: 0; z-index: 2; border-bottom: 2px solid rgba(255,255,255,0.2); }
+        td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); font-weight: bold; font-size: 15px; }
+        tr:hover td { filter: brightness(1.5); }
 
         .col-asesor { background: rgba(50, 50, 50, 0.4); text-align: left; padding-left: 20px; }
         .col-naranja { background: rgba(255, 140, 0, 0.15); color: #FFB04F; } 
@@ -256,170 +157,58 @@
         .col-verde { background: rgba(50, 205, 50, 0.15); color: #32CD32; }  
         .border-right { border-right: 1px solid rgba(255,255,255,0.1); }
 
-        .grid-asesores { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); 
-            gap: 15px; 
-            margin-top: 20px; 
-        }
-
-        .card-break { 
-            background: #25252b; 
-            padding: 15px; 
-            border-radius: 10px; 
-            text-align: center; 
-            border: 1px solid #444; 
-            position: relative;
-        }
-
-        .card-break.lider {
-            background: #1a3a3a;
-            border: 2px solid #00FF7F;
-            box-shadow: 0 0 15px rgba(0, 255, 127, 0.3);
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .lider-badge {
-            background: linear-gradient(135deg, #00FF7F, #00BFFF);
-            color: black;
-            padding: 2px 8px;
-            border-radius: 3px;
-            font-size: 0.7em;
-            font-weight: bold;
-            margin-left: 5px;
-        }
-
-        .btn-reset {
-            background: #666;
-            border: none;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 3px;
-            cursor: pointer;
-            font-size: 0.8em;
-            font-weight: bold;
-            transition: all 0.3s ease;
-        }
-
+        .grid-asesores { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; margin-top: 20px; }
+        .card-break { background: #25252b; padding: 15px; border-radius: 10px; text-align: center; border: 1px solid #444; position: relative; }
+        .card-break.lider { background: #1a3a3a; border: 2px solid #00FF7F; box-shadow: 0 0 15px rgba(0, 255, 127, 0.3); }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .lider-badge { background: linear-gradient(135deg, #00FF7F, #00BFFF); color: black; padding: 2px 8px; border-radius: 3px; font-size: 0.7em; font-weight: bold; margin-left: 5px; }
+        .btn-reset { background: #666; border: none; color: white; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 0.8em; font-weight: bold; transition: all 0.3s ease; }
         .btn-reset:hover { background: #FF6347; box-shadow: 0 0 10px rgba(255, 99, 71, 0.6); }
 
-        .timer-display { 
-            font-size: 1.8em; 
-            font-family: monospace; 
-            color: #FF4500; 
-            margin: 10px 0; 
-        }
-
+        .timer-display { font-size: 1.8em; font-family: monospace; color: #FF4500; margin: 10px 0; }
         .card-break.lider .timer-display { color: #00FF7F; }
-
-        .btn-start { 
-            background: #FF4500; 
-            border: none; 
-            color: white; 
-            padding: 8px 20px; 
-            border-radius: 5px; 
-            cursor: pointer; 
-            font-weight: bold; 
-            width: 100%; 
-        }
-
+        .btn-start { background: #FF4500; border: none; color: white; padding: 8px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; }
         .card-break.lider .btn-start { background: #00FF7F; color: black; }
         .btn-start:disabled { background: #333; color: #777; cursor: not-allowed; border: 1px solid #444; }
         .info-break { color: #aaa; text-align: center; font-size: 0.9em; margin-bottom: 20px; }
 
-        .pizarra-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 30px;
-            margin-top: 20px;
-            width: 100%;
-        }
-
-        .pizarra-seccion {
-            background: rgba(30, 30, 40, 0.8);
-            border: 2px solid;
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-        }
-
+        .pizarra-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 30px; margin-top: 20px; width: 100%; }
+        .pizarra-seccion { background: rgba(30, 30, 40, 0.8); border: 2px solid; border-radius: 15px; padding: 20px; box-shadow: 0 0 20px rgba(0, 0, 0, 0.5); }
         .pizarra-seccion.claro { border-color: #FF0000; box-shadow: 0 0 20px rgba(255, 0, 0, 0.3); }
         .pizarra-seccion.wow { border-color: #9933FF; box-shadow: 0 0 20px rgba(153, 51, 255, 0.3); }
         .pizarra-seccion.movistar { border-color: #0099FF; box-shadow: 0 0 20px rgba(0, 153, 255, 0.3); }
 
-        .pizarra-titulo {
-            font-size: 1.8em;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 20px;
-            text-shadow: 0 0 10px currentColor;
-        }
-
+        .pizarra-titulo { font-size: 1.8em; font-weight: bold; text-align: center; margin-bottom: 20px; text-shadow: 0 0 10px currentColor; }
         .pizarra-seccion.claro .pizarra-titulo { color: #FF0000; }
         .pizarra-seccion.wow .pizarra-titulo { color: #9933FF; }
         .pizarra-seccion.movistar .pizarra-titulo { color: #0099FF; }
 
-        .pizarra-asesores {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .pizarra-asesor {
-            background: rgba(50, 50, 60, 0.6);
-            padding: 12px 15px;
-            border-radius: 8px;
-            border-left: 4px solid;
-            text-align: left;
-            font-size: 0.95em;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .pizarra-asesor:hover {
-            transform: translateX(5px);
-            filter: brightness(1.3);
-        }
-
+        .pizarra-asesores { display: flex; flex-direction: column; gap: 12px; }
+        .pizarra-asesor { background: rgba(50, 50, 60, 0.6); padding: 12px 15px; border-radius: 8px; border-left: 4px solid; text-align: left; font-size: 0.95em; font-weight: bold; transition: all 0.3s ease; display: flex; justify-content: space-between; align-items: center; }
+        .pizarra-asesor:hover { transform: translateX(5px); filter: brightness(1.3); }
         .pizarra-asesor-nombre { flex-grow: 1; }
-        
-        .pizarra-asesor-estrellas {
-            display: flex;
-            gap: 5px;
-            align-items: center;
-        }
+        .pizarra-asesor-estrellas { display: flex; gap: 5px; align-items: center; }
+        .estrellas-display { font-size: 1.2em; letter-spacing: 2px; display: flex; gap: 2px; }
 
-        .estrellas-display {
-            font-size: 1.2em;
-            letter-spacing: 2px;
-        }
-
-        .btn-estrella-pizarra {
-            background: rgba(255, 215, 0, 0.3);
-            border: 1px solid #FFD700;
-            color: #FFD700;
+        /* NUEVOS BOTONES DE COLORES MANTENIENDO TU DISEÑO */
+        .btn-mini-estrella {
             padding: 3px 8px;
             border-radius: 4px;
             cursor: pointer;
             font-size: 0.8em;
             font-weight: bold;
             transition: all 0.3s ease;
+            margin-left: 2px;
         }
 
-        .btn-estrella-pizarra:hover {
-            background: #FFD700;
-            color: black;
-            box-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
-        }
+        .btn-mini-claro { border: 1px solid #FF0000; color: #FF0000; background: rgba(255,0,0,0.2); }
+        .btn-mini-claro:hover { background: #FF0000; color: white; box-shadow: 0 0 10px rgba(255,0,0,0.8); }
+
+        .btn-mini-wow { border: 1px solid #9933FF; color: #9933FF; background: rgba(153,51,255,0.2); }
+        .btn-mini-wow:hover { background: #9933FF; color: white; box-shadow: 0 0 10px rgba(153,51,255,0.8); }
+
+        .btn-mini-movistar { border: 1px solid #0099FF; color: #0099FF; background: rgba(0,153,255,0.2); }
+        .btn-mini-movistar:hover { background: #0099FF; color: white; box-shadow: 0 0 10px rgba(0,153,255,0.8); }
 
         .pizarra-seccion.claro .pizarra-asesor { border-color: #FF0000; color: #FF0000; }
         .pizarra-seccion.wow .pizarra-asesor { border-color: #9933FF; color: #9933FF; }
@@ -467,8 +256,7 @@
                             <th class="col-naranja">CONVERTIBILIDAD</th>
                         </tr>
                     </thead>
-                    <tbody id="cuerpoTabla">
-                    </tbody>
+                    <tbody id="cuerpoTabla"></tbody>
                 </table>
             </div>
         </div>
@@ -487,8 +275,7 @@
         <div class="modal-contenido">
             <span class="btn-cerrar" onclick="cerrarModal('modalPizarra')">✖</span>
             <h2 class="modal-titulo pizarra-title">📋 PIZARRA DE VENTAS</h2>
-            <div class="pizarra-container" id="pizarraContainer">
-            </div>
+            <div class="pizarra-container" id="pizarraContainer"></div>
         </div>
     </div>
 
@@ -514,87 +301,45 @@
         let asesoresBreaks = [];
         let breaksActivos = {};
         let intervalosActivos = {};
-        let pizarraData = {
-            claro: [],
-            wow: [],
-            movistar: []
-        };
+        let pizarraData = { claro: [], wow: [], movistar: [] };
         
-        // --- LÓGICA DE ESTRELLAS CORREGIDA (NUEVA ESTRUCTURA) ---
         let estrellasData = {};
 
-        function cerrarModal(idModal) {
-            document.getElementById(idModal).classList.remove('mostrar');
-        }
+        function cerrarModal(idModal) { document.getElementById(idModal).classList.remove('mostrar'); }
+        function esAsesorSinBreaks(nombre) { return ASESORES_SIN_BREAKS.some(excluido => nombre.toUpperCase() === excluido); }
+        function esLider(nombre) { return LIDERES.some(lider => nombre.toUpperCase() === lider); }
 
-        function esAsesorSinBreaks(nombre) {
-            return ASESORES_SIN_BREAKS.some(excluido => nombre.toUpperCase() === excluido);
-        }
-
-        function esLider(nombre) {
-            return LIDERES.some(lider => nombre.toUpperCase() === lider);
-        }
-
-        function guardarBreaksEnStorage() {
-            localStorage.setItem('breaksActivos', JSON.stringify(breaksActivos));
-        }
-
+        function guardarBreaksEnStorage() { localStorage.setItem('breaksActivos', JSON.stringify(breaksActivos)); }
         function cargarBreaksDelStorage() {
             const datos = localStorage.getItem('breaksActivos');
-            if (datos) {
-                try {
-                    breaksActivos = JSON.parse(datos);
-                } catch (e) {
-                    breaksActivos = {};
-                }
-            }
+            if (datos) { try { breaksActivos = JSON.parse(datos); } catch (e) { breaksActivos = {}; } }
         }
 
-        // Usamos una nueva clave (estrellas_v3) para que no jale el error del pasado
-        function guardarEstrellas() {
-            localStorage.setItem('estrellas_v3', JSON.stringify(estrellasData));
-        }
-
+        // Nueva llave de memoria v4
+        function guardarEstrellas() { localStorage.setItem('estrellas_v4', JSON.stringify(estrellasData)); }
         function cargarEstrellas() {
-            const datos = localStorage.getItem('estrellas_v3');
-            if (datos) {
-                try {
-                    estrellasData = JSON.parse(datos);
-                } catch (e) {
-                    estrellasData = {};
-                }
-            }
+            const datos = localStorage.getItem('estrellas_v4');
+            if (datos) { try { estrellasData = JSON.parse(datos); } catch (e) { estrellasData = {}; } }
         }
 
-        // Se agregó la campaña para separar a "Melisa de Claro" de "Melisa de Wow"
         function agregarEstrella(nombre, campana) {
-            const key = nombre.trim() + '_' + campana;
-            if (!estrellasData[key]) {
-                estrellasData[key] = 0;
-            }
-            estrellasData[key]++;
+            const keyUnica = nombre.trim() + '_' + campana; 
+            if (!estrellasData[keyUnica]) { estrellasData[keyUnica] = 0; }
+            estrellasData[keyUnica]++;
             guardarEstrellas();
             construirPizarra();
         }
 
-        function limpiarBreakTerminado(index) {
-            delete breaksActivos[index];
-            guardarBreaksEnStorage();
-        }
+        function limpiarBreakTerminado(index) { delete breaksActivos[index]; guardarBreaksEnStorage(); }
 
         function resetearBreakConPassword(index) {
             const passwordInput = prompt("Ingrese la contraseña de administrador para resetear:");
             if (passwordInput === PASS_ADMIN) {
-                if (intervalosActivos[index]) {
-                    clearInterval(intervalosActivos[index]);
-                    delete intervalosActivos[index];
-                }
+                if (intervalosActivos[index]) { clearInterval(intervalosActivos[index]); delete intervalosActivos[index]; }
                 limpiarBreakTerminado(index);
                 setupBreakGrid();
                 alert("Break reseteado correctamente ✓");
-            } else if (passwordInput !== null) {
-                alert("Contraseña incorrecta.");
-            }
+            } else if (passwordInput !== null) { alert("Contraseña incorrecta."); }
         }
 
         async function cargarDatosPizarra() {
@@ -609,23 +354,41 @@
                 filas.forEach(linea => {
                     const c = linea.replace(/\r/g, '').split(',');
                     if (c.length < 3) return;
-
-                    if (c[0].trim() && c[0].trim().toUpperCase() !== 'CLARO') {
-                        pizarraData.claro.push(c[0].trim());
-                    }
-                    if (c[1].trim() && c[1].trim().toUpperCase() !== 'WOW') {
-                        pizarraData.wow.push(c[1].trim());
-                    }
-                    if (c[2].trim() && c[2].trim().toUpperCase() !== 'MOVISTAR') {
-                        pizarraData.movistar.push(c[2].trim());
-                    }
+                    if (c[0].trim() && c[0].trim().toUpperCase() !== 'CLARO') pizarraData.claro.push(c[0].trim());
+                    if (c[1].trim() && c[1].trim().toUpperCase() !== 'WOW') pizarraData.wow.push(c[1].trim());
+                    if (c[2].trim() && c[2].trim().toUpperCase() !== 'MOVISTAR') pizarraData.movistar.push(c[2].trim());
                 });
-            } catch (error) {
-                console.error("Error cargando datos pizarra:", error);
-            }
+            } catch (error) { console.error("Error cargando datos pizarra:", error); }
         }
 
-        // --- CONSTRUCTOR DE PIZARRA CORREGIDO (MANTIENE TU HTML EXACTO) ---
+        // --- CONSTRUCTOR DE PIZARRA CON 3 BOTONES Y ESTRELLAS DE COLORES ---
+        function generarHTMLAsesor(asesor) {
+            const nombreLimpio = asesor.trim();
+            const nEscapado = nombreLimpio.replace(/'/g, "\\'");
+            
+            const claroStars = estrellasData[nombreLimpio + '_claro'] || 0;
+            const wowStars = estrellasData[nombreLimpio + '_wow'] || 0;
+            const movistarStars = estrellasData[nombreLimpio + '_movistar'] || 0;
+            
+            let estrellasDisplay = '';
+            
+            // Usamos el símbolo de estrella ★ que se puede pintar con color CSS
+            if (claroStars > 0) estrellasDisplay += `<span style="color: #FF0000; text-shadow: 0 0 5px #FF0000;">${'★'.repeat(claroStars)}</span>`;
+            if (wowStars > 0) estrellasDisplay += `<span style="color: #9933FF; text-shadow: 0 0 5px #9933FF;">${'★'.repeat(wowStars)}</span>`;
+            if (movistarStars > 0) estrellasDisplay += `<span style="color: #0099FF; text-shadow: 0 0 5px #0099FF;">${'★'.repeat(movistarStars)}</span>`;
+
+            return `
+                <div class="pizarra-asesor">
+                    <div class="pizarra-asesor-nombre">${nombreLimpio}</div>
+                    <div class="pizarra-asesor-estrellas">
+                        <div class="estrellas-display">${estrellasDisplay}</div>
+                        <button class="btn-mini-estrella btn-mini-claro" onclick="agregarEstrella('${nEscapado}', 'claro')">+</button>
+                        <button class="btn-mini-estrella btn-mini-wow" onclick="agregarEstrella('${nEscapado}', 'wow')">+</button>
+                        <button class="btn-mini-estrella btn-mini-movistar" onclick="agregarEstrella('${nEscapado}', 'movistar')">+</button>
+                    </div>
+                </div>`;
+        }
+
         function construirPizarra() {
             const container = document.getElementById('pizarraContainer');
             container.innerHTML = '';
@@ -634,20 +397,8 @@
             const claroDiv = document.createElement('div');
             claroDiv.className = 'pizarra-seccion claro';
             let claroHTML = '<div class="pizarra-titulo">📱 CLARO</div><div class="pizarra-asesores">';
-            if (pizarraData.claro.length > 0) {
-                claroHTML += pizarraData.claro.map(asesor => {
-                    const nombreLimpio = asesor.trim();
-                    const key = nombreLimpio + '_claro'; // Clave única por campaña
-                    const estrellas = estrellasData[key] || 0;
-                    let estrellasDisplay = '';
-                    for (let i = 0; i < estrellas; i++) {
-                        estrellasDisplay += '⭐';
-                    }
-                    return '<div class="pizarra-asesor"><div class="pizarra-asesor-nombre">' + nombreLimpio + '</div><div class="pizarra-asesor-estrellas"><div class="estrellas-display">' + estrellasDisplay + '</div><button class="btn-estrella-pizarra" onclick="agregarEstrella(\'' + nombreLimpio.replace(/'/g, "\\'") + '\', \'claro\')">+</button></div></div>';
-                }).join('');
-            } else {
-                claroHTML += '<div class="pizarra-asesor">Sin asesores</div>';
-            }
+            if (pizarraData.claro.length > 0) { claroHTML += pizarraData.claro.map(generarHTMLAsesor).join(''); } 
+            else { claroHTML += '<div class="pizarra-asesor">Sin asesores</div>'; }
             claroHTML += '</div>';
             claroDiv.innerHTML = claroHTML;
             container.appendChild(claroDiv);
@@ -656,20 +407,8 @@
             const wowDiv = document.createElement('div');
             wowDiv.className = 'pizarra-seccion wow';
             let wowHTML = '<div class="pizarra-titulo">💜 WOW</div><div class="pizarra-asesores">';
-            if (pizarraData.wow.length > 0) {
-                wowHTML += pizarraData.wow.map(asesor => {
-                    const nombreLimpio = asesor.trim();
-                    const key = nombreLimpio + '_wow'; // Clave única por campaña
-                    const estrellas = estrellasData[key] || 0;
-                    let estrellasDisplay = '';
-                    for (let i = 0; i < estrellas; i++) {
-                        estrellasDisplay += '⭐';
-                    }
-                    return '<div class="pizarra-asesor"><div class="pizarra-asesor-nombre">' + nombreLimpio + '</div><div class="pizarra-asesor-estrellas"><div class="estrellas-display">' + estrellasDisplay + '</div><button class="btn-estrella-pizarra" onclick="agregarEstrella(\'' + nombreLimpio.replace(/'/g, "\\'") + '\', \'wow\')">+</button></div></div>';
-                }).join('');
-            } else {
-                wowHTML += '<div class="pizarra-asesor">Sin asesores</div>';
-            }
+            if (pizarraData.wow.length > 0) { wowHTML += pizarraData.wow.map(generarHTMLAsesor).join(''); } 
+            else { wowHTML += '<div class="pizarra-asesor">Sin asesores</div>'; }
             wowHTML += '</div>';
             wowDiv.innerHTML = wowHTML;
             container.appendChild(wowDiv);
@@ -678,20 +417,8 @@
             const movistarDiv = document.createElement('div');
             movistarDiv.className = 'pizarra-seccion movistar';
             let movistarHTML = '<div class="pizarra-titulo">🔵 MOVISTAR</div><div class="pizarra-asesores">';
-            if (pizarraData.movistar.length > 0) {
-                movistarHTML += pizarraData.movistar.map(asesor => {
-                    const nombreLimpio = asesor.trim();
-                    const key = nombreLimpio + '_movistar'; // Clave única por campaña
-                    const estrellas = estrellasData[key] || 0;
-                    let estrellasDisplay = '';
-                    for (let i = 0; i < estrellas; i++) {
-                        estrellasDisplay += '⭐';
-                    }
-                    return '<div class="pizarra-asesor"><div class="pizarra-asesor-nombre">' + nombreLimpio + '</div><div class="pizarra-asesor-estrellas"><div class="estrellas-display">' + estrellasDisplay + '</div><button class="btn-estrella-pizarra" onclick="agregarEstrella(\'' + nombreLimpio.replace(/'/g, "\\'") + '\', \'movistar\')">+</button></div></div>';
-                }).join('');
-            } else {
-                movistarHTML += '<div class="pizarra-asesor">Sin asesores</div>';
-            }
+            if (pizarraData.movistar.length > 0) { movistarHTML += pizarraData.movistar.map(generarHTMLAsesor).join(''); } 
+            else { movistarHTML += '<div class="pizarra-asesor">Sin asesores</div>'; }
             movistarHTML += '</div>';
             movistarDiv.innerHTML = movistarHTML;
             container.appendChild(movistarDiv);
@@ -719,42 +446,22 @@
 
                     if (asesoresMap.has(nombre)) {
                         const asExistente = asesoresMap.get(nombre);
-                        asesoresMap.set(nombre, {
-                            nombre,
-                            ingresos: asExistente.ingresos + ingresos,
-                            cancCliente: asExistente.cancCliente + cancCliente,
-                            cancOp: asExistente.cancOp + cancOp,
-                            programada: asExistente.programada + programada,
-                            instaladas: asExistente.instaladas + instaladas
-                        });
-                    } else {
-                        asesoresMap.set(nombre, { nombre, ingresos, cancCliente, cancOp, programada, instaladas });
-                    }
+                        asesoresMap.set(nombre, { nombre, ingresos: asExistente.ingresos + ingresos, cancCliente: asExistente.cancCliente + cancCliente, cancOp: asExistente.cancOp + cancOp, programada: asExistente.programada + programada, instaladas: asExistente.instaladas + instaladas });
+                    } else { asesoresMap.set(nombre, { nombre, ingresos, cancCliente, cancOp, programada, instaladas }); }
                 });
 
                 let asesoresUnicos = Array.from(asesoresMap.values());
                 asesoresUnicos.sort((a, b) => b.instaladas - a.instaladas);
-
                 asesoresList = asesoresUnicos.map(a => a.nombre);
                 
-                asesoresBreaks = asesoresUnicos
-                    .filter(a => !esAsesorSinBreaks(a.nombre))
-                    .map(a => a.nombre);
-                
-                LIDERES.forEach(lider => {
-                    if (!asesoresBreaks.some(a => a.toUpperCase() === lider)) {
-                        asesoresBreaks.push(lider);
-                    }
-                });
+                asesoresBreaks = asesoresUnicos.filter(a => !esAsesorSinBreaks(a.nombre)).map(a => a.nombre);
+                LIDERES.forEach(lider => { if (!asesoresBreaks.some(a => a.toUpperCase() === lider)) { asesoresBreaks.push(lider); } });
                 
                 llenarTabla(asesoresUnicos);
                 dibujarGrafico(asesoresUnicos);
                 setupBreakGrid();
                 reanudarBreaksActivos();
-
-            } catch (error) {
-                console.error("Error cargando datos:", error);
-            }
+            } catch (error) { console.error("Error cargando datos:", error); }
         }
 
         function llenarTabla(asesores) {
@@ -763,90 +470,34 @@
             asesores.forEach(as => {
                 const totalCalculado = as.cancCliente + as.cancOp + as.programada + as.instaladas;
                 const convertibilidad = as.ingresos > 0 ? ((as.instaladas / as.ingresos) * 100).toFixed(2) : "0.00";
-
                 cuerpo.innerHTML += '<tr><td class="col-asesor border-right">' + as.nombre + '</td><td class="col-naranja border-right">' + as.ingresos + '</td><td class="col-rojo">' + as.cancCliente + '</td><td class="col-rojo border-right">' + as.cancOp + '</td><td class="col-azul border-right">' + as.programada + '</td><td class="col-verde border-right">' + as.instaladas + '</td><td class="col-naranja border-right">' + totalCalculado + '</td><td class="col-naranja">' + convertibilidad + ' %</td></tr>';
             });
         }
 
         function dibujarGrafico(asesores) {
             const ctx = document.getElementById('rankingVentas').getContext('2d');
-
             const nombresInsignia = asesores.map((as, i) => {
                 if (i === 0) return '👑 ' + as.nombre;
                 if (i === 1) return '🥈 ' + as.nombre;
                 if (i === 2) return '🥉 ' + as.nombre;
                 return as.nombre;
             });
-
             const ventas = asesores.map(as => as.instaladas);
             const colores = ventas.map(v => v >= 10 ? 'rgba(255, 215, 0, 0.8)' : v >= 7 ? 'rgba(0, 255, 127, 0.8)' : v >= 4 ? 'rgba(0, 191, 255, 0.8)' : 'rgba(138, 43, 226, 0.6)');
             const bordes = ventas.map(v => v >= 10 ? '#FFD700' : v >= 7 ? '#00FF7F' : v >= 4 ? '#00BFFF' : '#8A2BE2');
             const coloresTxt = ventas.map(v => v >= 10 ? '#FFD700' : v >= 7 ? '#00FF7F' : v >= 4 ? '#00BFFF' : '#E066FF');
 
             Chart.defaults.font.family = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
-
-            if (miGrafico) {
-                miGrafico.destroy();
-            }
-
+            if (miGrafico) { miGrafico.destroy(); }
             let delayed;
             miGrafico = new Chart(ctx, {
                 type: 'bar',
-                data: {
-                    labels: nombresInsignia,
-                    datasets: [{
-                        label: 'Ventas Instaladas',
-                        data: ventas,
-                        backgroundColor: colores,
-                        borderColor: bordes,
-                        borderWidth: 2,
-                        borderRadius: 10,
-                        barPercentage: 0.7
-                    }]
-                },
+                data: { labels: nombresInsignia, datasets: [{ label: 'Ventas Instaladas', data: ventas, backgroundColor: colores, borderColor: bordes, borderWidth: 2, borderRadius: 10, barPercentage: 0.7 }] },
                 options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    animation: {
-                        onComplete: () => { delayed = true; },
-                        delay: (context) => {
-                            let delay = 0;
-                            if (context.type === 'data' && context.mode === 'default' && !delayed) {
-                                delay = context.dataIndex * 150;
-                            }
-                            return delay;
-                        },
-                    },
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            backgroundColor: 'rgba(0, 0, 0, 0.95)',
-                            titleFont: { size: 18, weight: 'bold' },
-                            bodyFont: { size: 15 },
-                            padding: 15,
-                            displayColors: false,
-                            callbacks: {
-                                label: function(context) {
-                                    const as = asesores[context.dataIndex];
-                                    const conv = as.ingresos > 0 ? ((as.instaladas / as.ingresos) * 100).toFixed(1) : "0.0";
-                                    return [' ✅ Instaladas: ' + as.instaladas, ' 📥 Ingresadas: ' + as.ingresos, ' 📊 Convertibilidad: ' + conv + '%'];
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            beginAtZero: true,
-                            max: 30,
-                            grid: { color: 'rgba(255,255,255,0.08)' },
-                            ticks: { color: '#bbbbbb', stepSize: 5 }
-                        },
-                        y: {
-                            grid: { display: false },
-                            ticks: { color: coloresTxt, font: { weight: 'bold' } }
-                        }
-                    }
+                    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+                    animation: { onComplete: () => { delayed = true; }, delay: (context) => { let delay = 0; if (context.type === 'data' && context.mode === 'default' && !delayed) { delay = context.dataIndex * 150; } return delay; } },
+                    plugins: { legend: { display: false }, tooltip: { backgroundColor: 'rgba(0, 0, 0, 0.95)', titleFont: { size: 18, weight: 'bold' }, bodyFont: { size: 15 }, padding: 15, displayColors: false, callbacks: { label: function(context) { const as = asesores[context.dataIndex]; const conv = as.ingresos > 0 ? ((as.instaladas / as.ingresos) * 100).toFixed(1) : "0.0"; return [' ✅ Instaladas: ' + as.instaladas, ' 📥 Ingresadas: ' + as.ingresos, ' 📊 Convertibilidad: ' + conv + '%']; } } } },
+                    scales: { x: { beginAtZero: true, max: 30, grid: { color: 'rgba(255,255,255,0.08)' }, ticks: { color: '#bbbbbb', stepSize: 5 } }, y: { grid: { display: false }, ticks: { color: coloresTxt, font: { weight: 'bold' } } } }
                 }
             });
         }
@@ -854,27 +505,16 @@
         function setupBreakGrid() {
             const grid = document.getElementById('gridAsesores');
             grid.innerHTML = '';
-            
             asesoresBreaks.forEach((nombre, index) => {
                 const card = document.createElement('div');
                 const esLiderAsesor = esLider(nombre);
                 card.className = 'card-break' + (esLiderAsesor ? ' lider' : '');
-                
                 let duracionMinutos = 40;
-                if (nombre.toUpperCase() === "GIANELLA SUAREZ") {
-                    duracionMinutos = 20;
-                }
-                
+                if (nombre.toUpperCase() === "GIANELLA SUAREZ") { duracionMinutos = 20; }
                 let timerDisplay = duracionMinutos + ':00';
                 let btnText = "INICIAR BREAK";
                 let btnDisabled = false;
-                
-                if (breaksActivos[index]) {
-                    btnText = "EN BREAK";
-                    btnDisabled = true;
-                    timerDisplay = breaksActivos[index].display;
-                }
-                
+                if (breaksActivos[index]) { btnText = "EN BREAK"; btnDisabled = true; timerDisplay = breaksActivos[index].display; }
                 card.innerHTML = '<div class="card-header"><div style="font-weight:bold; flex-grow:1; display: flex; align-items: center;">' + nombre + (esLiderAsesor ? '<span class="lider-badge">🌟 LÍDER</span>' : '') + '</div><button class="btn-reset" onclick="resetearBreakConPassword(' + index + ')" title="Resetear break">🔄</button></div><div id="timer-' + index + '" class="timer-display">' + timerDisplay + '</div><button id="btn-' + index + '" class="btn-start" onclick="verificarYIniciar(' + index + ')" ' + (btnDisabled ? 'disabled' : '') + '>' + btnText + '</button>';
                 grid.appendChild(card);
             });
@@ -882,68 +522,34 @@
 
         function verificarYIniciar(index) {
             const passwordInput = prompt("Ingrese la contraseña de administrador:");
-            if (passwordInput === PASS_ADMIN) {
-                startBreak(index);
-            } else if (passwordInput !== null) {
-                alert("Contraseña incorrecta.");
-            }
+            if (passwordInput === PASS_ADMIN) { startBreak(index); } else if (passwordInput !== null) { alert("Contraseña incorrecta."); }
         }
 
         function startBreak(index) {
             const btn = document.getElementById('btn-' + index);
             const display = document.getElementById('timer-' + index);
             const nombreAsesor = asesoresBreaks[index];
-            
             let duracionMinutos = 40;
-            if (nombreAsesor.toUpperCase() === "GIANELLA SUAREZ") {
-                duracionMinutos = 20;
-            }
-            
+            if (nombreAsesor.toUpperCase() === "GIANELLA SUAREZ") { duracionMinutos = 20; }
             let tiempo = duracionMinutos * 60;
             const horaInicio = Date.now();
-
-            btn.disabled = true;
-            btn.innerText = "EN BREAK";
-
-            breaksActivos[index] = {
-                inicio: horaInicio,
-                duracion: tiempo,
-                display: duracionMinutos + ':00',
-                nombreAsesor: nombreAsesor,
-                intervaloId: null
-            };
+            btn.disabled = true; btn.innerText = "EN BREAK";
+            breaksActivos[index] = { inicio: horaInicio, duracion: tiempo, display: duracionMinutos + ':00', nombreAsesor: nombreAsesor, intervaloId: null };
             guardarBreaksEnStorage();
 
             const intervalo = setInterval(() => {
-                let minutos = Math.floor(tiempo / 60);
-                let segundos = tiempo % 60;
-
-                minutos = minutos < 10 ? '0' + minutos : minutos;
-                segundos = segundos < 10 ? '0' + segundos : segundos;
-
+                let minutos = Math.floor(tiempo / 60); let segundos = tiempo % 60;
+                minutos = minutos < 10 ? '0' + minutos : minutos; segundos = segundos < 10 ? '0' + segundos : segundos;
                 const timerStr = minutos + ':' + segundos;
                 display.innerText = timerStr;
-                
-                if (breaksActivos[index]) {
-                    breaksActivos[index].display = timerStr;
-                    guardarBreaksEnStorage();
-                }
+                if (breaksActivos[index]) { breaksActivos[index].display = timerStr; guardarBreaksEnStorage(); }
 
                 if (tiempo <= 0) {
                     clearInterval(intervalo);
-                    display.innerText = "TERMINADO";
-                    display.style.color = "#00FF7F";
-                    btn.innerText = "FINALIZADO";
-                    
-                    setTimeout(() => {
-                        limpiarBreakTerminado(index);
-                        setupBreakGrid();
-                    }, 3000);
-                } else {
-                    tiempo--;
-                }
+                    display.innerText = "TERMINADO"; display.style.color = "#00FF7F"; btn.innerText = "FINALIZADO";
+                    setTimeout(() => { limpiarBreakTerminado(index); setupBreakGrid(); }, 3000);
+                } else { tiempo--; }
             }, 1000);
-
             intervalosActivos[index] = intervalo;
         }
 
@@ -951,55 +557,31 @@
             Object.keys(breaksActivos).forEach(indexStr => {
                 const index = parseInt(indexStr);
                 const breakData = breaksActivos[index];
-                
                 if (breakData && breakData.inicio) {
                     const ahora = Date.now();
                     const tiempoTranscurrido = Math.floor((ahora - breakData.inicio) / 1000);
                     let tiempoRestante = breakData.duracion - tiempoTranscurrido;
-                    
                     if (tiempoRestante > 0) {
                         const btn = document.getElementById('btn-' + index);
                         const display = document.getElementById('timer-' + index);
-                        
-                        if (btn) btn.disabled = true;
-                        if (btn) btn.innerText = "EN BREAK";
+                        if (btn) btn.disabled = true; if (btn) btn.innerText = "EN BREAK";
                         
                         const intervalo = setInterval(() => {
-                            let minutos = Math.floor(tiempoRestante / 60);
-                            let segundos = tiempoRestante % 60;
-
-                            minutos = minutos < 10 ? '0' + minutos : minutos;
-                            segundos = segundos < 10 ? '0' + segundos : segundos;
-
+                            let minutos = Math.floor(tiempoRestante / 60); let segundos = tiempoRestante % 60;
+                            minutos = minutos < 10 ? '0' + minutos : minutos; segundos = segundos < 10 ? '0' + segundos : segundos;
                             const timerStr = minutos + ':' + segundos;
                             if (display) display.innerText = timerStr;
-                            
-                            if (breaksActivos[index]) {
-                                breaksActivos[index].display = timerStr;
-                                guardarBreaksEnStorage();
-                            }
+                            if (breaksActivos[index]) { breaksActivos[index].display = timerStr; guardarBreaksEnStorage(); }
 
                             if (tiempoRestante <= 0) {
                                 clearInterval(intervalo);
-                                if (display) {
-                                    display.innerText = "TERMINADO";
-                                    display.style.color = "#00FF7F";
-                                }
+                                if (display) { display.innerText = "TERMINADO"; display.style.color = "#00FF7F"; }
                                 if (btn) btn.innerText = "FINALIZADO";
-                                
-                                setTimeout(() => {
-                                    limpiarBreakTerminado(index);
-                                    setupBreakGrid();
-                                }, 3000);
-                            } else {
-                                tiempoRestante--;
-                            }
+                                setTimeout(() => { limpiarBreakTerminado(index); setupBreakGrid(); }, 3000);
+                            } else { tiempoRestante--; }
                         }, 1000);
-
                         intervalosActivos[index] = intervalo;
-                    } else {
-                        limpiarBreakTerminado(index);
-                    }
+                    } else { limpiarBreakTerminado(index); }
                 }
             });
         }
@@ -1012,10 +594,7 @@
         document.getElementById('btnAbrirBreak').addEventListener('click', () => modalBreak.classList.add('mostrar'));
 
         const modalPizarra = document.getElementById('modalPizarra');
-        document.getElementById('btnAbrirPizarra').addEventListener('click', () => {
-            construirPizarra();
-            modalPizarra.classList.add('mostrar');
-        });
+        document.getElementById('btnAbrirPizarra').addEventListener('click', () => { construirPizarra(); modalPizarra.classList.add('mostrar'); });
 
         cargarBreaksDelStorage();
         cargarEstrellas();
