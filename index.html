@@ -267,7 +267,6 @@
         }
         .btn-limpiar-pizarra:hover { background: #FF0000; color: white; box-shadow: 0 0 15px rgba(255, 0, 0, 0.6); }
 
-        /* ESTILOS PARA LAS PIZZAS CAYENDO */
         .pizza-cayendo {
             position: fixed;
             top: -50px;
@@ -388,7 +387,7 @@
         let pizarraData = { claro: [], wow: [], movistar: [] };
         
         let estrellasData = {};
-        let metaLogradaPreviamente = false; // Bandera para evitar lluvia infinita si ya se logró
+        let metaLogradaPreviamente = false; 
 
         function cerrarModal(idModal) { document.getElementById(idModal).classList.remove('mostrar'); }
         function esAsesorSinBreaks(nombre) { return ASESORES_SIN_BREAKS.some(excluido => nombre.toUpperCase() === excluido); }
@@ -440,7 +439,7 @@
             if (pwd === PASS_ADMIN) {
                 if(confirm("¿Está seguro? Esto borrará TODAS las estrellas de la pizarra actual.")) {
                     estrellasData = {};
-                    metaLogradaPreviamente = false; // Reset bandera pizza
+                    metaLogradaPreviamente = false; 
                     guardarEstrellas();
                     construirPizarra();
                     alert("Pizarra reiniciada correctamente.");
@@ -450,7 +449,6 @@
             }
         });
 
-        // --- FUNCIÓN PARA LA LLUVIA DE PIZZAS ---
         function lluviaDePizzas() {
             for (let i = 0; i < 50; i++) {
                 setTimeout(() => {
@@ -461,9 +459,8 @@
                     pizza.style.animation = `animacionPizza ${2 + Math.random() * 3}s linear forwards`;
                     document.body.appendChild(pizza);
                     
-                    // Limpiar el elemento después de que caiga para no saturar el DOM
                     setTimeout(() => pizza.remove(), 5000);
-                }, i * 150); // Van cayendo poco a poco
+                }, i * 150); 
             }
         }
 
@@ -489,13 +486,12 @@
                 metaContador.innerText = `Faltan ${faltantes}`;
                 metaContador.style.color = "#FFD700"; 
                 metaContador.style.textShadow = "none";
-                metaLogradaPreviamente = false; // Si restan estrellas, permitimos que vuelva a sonar al llegar a 28
+                metaLogradaPreviamente = false; 
             } else {
                 metaContador.innerText = "¡LOGRADO! 🎉";
                 metaContador.style.color = "#00FF7F"; 
                 metaContador.style.textShadow = "0 0 10px #00FF7F";
                 
-                // DISPARAR LLUVIA SI ES LA PRIMERA VEZ QUE LLEGAN A 28
                 if (!metaLogradaPreviamente) {
                     metaLogradaPreviamente = true;
                     lluviaDePizzas();
@@ -673,7 +669,7 @@
                 const card = document.createElement('div');
                 const esLiderAsesor = esLider(nombre);
                 card.className = 'card-break' + (esLiderAsesor ? ' lider' : '');
-                let duracionMinutos = 40;
+                let duracionMinutos = esLiderAsesor ? 40 : 35;
                 if (nombre.toUpperCase() === "GIANELLA SUAREZ") { duracionMinutos = 20; }
                 let timerDisplay = duracionMinutos + ':00';
                 let btnText = "INICIAR BREAK";
@@ -693,7 +689,8 @@
             const btn = document.getElementById('btn-' + index);
             const display = document.getElementById('timer-' + index);
             const nombreAsesor = asesoresBreaks[index];
-            let duracionMinutos = 40;
+            const esLiderAsesor = esLider(nombreAsesor);
+            let duracionMinutos = esLiderAsesor ? 40 : 35;
             if (nombreAsesor.toUpperCase() === "GIANELLA SUAREZ") { duracionMinutos = 20; }
             let tiempo = duracionMinutos * 60;
             const horaInicio = Date.now();
