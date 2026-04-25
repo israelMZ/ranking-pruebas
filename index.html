@@ -287,20 +287,23 @@
         /* Estilos para el contenedor de la imagen de Bonos */
         .imagen-bonos-container {
             width: 100%;
+            height: 100%; /* Forzar altura completa del contenedor */
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
+            padding: 20px; /* Mantener padding ligero para que no toque los bordes del modal */
             box-sizing: border-box;
         }
 
         .imagen-bonos {
+            width: auto; /* Mantener ancho automático */
+            height: 100%; /* Forzar altura completa del modal */
             max-width: 100%;
-            max-height: 70vh;
-            border-radius: 15px;
-            box-shadow: 0 0 30px rgba(50, 205, 50, 0.4);
-            border: 2px solid rgba(50, 205, 50, 0.5);
-            object-fit: contain;
+            max-height: 85vh; /* Aumentado para que ocupe más alto sin tapar el botón de cerrar */
+            border-radius: 15px; /* Mantener bordes redondeados por estética */
+            box-shadow: 0 0 30px rgba(50, 205, 50, 0.4); /* Mantener sombra */
+            border: 2px solid rgba(50, 205, 50, 0.5); /* Mantener borde */
+            object-fit: contain; /* Asegurar que se vea toda la imagen */
         }
 
     </style>
@@ -386,13 +389,7 @@
     </div>
 
     <div id="modalBonos" class="modal">
-        <div class="modal-contenido" style="max-width: 1000px; text-align: center;">
-            <span class="btn-cerrar" onclick="cerrarModal('modalBonos')">✖</span>
-            <h2 class="modal-titulo bonos-title">🎁 ESTRUCTURA DE BONOS</h2>
-            <p class="frase-motivacional">"Tu esfuerzo tiene recompensa"</p>
-            
-            <div class="imagen-bonos-container">
-                <img src="mis-bonos.png" alt="Imagen de Bonos" class="imagen-bonos" onerror="this.onerror=null; this.src='https://via.placeholder.com/800x400/141419/32CD32?text=IMAGEN+NO+ENCONTRADA';">
+        <div class="modal-contenido" style="max-width: 95vw; text-align: center; padding: 0;"> <span class="btn-cerrar" onclick="cerrarModal('modalBonos')" style="top: 10px; right: 10px;">✖</span> <div class="imagen-bonos-container" style="padding: 0;"> <img src="mis-bonos.png" alt="Imagen de Bonos" class="imagen-bonos" onerror="this.onerror=null; this.src='https://via.placeholder.com/1200x600/141419/32CD32?text=IMAGEN+NO+ENCONTRADA';">
             </div>
         </div>
     </div>
@@ -792,7 +789,6 @@
         const modalPizarra = document.getElementById('modalPizarra');
         document.getElementById('btnAbrirPizarra').addEventListener('click', () => { construirPizarra(); modalPizarra.classList.add('mostrar'); });
 
-        // LÓGICA DEL NUEVO MODAL DE BONOS
         const modalBonos = document.getElementById('modalBonos');
         document.getElementById('btnAbrirBonos').addEventListener('click', () => modalBonos.classList.add('mostrar'));
 
