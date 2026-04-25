@@ -78,7 +78,7 @@
             animation: flotarYBrillar 3s ease-in-out infinite; 
         }
 
-        .btn-estadisticas, .btn-break, .btn-pizarra {
+        .btn-estadisticas, .btn-break, .btn-pizarra, .btn-bonos {
             margin-top: 30px; 
             margin-right: 15px;
             padding: 15px 40px; 
@@ -95,10 +95,12 @@
         .btn-estadisticas { background: rgba(0, 191, 255, 0.2); border: 2px solid #00BFFF; box-shadow: 0 0 15px rgba(0, 191, 255, 0.4); }
         .btn-break { background: rgba(255, 165, 0, 0.2); border: 2px solid #FFA500; box-shadow: 0 0 15px rgba(255, 165, 0, 0.4); }
         .btn-pizarra { background: rgba(138, 43, 226, 0.2); border: 2px solid #8A2BE2; box-shadow: 0 0 15px rgba(138, 43, 226, 0.4); }
+        .btn-bonos { background: rgba(50, 205, 50, 0.2); border: 2px solid #32CD32; box-shadow: 0 0 15px rgba(50, 205, 50, 0.4); }
 
         .btn-estadisticas:hover { transform: scale(1.05); background: #00BFFF; box-shadow: 0 0 30px rgba(0, 191, 255, 0.8); }
         .btn-break:hover { transform: scale(1.05); background: #FFA500; box-shadow: 0 0 30px rgba(255, 165, 0, 0.8); }
         .btn-pizarra:hover { transform: scale(1.05); background: #8A2BE2; box-shadow: 0 0 30px rgba(138, 43, 226, 0.8); }
+        .btn-bonos:hover { transform: scale(1.05); background: #32CD32; box-shadow: 0 0 30px rgba(50, 205, 50, 0.8); }
 
         .botones-container { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; }
 
@@ -282,25 +284,6 @@
             100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
         }
 
-        /* Estilo para el nuevo botón de Bonos dentro de Pizarra */
-        .btn-bonos {
-            background: rgba(50, 205, 50, 0.1);
-            border: 2px solid #32CD32;
-            color: #32CD32;
-            padding: 12px 30px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 1.2em;
-            transition: all 0.3s ease;
-            display: block;
-            margin: 20px auto 0 auto;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            box-shadow: 0 0 15px rgba(50, 205, 50, 0.3);
-        }
-        .btn-bonos:hover { background: #32CD32; color: black; box-shadow: 0 0 25px rgba(50, 205, 50, 0.8); transform: scale(1.05); }
-
         /* Estilos para el contenedor de la imagen de Bonos */
         .imagen-bonos-container {
             width: 100%;
@@ -341,6 +324,7 @@
             <button id="btnAbrirStats" class="btn-estadisticas">📊 TABLA DE DESGLOSE</button>
             <button id="btnAbrirBreak" class="btn-break">⏱️ ADMINISTRAR BREAKS</button>
             <button id="btnAbrirPizarra" class="btn-pizarra">📋 PIZARRA</button>
+            <button id="btnAbrirBonos" class="btn-bonos">🎁 VER BONOS</button>
         </div>
     </div>
 
@@ -398,8 +382,6 @@
             </div>
 
             <div class="pizarra-container" id="pizarraContainer"></div>
-
-            <button id="btnAbrirBonos" class="btn-bonos">🎁 VER BONOS</button>
         </div>
     </div>
 
