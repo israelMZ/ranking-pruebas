@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <title>Ranking de Ventas + Breaks</title>
-    <!-- Librerías de Firebase y Chart.js -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -330,7 +329,6 @@
         </div>
     </div>
 
-    <!-- MODAL TABLA -->
     <div id="modalStats" class="modal">
         <div class="modal-contenido">
             <span class="btn-cerrar" onclick="cerrarModal('modalStats')">✖</span>
@@ -356,7 +354,6 @@
         </div>
     </div>
 
-    <!-- MODAL BREAKS -->
     <div id="modalBreak" class="modal">
         <div class="modal-contenido">
             <span class="btn-cerrar" onclick="cerrarModal('modalBreak')">✖</span>
@@ -366,7 +363,6 @@
         </div>
     </div>
 
-    <!-- MODAL PIZARRA -->
     <div id="modalPizarra" class="modal">
         <div class="modal-contenido">
             <span class="btn-cerrar" onclick="cerrarModal('modalPizarra')">✖</span>
@@ -390,7 +386,6 @@
         </div>
     </div>
 
-    <!-- MODAL BONOS TAMAÑO COMPLETO -->
     <div id="modalBonos" class="modal">
         <div class="modal-contenido" style="max-width: 95vw; height: 90vh; text-align: center; padding: 0; overflow: hidden;">
             <span class="btn-cerrar" onclick="cerrarModal('modalBonos')" style="top: 15px; right: 25px; background: rgba(0,0,0,0.5); border-radius: 50%; width: 40px; height: 40px; line-height: 40px; text-align: center;">✖</span>
@@ -446,12 +441,6 @@
         function cerrarModal(idModal) { document.getElementById(idModal).classList.remove('mostrar'); }
         function esAsesorSinBreaks(nombre) { return ASESORES_SIN_BREAKS.some(excluido => nombre.toUpperCase() === excluido); }
         function esLider(nombre) { return LIDERES.some(lider => nombre.toUpperCase() === lider); }
-
-        function guardarBreaksEnStorage() { localStorage.setItem('breaksActivos', JSON.stringify(breaksActivos)); }
-        function cargarBreaksDelStorage() {
-            const datos = localStorage.getItem('breaksActivos');
-            if (datos) { try { breaksActivos = JSON.parse(datos); } catch (e) { breaksActivos = {}; } }
-        }
 
         // === FUNCIONES DE FIREBASE PARA LA PIZARRA ===
         function guardarEstrellas() { 
@@ -559,7 +548,6 @@
                     const c = linea.replace(/\r/g, '').split(',');
                     if (c.length < 3) return;
                     
-                    // CORRECCIÓN CLAVE: Limpiar comillas extras, \r y espacios al leer las columnas del CSV
                     const col0 = c[0].replace(/"/g, '').trim();
                     const col1 = c[1].replace(/"/g, '').trim();
                     const col2 = c[2].replace(/"/g, '').trim();
@@ -635,7 +623,7 @@
             actualizarContadores();
         }
 
-        // === LÓGICA GRÁFICOS Y TABLAS (ORIGINAL) ===
+        // === LÓGICA GRÁFICOS Y TABLAS ===
         async function cargarDatos() {
             try {
                 const urlConFiltro = URL_SHEET + '&t=' + new Date().getTime();
@@ -672,7 +660,6 @@
                 llenarTabla(asesoresUnicos);
                 dibujarGrafico(asesoresUnicos);
                 setupBreakGrid();
-                reanudarBreaksActivos();
             } catch (error) { console.error("Error cargando datos:", error); }
         }
 
@@ -714,109 +701,127 @@
             });
         }
 
-        // === LÓGICA DE BREAKS ===
+        // === LÓGICA DE BREAKS EN TIEMPO REAL CON FIREBASE ===
+        database.ref('breaks/activos').on('value', (snapshot) => {
+            const datosNube = snapshot.val() || {};
+            
+            Object.keys(intervalosActivos).forEach(idx => {
+                clearInterval(intervalosActivos[idx]);
+                delete intervalosActivos[idx];
+            });
+
+            breaksActivos = datosNube;
+            setupBreakGrid();
+            sincronizarRelojesFirebase();
+        });
+
         function setupBreakGrid() {
             const grid = document.getElementById('gridAsesores');
+            if (!grid) return;
             grid.innerHTML = '';
+            
             asesoresBreaks.forEach((nombre, index) => {
                 const card = document.createElement('div');
                 const esLiderAsesor = esLider(nombre);
                 card.className = 'card-break' + (esLiderAsesor ? ' lider' : '');
+                
                 let duracionMinutos = esLiderAsesor ? 40 : 35;
                 if (nombre.toUpperCase() === "GIANELLA SUAREZ") { duracionMinutos = 20; }
+                
                 let timerDisplay = duracionMinutos + ':00';
                 let btnText = "INICIAR BREAK";
                 let btnDisabled = false;
-                if (breaksActivos[index]) { btnText = "EN BREAK"; btnDisabled = true; timerDisplay = breaksActivos[index].display; }
-                card.innerHTML = '<div class="card-header"><div style="font-weight:bold; flex-grow:1; display: flex; align-items: center;">' + nombre + (esLiderAsesor ? '<span class="lider-badge">🌟 LÍDER</span>' : '') + '</div><button class="btn-reset" onclick="resetearBreakConPassword(' + index + ')" title="Resetear break">🔄</button></div><div id="timer-' + index + '" class="timer-display">' + timerDisplay + '</div><button id="btn-' + index + '" class="btn-start" onclick="verificarYIniciar(' + index + ')" ' + (btnDisabled ? 'disabled' : '') + '>' + btnText + '</button>';
+                
+                if (breaksActivos[index]) { 
+                    btnText = "EN BREAK"; 
+                    btnDisabled = true; 
+                }
+                
+                card.innerHTML = `
+                    <div class="card-header">
+                        <div style="font-weight:bold; flex-grow:1; display: flex; align-items: center;">
+                            ${nombre} ${esLiderAsesor ? '<span class="lider-badge">🌟 LÍDER</span>' : ''}
+                        </div>
+                        <button class="btn-reset" onclick="resetearBreakConPassword(${index})" title="Resetear break">🔄</button>
+                    </div>
+                    <div id="timer-${index}" class="timer-display">${timerDisplay}</div>
+                    <button id="btn-${index}" class="btn-start" onclick="verificarYIniciar(${index})" ${btnDisabled ? 'disabled' : ''}>${btnText}</button>
+                `;
                 grid.appendChild(card);
             });
         }
 
-        function limpiarBreakTerminado(index) { delete breaksActivos[index]; guardarBreaksEnStorage(); }
+        window.verificarYIniciar = function(index) {
+            const passwordInput = prompt("Ingrese la contraseña de administrador:");
+            if (passwordInput === PASS_ADMIN) { 
+                const nombreAsesor = asesoresBreaks[index];
+                const esLiderAsesor = esLider(nombreAsesor);
+                let duracionMinutos = esLiderAsesor ? 40 : 35;
+                if (nombreAsesor.toUpperCase() === "GIANELLA SUAREZ") { duracionMinutos = 20; }
+                
+                let tiempoSegundos = duracionMinutos * 60;
+                
+                database.ref('breaks/activos/' + index).set({
+                    inicio: Date.now(),
+                    duracion: tiempoSegundos,
+                    nombreAsesor: nombreAsesor
+                });
+            } else if (passwordInput !== null) { 
+                alert("Contraseña incorrecta."); 
+            }
+        };
 
         window.resetearBreakConPassword = function(index) {
             const passwordInput = prompt("Ingrese la contraseña de administrador para resetear:");
             if (passwordInput === PASS_ADMIN) {
-                if (intervalosActivos[index]) { clearInterval(intervalosActivos[index]); delete intervalosActivos[index]; }
-                limpiarBreakTerminado(index);
-                setupBreakGrid();
-                alert("Break reseteado correctamente ✓");
-            } else if (passwordInput !== null) { alert("Contraseña incorrecta."); }
+                database.ref('breaks/activos/' + index).remove()
+                    .then(() => alert("Break reseteado correctamente ✓"));
+            } else if (passwordInput !== null) { 
+                alert("Contraseña incorrecta."); 
+            }
         };
 
-        window.verificarYIniciar = function(index) {
-            const passwordInput = prompt("Ingrese la contraseña de administrador:");
-            if (passwordInput === PASS_ADMIN) { startBreak(index); } else if (passwordInput !== null) { alert("Contraseña incorrecta."); }
-        };
-
-        function startBreak(index) {
-            if (intervalosActivos[index]) clearInterval(intervalosActivos[index]);
-            
-            const btn = document.getElementById('btn-' + index);
-            const display = document.getElementById('timer-' + index);
-            const nombreAsesor = asesoresBreaks[index];
-            const esLiderAsesor = esLider(nombreAsesor);
-            let duracionMinutos = esLiderAsesor ? 40 : 35;
-            if (nombreAsesor.toUpperCase() === "GIANELLA SUAREZ") { duracionMinutos = 20; }
-            let tiempo = duracionMinutos * 60;
-            const horaInicio = Date.now();
-            
-            if (btn) { btn.disabled = true; btn.innerText = "EN BREAK"; }
-            breaksActivos[index] = { inicio: horaInicio, duracion: tiempo, display: duracionMinutos + ':00', nombreAsesor: nombreAsesor };
-            guardarBreaksEnStorage();
-
-            const intervalo = setInterval(() => {
-                let minutes = Math.floor(tiempo / 60); let seconds = tiempo % 60;
-                minutes = minutes < 10 ? '0' + minutes : minutes; seconds = seconds < 10 ? '0' + seconds : seconds;
-                const timerStr = minutes + ':' + seconds;
-                if (display) display.innerText = timerStr;
-                if (breaksActivos[index]) { breaksActivos[index].display = timerStr; guardarBreaksEnStorage(); }
-
-                if (tiempo <= 0) {
-                    clearInterval(intervalo);
-                    delete intervalosActivos[index];
-                    if (display) { display.innerText = "TERMINADO"; display.style.color = "#00FF7F"; }
-                    if (btn) btn.innerText = "FINALIZADO";
-                    setTimeout(() => { limpiarBreakTerminado(index); setupBreakGrid(); }, 3000);
-                } else { tiempo--; }
-            }, 1000);
-            intervalosActivos[index] = intervalo;
-        }
-
-        function reanudarBreaksActivos() {
+        function sincronizarRelojesFirebase() {
             Object.keys(breaksActivos).forEach(indexStr => {
                 const index = parseInt(indexStr);
                 const breakData = breaksActivos[index];
+                
                 if (breakData && breakData.inicio) {
                     const ahora = Date.now();
                     const tiempoTranscurrido = Math.floor((ahora - breakData.inicio) / 1000);
                     let tiempoRestante = breakData.duracion - tiempoTranscurrido;
                     
                     if (tiempoRestante > 0) {
-                        if (intervalosActivos[index]) clearInterval(intervalosActivos[index]);
-                        
                         const btn = document.getElementById('btn-' + index);
                         const display = document.getElementById('timer-' + index);
                         if (btn) { btn.disabled = true; btn.innerText = "EN BREAK"; }
                         
                         const intervalo = setInterval(() => {
-                            let minutes = Math.floor(tiempoRestante / 60); let seconds = tiempoRestante % 60;
-                            minutes = minutes < 10 ? '0' + minutes : minutes; seconds = seconds < 10 ? '0' + seconds : seconds;
-                            const timerStr = minutes + ':' + seconds;
-                            if (display) display.innerText = timerStr;
-                            if (breaksActivos[index]) { breaksActivos[index].display = timerStr; guardarBreaksEnStorage(); }
+                            let minutes = Math.floor(tiempoRestante / 60); 
+                            let seconds = tiempoRestante % 60;
+                            minutes = minutes < 10 ? '0' + minutes : minutes; 
+                            seconds = seconds < 10 ? '0' + seconds : seconds;
+                            
+                            if (display) display.innerText = minutes + ':' + seconds;
 
                             if (tiempoRestante <= 0) {
                                 clearInterval(intervalo);
                                 delete intervalosActivos[index];
                                 if (display) { display.innerText = "TERMINADO"; display.style.color = "#00FF7F"; }
                                 if (btn) btn.innerText = "FINALIZADO";
-                                setTimeout(() => { limpiarBreakTerminado(index); setupBreakGrid(); }, 3000);
-                            } else { tiempoRestante--; }
+                                
+                                setTimeout(() => {
+                                    database.ref('breaks/activos/' + index).remove();
+                                }, 3000);
+                            } else { 
+                                tiempoRestante--; 
+                            }
                         }, 1000);
+                        
                         intervalosActivos[index] = intervalo;
-                    } else { limpiarBreakTerminado(index); }
+                    } else {
+                        database.ref('breaks/activos/' + index).remove();
+                    }
                 }
             });
         }
@@ -827,7 +832,6 @@
         document.getElementById('btnAbrirPizarra').addEventListener('click', () => abrirModal('modalPizarra'));
         document.getElementById('btnAbrirBonos').addEventListener('click', () => abrirModal('modalBonos'));
 
-        cargarBreaksDelStorage();
         cargarDatos();
         cargarDatosPizarra();
         setInterval(cargarDatos, 120000);
