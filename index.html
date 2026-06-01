@@ -415,10 +415,13 @@
         const URL_SHEET_PIZARRA = 'https://docs.google.com/spreadsheets/d/1u37Zs5aSHL62Z1whx1ixBdrnoiaVf3xztf_FU_w0RKw/export?gid=543637953&format=csv';
         const PASS_ADMIN = "tiger123@";
         
+        // EXCLUSIÓN DE ASESORES (ACTUALIZADA SEGÚN TU PETICIÓN)
         const ASESORES_SIN_BREAKS = [
             "ISABELLE GARCIA", "LEONARDO CASTILLO", "HENRY MAMANI", 
             "ARMANDO ZAVALETA", "PEDRO LOPEZ", "DIEGO OLIVARES", 
-            "LEONARDO YOBERA", "ROMINA SOLIS"
+            "LEONARDO YOBERA", "ROMINA SOLIS", "RICKSON FIGUEROA",
+            "JESUS", "KORAL PANTA", "GERSON GONZALES", 
+            "VALERIA VALDERRAMA", "VALENTINA VICH", "CECILIA ARRUNATEGUI"
         ];
 
         const LIDERES = [
@@ -655,7 +658,13 @@
                 asesoresList = asesoresUnicos.map(a => a.nombre);
                 
                 asesoresBreaks = asesoresUnicos.filter(a => !esAsesorSinBreaks(a.nombre)).map(a => a.nombre);
-                LIDERES.forEach(lider => { if (!asesoresBreaks.some(a => a.toUpperCase() === lider)) { asesoresBreaks.push(lider); } });
+                
+                // Mantenemos a los líderes que no estén explícitamente excluidos por la lista de no breaks
+                LIDERES.forEach(lider => { 
+                    if (!asesoresBreaks.some(a => a.toUpperCase() === lider) && !esAsesorSinBreaks(lider)) { 
+                        asesoresBreaks.push(lider); 
+                    } 
+                });
                 
                 llenarTabla(asesoresUnicos);
                 dibujarGrafico(asesoresUnicos);
