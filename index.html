@@ -182,6 +182,8 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            color: #ffffff !important; /* Fuerza a que los nombres sean blancos brillantes y legibles */
+            text-shadow: 0 0 4px rgba(255, 255, 255, 0.2);
         }
 
         .pizarra-asesor-estrellas { display: flex; gap: 5px; align-items: center; }
@@ -766,7 +768,8 @@
                 return as.nombre;
             });
             const ventas = asesores.map(as => as.instaladas);
-            const colores = ventas.map(v => v >= 10 ? 'rgba(255, 215, 0, 0.8)' : v >= 7 ? 'rgba(0, 255, 127, 0.8)' : v >= 4 ? 'rgba(0, 191, 255, 0.8)' : 'rgba(138, 43, 226, 0.6)');
+            const colores = '../../../../';
+            const coloresVentas = ventas.map(v => v >= 10 ? 'rgba(255, 215, 0, 0.8)' : v >= 7 ? 'rgba(0, 255, 127, 0.8)' : v >= 4 ? 'rgba(0, 191, 255, 0.8)' : 'rgba(138, 43, 226, 0.6)');
             const bordes = ventas.map(v => v >= 10 ? '#FFD700' : v >= 7 ? '#00FF7F' : v >= 4 ? '#00BFFF' : '#8A2BE2');
             const coloresTxt = ventas.map(v => v >= 10 ? '#FFD700' : v >= 7 ? '#00FF7F' : v >= 4 ? '#00BFFF' : '#E066FF');
 
@@ -775,7 +778,7 @@
             let delayed;
             miGrafico = new Chart(ctx, {
                 type: 'bar',
-                data: { labels: nombresInsignia, datasets: [{ label: 'Ventas Instaladas', data: ventas, backgroundColor: colores, borderColor: bordes, borderWidth: 2, borderRadius: 10, barPercentage: 0.7 }] },
+                data: { labels: nombresInsignia, datasets: [{ label: 'Ventas Instaladas', data: ventas, backgroundColor: coloresVentas, borderColor: bordes, borderWidth: 2, borderRadius: 10, barPercentage: 0.7 }] },
                 options: {
                     indexAxis: 'y', responsive: true, maintainAspectRatio: false,
                     animation: { onComplete: () => { delayed = true; }, delay: (context) => { let delay = 0; if (context.type === 'data' && context.mode === 'default' && !delayed) { delay = context.dataIndex * 150; } return delay; } },
