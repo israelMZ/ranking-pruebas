@@ -182,7 +182,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            color: #ffffff !important; /* Fuerza a que los nombres sean blancos brillantes y legibles */
+            color: #ffffff !important; 
             text-shadow: 0 0 4px rgba(255, 255, 255, 0.2);
         }
 
@@ -704,7 +704,7 @@
             actualizarContadores();
         }
 
-        // === LÓGICA GRÁFICOS Y TABLAS ===
+        // === LÓGICA GRÁFICOS Y TABLAS (CONSOLIDACIÓN Y SUMA DE DUPLICADOS) ===
         async function cargarDatos() {
             try {
                 const urlConFiltro = URL_SHEET + '&t=' + new Date().getTime();
@@ -725,10 +725,20 @@
                     const programada = parseInt(c[4]) || 0;
                     const instaladas = parseInt(c[5]) || 0;
 
+                    // Si el nombre ya está registrado en el ciclo, se suman todos los puntos matemáticamente
                     if (asesoresMap.has(nombre)) {
                         const asExistente = asesoresMap.get(nombre);
-                        asesoresMap.set(nombre, { nombre, ingresos: asExistente.ingresos + ingresos, cancCliente: asExistente.cancCliente + cancCliente, cancOp: asExistente.cancOp + cancOp, programada: asExistente.programada + programada, instaladas: asExistente.instaladas + instaladas });
-                    } else { asesoresMap.set(nombre, { nombre, ingresos, cancCliente, cancOp, programada, instaladas }); }
+                        asesoresMap.set(nombre, { 
+                            nombre, 
+                            ingresos: asExistente.ingresos + ingresos, 
+                            cancCliente: asExistente.cancCliente + cancCliente, 
+                            cancOp: asExistente.cancOp + cancOp, 
+                            programada: asExistente.programada + programada, 
+                            instaladas: asExistente.instaladas + instaladas 
+                        });
+                    } else { 
+                        asesoresMap.set(nombre, { nombre, ingresos, cancCliente, cancOp, programada, instaladas }); 
+                    }
                 });
 
                 let asesoresUnicos = Array.from(asesoresMap.values());
@@ -768,7 +778,6 @@
                 return as.nombre;
             });
             const ventas = asesores.map(as => as.instaladas);
-            const colores = '../../../../';
             const coloresVentas = ventas.map(v => v >= 10 ? 'rgba(255, 215, 0, 0.8)' : v >= 7 ? 'rgba(0, 255, 127, 0.8)' : v >= 4 ? 'rgba(0, 191, 255, 0.8)' : 'rgba(138, 43, 226, 0.6)');
             const bordes = ventas.map(v => v >= 10 ? '#FFD700' : v >= 7 ? '#00FF7F' : v >= 4 ? '#00BFFF' : '#8A2BE2');
             const coloresTxt = ventas.map(v => v >= 10 ? '#FFD700' : v >= 7 ? '#00FF7F' : v >= 4 ? '#00BFFF' : '#E066FF');
