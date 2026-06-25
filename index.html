@@ -728,11 +728,11 @@
                         const asExistente = asesoresMap.get(nombre);
                         asesoresMap.set(nombre, { 
                             nombre, 
-                            ingresos: asExistente.ingresos + ingresos, 
-                            cancCliente: asExistente.cancCliente + cancCliente, 
-                            cancOp: asExistente.cancOp + cancOp, 
-                            programada: asExistente.programada + programada, 
-                            instaladas: asExistente.instaladas + instaladas 
+                            ingresos: parseInt(asExistente.ingresos) + ingresos, 
+                            cancCliente: parseInt(asExistente.cancCliente) + cancCliente, 
+                            cancOp: parseInt(asExistente.cancOp) + cancOp, 
+                            programada: parseInt(asExistente.programada) + programada, 
+                            instaladas: parseInt(asExistente.instaladas) + instaladas 
                         });
                     } else { 
                         asesoresMap.set(nombre, { nombre, ingresos, cancCliente, cancOp, programada, instaladas }); 
@@ -757,13 +757,34 @@
             } catch (error) { console.error("Error cargando datos:", error); }
         }
 
+        // === CORRECCIÓN DE SUMA MATEMÁTICA REAL EN LA TABLA ===
         function llenarTabla(asesores) {
             const cuerpo = document.getElementById('cuerpoTabla');
             cuerpo.innerHTML = '';
+            
             asesores.forEach(as => {
-                const totalCalculado = as.cancCliente + as.cancOp + as.programada + as.instaladas;
-                const convertibilidad = as.ingresos > 0 ? ((as.instaladas / as.ingresos) * 100).toFixed(2) : "0.00";
-                cuerpo.innerHTML += '<tr><td class="col-asesor border-right">' + as.nombre + '</td><td class="col-naranja border-right">' + as.ingresos + '</td><td class="col-rojo">' + as.cancCliente + '</td><td class="col-rojo border-right">' + as.cancOp + '</td><td class="col-azul border-right">' + as.programada + '</td><td class="col-verde border-right">' + as.instaladas + '</td><td class="col-naranja border-right">' + totalCalculado + '</td><td class="col-naranja">' + convertibilidad + ' %</td></tr>';
+                // Forzamos la conversión a números reales antes de sumar para evitar concatenación de texto
+                const ingresos = parseInt(as.ingresos) || 0;
+                const cancCliente = parseInt(as.cancCliente) || 0;
+                const cancOp = parseInt(as.cancOp) || 0;
+                const programada = parseInt(as.programada) || 0;
+                const instaladas = parseInt(as.instaladas) || 0;
+
+                const totalCalculado = cancCliente + cancOp + programada + instaladas;
+                const convertibilidad = ingresos > 0 ? ((instaladas / ingresos) * 100).toFixed(2) : "0.00";
+                
+                cuerpo.innerHTML += `
+                    <tr>
+                        <td class="col-asesor border-right">${as.nombre}</td>
+                        <td class="col-naranja border-right">${ingresos}</td>
+                        <td class="col-rojo">${cancCliente}</td>
+                        <td class="col-rojo border-right">${cancOp}</td>
+                        <td class="col-azul border-right">${programada}</td>
+                        <td class="col-verde border-right">${instaladas}</td>
+                        <td class="col-naranja border-right">${totalCalculado}</td>
+                        <td class="col-naranja">${convertibilidad} %</td>
+                    </tr>
+                `;
             });
         }
 
@@ -778,34 +799,27 @@
             });
             const ventas = asesores.map(as => as.instaladas);
 
-            // Generar colores de fondo usando degradados dinámicos de Chart.js
             const coloresBackground = ventas.map((v) => {
                 let gradient = ctx.createLinearGradient(0, 0, 800, 0);
                 if (v >= 15) {
-                    // Oro / Fuego Neón para los más altos (15 a más)
                     gradient.addColorStop(0, 'rgba(255, 69, 0, 0.85)');
                     gradient.addColorStop(1, 'rgba(255, 215, 0, 0.95)');
                 } else if (v >= 10) {
-                    // Esmeralda Brillante (10 a 14)
                     gradient.addColorStop(0, 'rgba(0, 128, 128, 0.85)');
                     gradient.addColorStop(1, 'rgba(0, 255, 127, 0.95)');
                 } else if (v >= 7) {
-                    // Cyan / Eléctrico (7 a 9)
                     gradient.addColorStop(0, 'rgba(30, 144, 255, 0.85)');
                     gradient.addColorStop(1, 'rgba(0, 191, 255, 0.95)');
                 } else if (v >= 4) {
-                    // Violeta Magenta (4 a 6)
                     gradient.addColorStop(0, 'rgba(75, 0, 130, 0.75)');
                     gradient.addColorStop(1, 'rgba(218, 112, 214, 0.95)');
                 } else {
-                    // Ruby / Carmín sutil (0 a 3)
                     gradient.addColorStop(0, 'rgba(139, 0, 0, 0.65)');
                     gradient.addColorStop(1, 'rgba(255, 99, 71, 0.85)');
                 }
                 return gradient;
             });
 
-            // Colores sólidos para los bordes neón correspondientes
             const bordes = ventas.map(v => 
                 v >= 15 ? '#FFD700' : 
                 v >= 10 ? '#00FF7F' : 
@@ -813,7 +827,6 @@
                 v >= 4  ? '#DA70D6' : '#FF6347'
             );
 
-            // Colores de las etiquetas de texto del eje Y
             const coloresTxt = ventas.map(v => 
                 v >= 15 ? '#FFD700' : 
                 v >= 10 ? '#00FF7F' : 
