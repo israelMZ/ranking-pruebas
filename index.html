@@ -596,32 +596,54 @@
             if(!container) return;
             container.innerHTML = '';
 
-            const claroDiv = document.createElement('div');
-            claroDiv.className = 'pizarra-seccion claro';
-            let claroHTML = '<div class="pizarra-titulo">"La disciplina vence al talento"</div><div class="pizarra-asesores">';
-            if (pizarraData.claro.length > 0) { claroHTML += pizarraData.claro.map(generarHTMLAsesor).join(''); } 
-            else { claroHTML += '<div class="pizarra-asesor">Sin asesores</div>'; }
-            claroHTML += '</div>';
-            claroDiv.innerHTML = claroHTML;
-            container.appendChild(claroDiv);
+            const campanas = [
+                { clave: 'claro', titulo: '"La disciplina vence al talento"', clase: 'claro' },
+                { clave: 'wow', titulo: '"El éxito es la suma de pequeños esfuerzos"', clase: 'wow' },
+                { clave: 'movistar', titulo: '"Tu única competencia eres tú mismo"', clase: 'movistar' }
+            ];
 
-            const wowDiv = document.createElement('div');
-            wowDiv.className = 'pizarra-seccion wow';
-            let wowHTML = '<div class="pizarra-titulo">"El éxito es la suma de pequeños esfuerzos"</div><div class="pizarra-asesores">';
-            if (pizarraData.wow.length > 0) { wowHTML += pizarraData.wow.map(generarHTMLAsesor).join(''); } 
-            else { wowHTML += '<div class="pizarra-asesor">Sin asesores</div>'; }
-            wowHTML += '</div>';
-            wowDiv.innerHTML = wowHTML;
-            container.appendChild(wowDiv);
+            campanas.forEach(camp => {
+                const divSeccion = document.createElement('div');
+                divSeccion.className = `pizarra-seccion ${camp.clase}`;
+                
+                let htmlContenido = `<div class="pizarra-titulo">${camp.titulo}</div>`;
+                
+                const listaAsesores = pizarraData[camp.clave] || [];
+                
+                const manana = listaAsesores.filter(a => a.toUpperCase().includes('(AM)'));
+                const tarde = listaAsesores.filter(a => a.toUpperCase().includes('(PM)'));
+                const otros = listaAsesores.filter(a => !a.toUpperCase().includes('(AM)') && !a.toUpperCase().includes('(PM)'));
 
-            const movistarDiv = document.createElement('div');
-            movistarDiv.className = 'pizarra-seccion movistar';
-            let movistarHTML = '<div class="pizarra-titulo">"Tu única competencia eres tú mismo"</div><div class="pizarra-asesores">';
-            if (pizarraData.movistar.length > 0) { movistarHTML += pizarraData.movistar.map(generarHTMLAsesor).join(''); } 
-            else { movistarHTML += '<div class="pizarra-asesor">Sin asesores</div>'; }
-            movistarHTML += '</div>';
-            movistarDiv.innerHTML = movistarHTML;
-            container.appendChild(movistarDiv);
+                // --- Subsección Turno Mañana ---
+                htmlContenido += `<div style="text-align: center; margin: 10px 0 5px 0; font-size: 0.9em; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; border-bottom: 1px dashed rgba(255,255,255,0.2); padding-bottom: 3px;">☀️ Turno Mañana</div>`;
+                htmlContenido += '<div class="pizarra-asesores" style="margin-bottom: 20px;">';
+                if (manana.length > 0) {
+                    htmlContenido += manana.map(generarHTMLAsesor).join('');
+                } else {
+                    htmlContenido += '<div class="pizarra-asesor" style="justify-content: center; opacity: 0.5; font-size: 0.85em;">Sin asesores AM</div>';
+                }
+                htmlContenido += '</div>';
+
+                // --- Subsección Turno Tarde ---
+                htmlContenido += `<div style="text-align: center; margin: 15px 0 5px 0; font-size: 0.9em; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; border-bottom: 1px dashed rgba(255,255,255,0.2); padding-bottom: 3px;">🌙 Turno Tarde</div>`;
+                htmlContenido += '<div class="pizarra-asesores">';
+                if (tarde.length > 0) {
+                    htmlContenido += tarde.map(generarHTMLAsesor).join('');
+                } else {
+                    htmlContenido += '<div class="pizarra-asesor" style="justify-content: center; opacity: 0.5; font-size: 0.85em;">Sin asesores PM</div>';
+                }
+                htmlContenido += '</div>';
+
+                if (otros.length > 0) {
+                    htmlContenido += `<div style="text-align: center; margin: 15px 0 5px 0; font-size: 0.9em; font-weight: bold; opacity: 0.6;">Otros</div>`;
+                    htmlContenido += '<div class="pizarra-asesores">';
+                    htmlContenido += otros.map(generarHTMLAsesor).join('');
+                    htmlContenido += '</div>';
+                }
+
+                divSeccion.innerHTML = htmlContenido;
+                container.appendChild(divSeccion);
+            });
 
             actualizarContadores();
         }
@@ -659,7 +681,6 @@
                 
                 asesoresBreaks = asesoresUnicos.filter(a => !esAsesorSinBreaks(a.nombre)).map(a => a.nombre);
                 
-                // Mantenemos a los líderes que no estén explícitamente excluidos por la lista de no breaks
                 LIDERES.forEach(lider => { 
                     if (!asesoresBreaks.some(a => a.toUpperCase() === lider) && !esAsesorSinBreaks(lider)) { 
                         asesoresBreaks.push(lider); 
