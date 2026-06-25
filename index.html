@@ -231,6 +231,10 @@
             padding: 0 10px;
             flex-wrap: wrap;
             gap: 15px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 15px;
+            padding: 15px;
+            border: 1px solid rgba(255,255,255,0.05);
         }
 
         .meta-pizza {
@@ -247,15 +251,31 @@
             color: white;
         }
 
+        .contadores-bloque {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .contador-etiqueta-turno {
+            font-size: 0.75em;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #aaa;
+            margin-bottom: 2px;
+        }
+
         .contadores-campanas {
-            font-size: 1.5em;
+            font-size: 1.2em;
             font-weight: bold;
             background: rgba(0, 0, 0, 0.4);
-            padding: 10px 20px;
-            border-radius: 12px;
+            padding: 6px 15px;
+            border-radius: 10px;
             border: 1px solid rgba(255,255,255,0.1);
             display: flex;
-            gap: 20px;
+            gap: 15px;
+            align-items: center;
         }
 
         .btn-limpiar-pizarra {
@@ -369,14 +389,27 @@
             <h2 class="modal-titulo pizarra-title" style="display:none;">📋 PIZARRA DE VENTAS</h2>
             
             <div class="header-pizarra">
-                <div class="meta-pizza">
-                    🍕 META: <span id="metaPizzaContador" style="color: #FFD700;">Faltan 28</span>
+                <div class="meta-pizza" style="flex-direction: column; align-items: center; justify-content: center; min-width: 150px;">
+                    <div style="font-size: 0.6em; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; margin-bottom: 2px;">⭐ General: <span id="totalEstrellasGeneral">0</span></div>
+                    <div>🍕 <span id="metaPizzaContador" style="color: #FFD700;">Faltan 28</span></div>
                 </div>
                 
-                <div class="contadores-campanas">
-                    <span style="color: #FF0000; text-shadow: 0 0 5px #FF0000;">★ <span id="contadorClaro">0</span></span>
-                    <span style="color: #9933FF; text-shadow: 0 0 5px #9933FF;">★ <span id="contadorWow">0</span></span>
-                    <span style="color: #0099FF; text-shadow: 0 0 5px #0099FF;">★ <span id="contadorMovistar">0</span></span>
+                <div class="contadores-bloque">
+                    <div class="contador-etiqueta-turno">☀️ Turno Mañana</div>
+                    <div class="contadores-campanas">
+                        <span style="color: #FF0000; text-shadow: 0 0 5px #FF0000;">★ <span id="contadorClaroAM">0</span></span>
+                        <span style="color: #9933FF; text-shadow: 0 0 5px #9933FF;">★ <span id="contadorWowAM">0</span></span>
+                        <span style="color: #0099FF; text-shadow: 0 0 5px #0099FF;">★ <span id="contadorMovistarAM">0</span></span>
+                    </div>
+                </div>
+
+                <div class="contadores-bloque">
+                    <div class="contador-etiqueta-turno">🌙 Turno Tarde</div>
+                    <div class="contadores-campanas">
+                        <span style="color: #FF0000; text-shadow: 0 0 5px #FF0000;">★ <span id="contadorClaroPM">0</span></span>
+                        <span style="color: #9933FF; text-shadow: 0 0 5px #9933FF;">★ <span id="contadorWowPM">0</span></span>
+                        <span style="color: #0099FF; text-shadow: 0 0 5px #0099FF;">★ <span id="contadorMovistarPM">0</span></span>
+                    </div>
                 </div>
 
                 <button id="btnResetPizarra" class="btn-limpiar-pizarra">♻️ REINICIAR</button>
@@ -415,7 +448,6 @@
         const URL_SHEET_PIZARRA = 'https://docs.google.com/spreadsheets/d/1u37Zs5aSHL62Z1whx1ixBdrnoiaVf3xztf_FU_w0RKw/export?gid=543637953&format=csv';
         const PASS_ADMIN = "tiger123@";
         
-        // EXCLUSIÓN DE ASESORES (ACTUALIZADA SEGÚN TU PETICIÓN)
         const ASESORES_SIN_BREAKS = [
             "ISABELLE GARCIA", "LEONARDO CASTILLO", "HENRY MAMANI", 
             "ARMANDO ZAVALETA", "PEDRO LOPEZ", "DIEGO OLIVARES", 
@@ -483,7 +515,7 @@
             }
         });
 
-        // === LÓGICA PIZARRA ===
+        // === LLUVIA DE PIZZAS ===
         function lluviaDePizzas() {
             for (let i = 0; i < 50; i++) {
                 setTimeout(() => {
@@ -499,22 +531,54 @@
             }
         }
 
+        // === ACTUALIZAR CONTADORES POR TURNO Y GENERAL ===
         function actualizarContadores() {
-            let totalEstrellas = 0;
-            let totalClaro = 0;
-            let totalWow = 0;
-            let totalMovistar = 0;
+            let totalEstrellasGeneral = 0;
+            
+            let amClaro = 0, amWow = 0, amMovistar = 0;
+            let pmClaro = 0, pmWow = 0, pmMovistar = 0;
 
-            Object.values(estrellasData).forEach(historial => {
-                totalEstrellas += historial.length;
+            // Recorremos las estrellas que están guardadas en Firebase
+            Object.keys(estrellasData).forEach(nombre => {
+                const historial = estrellasData[nombre] || [];
+                const esAM = nombre.toUpperCase().includes('(AM)');
+                const esPM = nombre.toUpperCase().includes('(PM)');
+
+                totalEstrellasGeneral += historial.length;
+
                 historial.forEach(campana => {
-                    if (campana === 'claro') totalClaro++;
-                    if (campana === 'wow') totalWow++;
-                    if (campana === 'movistar') totalMovistar++;
+                    if (esAM) {
+                        if (campana === 'claro') amClaro++;
+                        if (campana === 'wow') amWow++;
+                        if (campana === 'movistar') amMovistar++;
+                    } else if (esPM) {
+                        if (campana === 'claro') pmClaro++;
+                        if (campana === 'wow') pmWow++;
+                        if (campana === 'movistar') pmMovistar++;
+                    } else {
+                        // Por si hay algún asesor sin etiqueta (AM) o (PM), se suma por defecto al AM o se procesa aparte
+                        if (campana === 'claro') amClaro++;
+                        if (campana === 'wow') amWow++;
+                        if (campana === 'movistar') amMovistar++;
+                    }
                 });
             });
             
-            const faltantes = 28 - totalEstrellas;
+            // Renderizamos los datos calculados en los elementos del Header
+            document.getElementById('totalEstrellasGeneral').innerText = totalEstrellasGeneral;
+            
+            // Turno Mañana Display
+            document.getElementById('contadorClaroAM').innerText = amClaro;
+            document.getElementById('contadorWowAM').innerText = amWow;
+            document.getElementById('contadorMovistarAM').innerText = amMovistar;
+
+            // Turno Tarde Display
+            document.getElementById('contadorClaroPM').innerText = pmClaro;
+            document.getElementById('contadorWowPM').innerText = pmWow;
+            document.getElementById('contadorMovistarPM').innerText = pmMovistar;
+
+            // Lógica de la Meta General
+            const faltantes = 28 - totalEstrellasGeneral;
             const metaContador = document.getElementById('metaPizzaContador');
             
             if (faltantes > 0) {
@@ -532,10 +596,936 @@
                     lluviaDePizzas();
                 }
             }
+        }
 
-            document.getElementById('contadorClaro').innerText = totalClaro;
-            document.getElementById('contadorWow').innerText = totalWow;
-            document.getElementById('contadorMovistar').innerText = totalMovistar;
+        async function cargarDatosPizarra() {
+            try {
+                const urlConFiltro = URL_SHEET_PIZARRA + '&t=' + new Date().getTime();
+                const respuesta = await fetch(urlConFiltro);
+                const dataRaw = await respuesta.text();
+                const filas = dataRaw.split('\n').slice(1);
+
+                pizarraData = { claro: [], wow: [], movistar: [] };
+
+                filas.forEach(linea => {
+                    const c = linea.replace(/\r/g, '').split(',');
+                    if (c.length < 3) return;
+                    
+                    const col0 = c[0].replace(/"/g, '').trim();
+                    const col1 = c[1].replace(/"/g, '').trim();
+                    const col2 = c[2].replace(/"/g, '').trim();
+
+                    if (col0 && col0.toUpperCase() !== 'CLARO') pizarraData.claro.push(col0);
+                    if (col1 && col1.toUpperCase() !== 'WOW') pizarraData.wow.push(col1);
+                    if (col2 && col2.toUpperCase() !== 'MOVISTAR') pizarraData.movistar.push(col2);
+                });
+                construirPizarra();
+            } catch (error) { console.error("Error cargando datos pizarra:", error); }
+        }
+
+        function generarHTMLAsesor(asesor) {
+            const nombreLimpio = asesor.trim();
+            const nEscapado = nombreLimpio.replace(/'/g, "\\'");
+            const historial = estrellasData[nombreLimpio] || [];
+            
+            let estrellasDisplay = '';
+            
+            historial.forEach(campana => {
+                if (campana === 'claro') estrellasDisplay += `<span style="color: #FF0000; text-shadow: 0 0 5px #FF0000;">★</span>`;
+                if (campana === 'wow') estrellasDisplay += `<span style="color: #9933FF; text-shadow: 0 0 5px #9933FF;">★</span>`;
+                if (campana === 'movistar') estrellasDisplay += `<span style="color: #0099FF; text-shadow: 0 0 5px #0099FF;">★</span>`;
+            });
+
+            return `
+                <div class="pizarra-asesor">
+                    <div class="pizarra-asesor-nombre">
+                        <button class="btn-restar-estrella" onclick="restarEstrella('${nEscapado}')" title="Deshacer última">-</button>
+                        ${nombreLimpio}
+                    </div>
+                    <div class="pizarra-asesor-estrellas">
+                        <div class="estrellas-display">${estrellasDisplay}</div>
+                        <button class="btn-mini-estrella btn-mini-claro" onclick="agregarEstrella('${nEscapado}', 'claro')">+</button>
+                        <button class="btn-mini-estrella btn-mini-wow" onclick="agregarEstrella('${nEscapado}', 'wow')">+</button>
+                        <button class="btn-mini-estrella btn-mini-movistar" onclick="agregarEstrella('${nEscapado}', 'movistar')">+</button>
+                    </div>
+                </div>`;
+        }
+
+        function construirPizarra() {
+            const container = document.getElementById('pizarraContainer');
+            if(!container) return;
+            container.innerHTML = '';
+
+            const campanas = [
+                { clave: 'claro', titulo: '"La disciplina vence al talento"', clase: 'claro' },
+                { clave: 'wow', titulo: '"El éxito es la suma de pequeños esfuerzos"', clase: 'wow' },
+                { clave: 'movistar', titulo: '"Tu única competencia eres tú mismo"', clase: 'movistar' }
+            ];
+
+            campanas.forEach(camp => {
+                const divSeccion = document.createElement('div');
+                divSeccion.className = `pizarra-seccion ${camp.clase}`;
+                
+                let htmlContenido = `<div class="pizarra-titulo">${camp.titulo}</div>`;
+                
+                const listaAsesores = pizarraData[camp.clave] || [];
+                
+                const manana = listaAsesores.filter(a => a.toUpperCase().includes('(AM)'));
+                const tarde = listaAsesores.filter(a => a.toUpperCase().includes('(PM)'));
+                const otros = listaAsesores.filter(a => !a.toUpperCase().includes('(AM)') && !a.toUpperCase().includes('(PM)'));
+
+                // --- Subsección Turno Mañana ---
+                htmlContenido += `<div style="text-align: center; margin: 10px 0 5px 0; font-size: 0.9em; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; border-bottom: 1px dashed rgba(255,255,255,0.2); padding-bottom: 3px;">☀️ Turno Mañana</div>`;
+                htmlContenido += '<div class="pizarra-asesores" style="margin-bottom: 20px;">';
+                if (manana.length > 0) {
+                    htmlContenido += manana.map(generarHTMLAsesor).join('');
+                } else {
+                    htmlContenido += '<div class="pizarra-asesor" style="justify-content: center; opacity: 0.5; font-size: 0.85em;">Sin asesores AM</div>';
+                }
+                htmlContenido += '</div>';
+
+                // --- Subsección Turno Tarde ---
+                htmlContenido += `<div style="text-align: center; margin: 15px 0 5px 0; font-size: 0.9em; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; border-bottom: 1px dashed rgba(255,255,255,0.2); padding-bottom: 3px;">🌙 Turno Tarde</div>`;
+                htmlContenido += '<div class="pizarra-asesores">';
+                if (tarde.length > 0) {
+                    htmlContenido += tarde.map(generarHTMLAsesor).join('');
+                } else {
+                    htmlContenido += '<div class="pizarra-asesor" style="justify-content: center; opacity: 0.5; font-size: 0.85em;">Sin asesores PM</div>';
+                }
+                htmlContenido += '</div>';
+
+                if (otros.length > 0) {
+                    htmlContenido += `<div style="text-align: center; margin: 15px 0 5px 0; font-size: 0.9em; font-weight: bold; opacity: 0.6;">Otros</div>`;
+                    htmlContenido += '<div class="pizarra-asesores">';
+                    htmlContenido += otros.map(generarHTMLAsesor).join('');
+                    htmlContenido += '</div>';
+                }
+
+                divSeccion.innerHTML = htmlContenido;
+                container.appendChild(divSeccion);
+            });
+
+            actualizarContadores();
+        }
+
+        // === LÓGICA GRÁFICOS Y TABLAS ===
+        async function cargarDatos() {
+            try {
+                const urlConFiltro = URL_SHEET + '&t=' + new Date().getTime();
+                const respuesta = await fetch(urlConFiltro);
+                const dataRaw = await respuesta.text();
+                const filas = dataRaw.split('\n').slice(1);
+
+                let asesoresMap = new Map();
+
+                filas.forEach(linea => {
+                    const c = linea.replace(/\r/g, '').split(',');
+                    if(c.length < 6 || c[0].trim() === '' || c[0].trim().toUpperCase() === 'ASESOR') return;
+
+                    const nombre = c[0].replace(/"/g, '').trim();
+                    const ingresos = parseInt(c[1]) || 0;
+                    const cancCliente = parseInt(c[2]) || 0;
+                    const cancOp = parseInt(c[3]) || 0;
+                    const programada = parseInt(c[4]) || 0;
+                    const instaladas = parseInt(c[5]) || 0;
+
+                    if (asesoresMap.has(nombre)) {
+                        const asExistente = asesoresMap.get(nombre);
+                        asesoresMap.set(nombre, { nombre, ingresos: asExistente.ingresos + ingresos, cancCliente: asExistente.cancCliente + cancCliente, cancOp: asExistente.cancOp + cancOp, programada: asExistente.programada + programada, instaladas: asExistente.instaladas + instaladas });
+                    } else { asesoresMap.set(nombre, { nombre, ingresos, cancCliente, cancOp, programada, instaladas }); }
+                });
+
+                let asesoresUnicos = Array.from(asesoresMap.values());
+                asesoresUnicos.sort((a, b) => b.instaladas - a.instaladas);
+                asesoresList = asesoresUnicos.map(a => a.nombre);
+                
+                asesoresBreaks = asesoresUnicos.filter(a => !esAsesorSinBreaks(a.nombre)).map(a => a.nombre);
+                
+                LIDERES.forEach(lider => { 
+                    if (!asesoresBreaks.some(a => a.toUpperCase() === lider) && !esAsesorSinBreaks(lider)) { 
+                        asesoresBreaks.push(lider); 
+                    } 
+                });
+                
+                llenarTabla(asesoresUnicos);
+                dibujarGrafico(asesoresUnicos);
+                setupBreakGrid();
+            } catch (error) { console.error("Error cargando datos:", error); }
+        }
+
+        function llenarTabla(asesores) {
+            const cuerpo = document.getElementById('cuerpoTabla');
+            cuerpo.innerHTML = '';
+            asesores.forEach(as => {
+                const totalCalculado = as.cancCliente + as.cancOp + as.programada + as.instaladas;
+                const convertibilidad = as.ingresos > 0 ? ((as.instaladas / as.ingresos) * 100).toFixed(2) : "0.00";
+                cuerpo.innerHTML += '<tr><td class="col-asesor border-right">' + as.nombre + '</td><td class="col-naranja border-right">' + as.ingresos + '</td><td class="col-rojo">' + as.cancCliente + '</td><td class="col-rojo border-right">' + as.cancOp + '</td><td class="col-azul border-right">' + as.programada + '</td><td class="col-verde border-right">' + as.instaladas + '</td><td class="col-naranja border-right">' + totalCalculado + '</td><td class="col-naranja">' + convertibilidad + ' %</td></tr>';
+            });
+        }
+
+        function dibujarGrafico(asesores) {
+            const ctx = document.getElementById('rankingVentas').getContext('2d');
+            const nombresInsignia = asesores.map((as, i) => {
+                if (i === 0) return '👑 ' + as.nombre;
+                if (i === 1) return '🥈 ' + as.nombre;
+                if (i === 2) return '🥉 ' + as.nombre;
+                return as.nombre;
+            });
+            const ventas = asesores.map(as => as.instaladas);
+            const colores = ventas.map(v => v >= 10 ? 'rgba(255, 215, 0, 0.8)' : v >= 7 ? 'rgba(0, 255, 127, 0.8)' : v >= 4 ? 'rgba(0, 191, 255, 0.8)' : 'rgba(138, 43, 226, 0.6)');
+            const bordes = ventas.map(v => v >= 10 ? '#FFD700' : v >= 7 ? '#00FF7F' : v >= 4 ? '#00BFFF' : '#8A2BE2');
+            const coloresTxt = ventas.map(v => v >= 10 ? '#FFD700' : v >= 7 ? '#00FF7F' : v >= 4 ? '#00BFFF' : '#E066FF');
+
+            Chart.defaults.font.family = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
+            if (miGrafico) { miGrafico.destroy(); }
+            let delayed;
+            miGrafico = new Chart(ctx, {
+                type: 'bar',
+                data: { labels: nombresInsignia, datasets: [{ label: 'Ventas Instaladas', data: ventas, backgroundColor: colores, borderColor: bordes, borderWidth: 2, borderRadius: 10, barPercentage: 0.7 }] },
+                options: {
+                    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+                    animation: { onComplete: () => { delayed = true; }, delay: (context) => { let delay = 0; if (context.type === 'data' && context.mode === 'default' && !delayed) { delay = context.dataIndex * 150; } return delay; } },
+                    plugins: { legend: { display: false }, tooltip: { backgroundColor: 'rgba(0, 0, 0, 0.95)', titleFont: { size: 18, weight: 'bold' }, bodyFont: { size: 15 }, padding: 15, displayColors: false, callbacks: { label: function(context) { const as = asesores[context.dataIndex]; const conv = as.ingresos > 0 ? ((as.instaladas / as.ingresos) * 100).toFixed(1) : "0.0"; return [' ✅ Instaladas: ' + as.instaladas, ' 📥 Ingresadas: ' + as.ingresos, ' 📊 Convertibilidad: ' + conv + '%']; } } } },
+                    scales: { x: { beginAtZero: true, max: 30, grid: { color: 'rgba(255,255,255,0.08)' }, ticks: { color: '#bbbbbb', stepSize: 5 } }, y: { grid: { display: false }, ticks: { color: coloresTxt, font: { weight: 'bold' } } } }
+                }
+            });
+        }
+
+        // === LÓGICA DE BREAKS EN TIEMPO REAL CON FIREBASE ===
+        database.ref('breaks/activos').on('value', (snapshot) => {
+            const datosNube = snapshot.val() || {};
+            
+            Object.keys(intervalosActivos).forEach(idx => {
+                clearInterval(intervalosActivos[idx]);
+                delete intervalosActivos[idx];
+            });
+
+            breaksActivos = datosNube;
+            setupBreakGrid();
+            sincronizarRelojesFirebase();
+        });
+
+        function setupBreakGrid() {
+            const grid = document.getElementById('gridAsesores');
+            if (!grid) return;
+            grid.innerHTML = '';
+            
+            asesoresBreaks.forEach((nombre, index) => {
+                const card = document.createElement('div');
+                const esLiderAsesor = esLider(nombre);
+                card.className = 'card-break' + (esLiderAsesor ? ' lider' : '');
+                
+                let duracionMinutos = esLiderAsesor ? 40 : 35;
+                if (nombre.toUpperCase() === "GIANELLA SUAREZ") { duracionMinutos = 20; }
+                
+                let timerDisplay = duracionMinutos + ':00';
+                let btnText = "INICIAR BREAK";
+                let btnDisabled = false;
+                
+                if (breaksActivos[index]) { 
+                    btnText = "EN BREAK"; 
+                    btnDisabled = true; 
+                }
+                
+                card.innerHTML = `
+                    <div class="card-header">
+                        <div style="font-weight:bold; flex-grow:1; display: flex; align-items: center;">
+                            ${nombre} ${esLiderAsesor ? '<span class="lider-badge">🌟 LÍDER</span>' : ''}
+                        </div>
+                        <button class="btn-reset" onclick="resetearBreakConPassword(${index})" title="Resetear break">🔄</button>
+                    </div>
+                    <div id="timer-${index}" class="timer-display">${timerDisplay}</div>
+                    <button id="btn-${index}" class="btn-start" onclick="verificarYIniciar(${index})" ${btnDisabled ? 'disabled' : ''}>${btnText}</button>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        window.verificarYIniciar = function(index) {
+            const passwordInput = prompt("Ingrese la contraseña de administrador:");
+            if (passwordInput === PASS_ADMIN) { 
+                const nombreAsesor = asesoresBreaks[index];
+                const esLiderAsesor = esLider(nombreAsesor);
+                let duracionMinutos = esLiderAsesor ? 40 : 35;
+                if (nombreAsesor.toUpperCase() === "GIANELLA SUAREZ") { duracionMinutos = 20; }
+                
+                let tiempoSegundos = duracionMinutos * 60;
+                
+                database.ref('breaks/activos/' + index).set({
+                    inicio: Date.now(),
+                    duracion: tiempoSegundos,
+                    nombreAsesor: nombreAsesor
+                });
+            } else if (passwordInput !== null) { 
+                alert("Contraseña incorrecta."); 
+            }
+        };
+
+        window.resetearBreakConPassword = function(index) {
+            const passwordInput = prompt("Ingrese la contraseña de administrador para resetear:");
+            if (passwordInput === PASS_ADMIN) {
+                database.ref('breaks/activos/' + index).remove()
+                    .then(() => alert("Break reseteado correctamente ✓"));
+            } else if (passwordInput !== null) { 
+                alert("Contraseña incorrecta."); 
+            }
+        };
+
+        function sincronizarRelojesFirebase() {
+            Object.keys(breaksActivos).forEach(indexStr => {
+                const index = parseInt(indexStr);
+                const breakData = breaksActivos[index];
+                
+                if (breakData && breakData.inicio) {
+                    const ahora = Date.now();
+                    const tiempoTranscurrido = Math.floor((ahora - breakData.inicio) / 1000);
+                    let tiempoRestante = breakData.duracion - tiempoTranscurrido;
+                    
+                    if (tiempoRestante > 0) {
+                        const btn = document.getElementById('btn-' + index);
+                        const display = document.getElementById('timer-' + index);
+                        if (btn) { btn.disabled = true; btn.innerText = "EN BREAK"; }
+                        
+                        const intervalo = setInterval(() => {
+                            let minutes = Math.floor(tiempoRestante / 60); 
+                            let seconds = tiempoRestante % 60;
+                            minutes = minutes < 10 ? '0' + minutes : minutes; 
+                            seconds = seconds < 10 ? '0' + seconds : seconds;
+                            
+                            if (display) display.innerText = minutes + ':' + seconds;
+
+                            if (tiempoRestante <= 0) {
+                                clearInterval(intervalo);
+                                delete intervalosActivos[index];
+                                if (display) { display.innerText = "TERMINADO"; display.style.color = "#00FF7F"; }
+                                if (btn) btn.innerText = "FINALIZADO";
+                                
+                                setTimeout(() => {
+                                    database.ref('breaks/activos/' + index).remove();
+                                }, 3000);
+                            } else { 
+                                tiempoRestante--; 
+                            }
+                        }, 1000);
+                        
+                        intervalosActivos[index] = intervalo;
+                    } else {
+                        database.ref('breaks/activos/' + index).remove();
+                    }
+                }
+            });
+        }
+
+        // === EVENTOS INICIALES ===
+        document.getElementById('btnAbrirStats').addEventListener('click', () => abrirModal('modalStats'));
+        document.getElementById('btnAbrirBreak').addEventListener('click', () => abrirModal('modalBreak'));
+        document.getElementById('btnAbrirPizarra').addEventListener('click', () => abrirModal('modalPizarra'));
+        document.getElementById('btnAbrirBonos').addEventListener('click', () => abrirModal('modalBonos'));
+
+        cargarDatos();
+        cargarDatosPizarra();
+        setInterval(cargarDatos, 120000);
+        setInterval(cargarDatosPizarra, 120000);
+    </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Ranking de Ventas + Breaks</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        body { 
+            margin: 0; 
+            padding: 40px; 
+            color: white; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            overflow-x: hidden; 
+        }
+
+        .video-fondo { 
+            position: fixed; 
+            right: 0; 
+            bottom: 0; 
+            min-width: 100%; 
+            min-height: 100%; 
+            z-index: -2; 
+            object-fit: cover; 
+        }
+
+        .overlay { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0, 0, 0, 0.75); 
+            z-index: -1; 
+        }
+
+        .container {
+            width: 90%; 
+            max-width: 1300px; 
+            background: rgba(20, 20, 25, 0.4); 
+            padding: 40px; 
+            border-radius: 25px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8); 
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px); 
+            z-index: 1; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center;
+        }
+
+        .chart-wrapper { 
+            position: relative; 
+            height: 80vh; 
+            min-height: 1000px; 
+            width: 100%; 
+        }
+
+        #rankingVentas { 
+            filter: drop-shadow(0px 0px 10px rgba(255, 255, 255, 0.25)); 
+        }
+
+        @keyframes flotarYBrillar {
+            0% { transform: translateY(0px); text-shadow: 0 0 10px #FFD700; }
+            50% { transform: translateY(-10px); text-shadow: 0 0 30px #FFD700, 0 0 15px #FFF; }
+            100% { transform: translateY(0px); text-shadow: 0 0 10px #FFD700; }
+        }
+
+        h1 { 
+            color: #FFD700; 
+            text-align: center; 
+            z-index: 1; 
+            font-size: 3.5em; 
+            letter-spacing: 3px; 
+            margin-bottom: 30px; 
+            animation: flotarYBrillar 3s ease-in-out infinite; 
+        }
+
+        .botones-container { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; }
+
+        .btn-estadisticas, .btn-break, .btn-pizarra, .btn-bonos {
+            margin-top: 30px; 
+            padding: 15px 40px; 
+            font-size: 1.2em; 
+            font-weight: bold; 
+            color: white;
+            border-radius: 50px; 
+            cursor: pointer;
+            transition: all 0.3s ease; 
+            text-transform: uppercase; 
+            letter-spacing: 2px; 
+        }
+
+        .btn-estadisticas { background: rgba(0, 191, 255, 0.2); border: 2px solid #00BFFF; box-shadow: 0 0 15px rgba(0, 191, 255, 0.4); }
+        .btn-break { background: rgba(255, 165, 0, 0.2); border: 2px solid #FFA500; box-shadow: 0 0 15px rgba(255, 165, 0, 0.4); }
+        .btn-pizarra { background: rgba(138, 43, 226, 0.2); border: 2px solid #8A2BE2; box-shadow: 0 0 15px rgba(138, 43, 226, 0.4); }
+        .btn-bonos { background: rgba(50, 205, 50, 0.2); border: 2px solid #32CD32; box-shadow: 0 0 15px rgba(50, 205, 50, 0.4); }
+
+        .btn-estadisticas:hover { transform: scale(1.05); background: #00BFFF; box-shadow: 0 0 30px rgba(0, 191, 255, 0.8); }
+        .btn-break:hover { transform: scale(1.05); background: #FFA500; box-shadow: 0 0 30px rgba(255, 165, 0, 0.8); }
+        .btn-pizarra:hover { transform: scale(1.05); background: #8A2BE2; box-shadow: 0 0 30px rgba(138, 43, 226, 0.8); }
+        .btn-bonos:hover { transform: scale(1.05); background: #32CD32; box-shadow: 0 0 30px rgba(50, 205, 50, 0.8); }
+
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(20px); z-index: 999;
+            justify-content: center; align-items: center; opacity: 0; transition: opacity 0.4s ease; 
+            padding: 20px; box-sizing: border-box;
+        }
+
+        .modal.mostrar { display: flex; opacity: 1; }
+
+        .modal-contenido {
+            background: rgba(20, 20, 25, 0.8); padding: 40px; border-radius: 20px; 
+            border: 1px solid rgba(255, 255, 255, 0.1); width: 100%; max-width: 1500px; 
+            max-height: 90vh; display: flex; flex-direction: column; position: relative;
+            box-shadow: 0 0 50px rgba(0, 191, 255, 0.2); overflow-y: auto;
+        }
+
+        .modal-titulo { color: #00BFFF; font-size: 2em; margin-top: 0; margin-bottom: 10px; text-align: center; text-shadow: 0 0 15px #00BFFF; }
+        .modal-titulo.break-title { color: #FFA500; text-shadow: 0 0 15px #FFA500; }
+        .modal-titulo.pizarra-title { color: #8A2BE2; text-shadow: 0 0 15px #8A2BE2; }
+
+        .frase-motivacional {
+            color: #FFD700; font-size: 1.2em; font-style: italic; text-align: center; 
+            margin-top: 0; margin-bottom: 30px; text-shadow: 0 0 10px rgba(255, 215, 0, 0.4); letter-spacing: 1px;
+        }
+
+        .btn-cerrar { position: absolute; top: 20px; right: 30px; font-size: 2em; color: white; cursor: pointer; transition: color 0.3s ease; z-index: 1000; }
+        .btn-cerrar:hover { color: #FF4500; }
+
+        .contenedor-tabla { overflow-x: auto; overflow-y: auto; flex-grow: 1; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); }
+        table { width: 100%; border-collapse: collapse; text-align: center; white-space: nowrap; }
+        th { padding: 15px; font-size: 14px; letter-spacing: 1px; color: white; background: rgba(0,0,0,0.6); position: sticky; top: 0; z-index: 2; border-bottom: 2px solid rgba(255,255,255,0.2); }
+        td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); font-weight: bold; font-size: 15px; }
+        tr:hover td { filter: brightness(1.5); }
+
+        .col-asesor { background: rgba(50, 50, 50, 0.4); text-align: left; padding-left: 20px; }
+        .col-naranja { background: rgba(255, 140, 0, 0.15); color: #FFB04F; } 
+        .col-rojo { background: rgba(255, 69, 0, 0.15); color: #FF6347; }    
+        .col-azul { background: rgba(0, 191, 255, 0.15); color: #00BFFF; }   
+        .col-verde { background: rgba(50, 205, 50, 0.15); color: #32CD32; }  
+        .border-right { border-right: 1px solid rgba(255,255,255,0.1); }
+
+        .grid-asesores { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; margin-top: 20px; }
+        .card-break { background: #25252b; padding: 15px; border-radius: 10px; text-align: center; border: 1px solid #444; position: relative; }
+        .card-break.lider { background: #1a3a3a; border: 2px solid #00FF7F; box-shadow: 0 0 15px rgba(0, 255, 127, 0.3); }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .lider-badge { background: linear-gradient(135deg, #00FF7F, #00BFFF); color: black; padding: 2px 8px; border-radius: 3px; font-size: 0.7em; font-weight: bold; margin-left: 5px; }
+        .btn-reset { background: #666; border: none; color: white; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 0.8em; font-weight: bold; transition: all 0.3s ease; }
+        .btn-reset:hover { background: #FF6347; box-shadow: 0 0 10px rgba(255, 99, 71, 0.6); }
+
+        .timer-display { font-size: 1.8em; font-family: monospace; color: #FFA500; margin: 10px 0; }
+        .card-break.lider .timer-display { color: #00FF7F; }
+        .btn-start { background: #FFA500; border: none; color: black; padding: 8px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; }
+        .card-break.lider .btn-start { background: #00FF7F; color: black; }
+        .btn-start:disabled { background: #333; color: #777; cursor: not-allowed; border: 1px solid #444; }
+        .info-break { color: #aaa; text-align: center; font-size: 0.9em; margin-bottom: 20px; }
+
+        .pizarra-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 30px; margin-top: 20px; width: 100%; }
+        .pizarra-seccion { background: rgba(30, 30, 40, 0.8); border: 2px solid; border-radius: 15px; padding: 20px; box-shadow: 0 0 20px rgba(0, 0, 0, 0.5); }
+        .pizarra-seccion.claro { border-color: #FF0000; box-shadow: 0 0 20px rgba(255, 0, 0, 0.3); }
+        .pizarra-seccion.wow { border-color: #9933FF; box-shadow: 0 0 20px rgba(153, 51, 255, 0.3); }
+        .pizarra-seccion.movistar { border-color: #0099FF; box-shadow: 0 0 20px rgba(0, 153, 255, 0.3); }
+
+        .pizarra-titulo { font-size: 1.5em; font-weight: bold; text-align: center; margin-bottom: 20px; text-shadow: 0 0 10px currentColor; font-style: italic; line-height: 1.3; }
+        .pizarra-seccion.claro .pizarra-titulo { color: #FF0000; }
+        .pizarra-seccion.wow .pizarra-titulo { color: #9933FF; }
+        .pizarra-seccion.movistar .pizarra-titulo { color: #0099FF; }
+
+        .pizarra-asesores { display: flex; flex-direction: column; gap: 12px; }
+        .pizarra-asesor { padding: 12px 15px; border-radius: 8px; border-left: 4px solid; text-align: left; font-size: 0.95em; font-weight: bold; transition: all 0.3s ease; display: flex; justify-content: space-between; align-items: center; }
+        .pizarra-asesor:hover { transform: translateX(5px); filter: brightness(1.3); }
+        
+        .pizarra-asesor-nombre { 
+            flex-grow: 1; 
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .pizarra-asesor-estrellas { display: flex; gap: 5px; align-items: center; }
+        .estrellas-display { font-size: 1.2em; letter-spacing: 2px; display: flex; gap: 2px; }
+
+        .btn-mini-estrella {
+            padding: 3px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin-left: 2px;
+        }
+
+        .btn-mini-claro { border: 1px solid #FF0000; color: #FF0000; background: rgba(255,0,0,0.2); }
+        .btn-mini-claro:hover { background: #FF0000; color: white; box-shadow: 0 0 10px rgba(255,0,0,0.8); }
+
+        .btn-mini-wow { border: 1px solid #9933FF; color: #9933FF; background: rgba(153,51,255,0.2); }
+        .btn-mini-wow:hover { background: #9933FF; color: white; box-shadow: 0 0 10px rgba(153,51,255,0.8); }
+
+        .btn-mini-movistar { border: 1px solid #0099FF; color: #0099FF; background: rgba(0,153,255,0.2); }
+        .btn-mini-movistar:hover { background: #0099FF; color: white; box-shadow: 0 0 10px rgba(0,153,255,0.8); }
+
+        .btn-restar-estrella {
+            background: rgba(255, 69, 0, 0.1);
+            border: 1px solid #FF4500;
+            color: #FF4500;
+            padding: 2px 7px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+        .btn-restar-estrella:hover { background: #FF4500; color: white; box-shadow: 0 0 8px rgba(255, 69, 0, 0.6); }
+
+        .pizarra-seccion.claro .pizarra-asesor { border-color: #FF0000; color: #FF0000; background: rgba(255, 0, 0, 0.15); }
+        .pizarra-seccion.wow .pizarra-asesor { border-color: #9933FF; color: #9933FF; background: rgba(153, 51, 255, 0.15); }
+        .pizarra-seccion.movistar .pizarra-asesor { border-color: #0099FF; color: #0099FF; background: rgba(0, 153, 255, 0.15); }
+
+        .header-pizarra {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 0 10px;
+            flex-wrap: wrap;
+            gap: 15px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 15px;
+            padding: 15px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .meta-pizza {
+            font-size: 1.4em;
+            font-weight: bold;
+            background: rgba(255, 215, 0, 0.15);
+            padding: 10px 20px;
+            border-radius: 12px;
+            border: 2px solid #FFD700;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+        }
+
+        .contadores-bloque {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .contador-etiqueta-turno {
+            font-size: 0.75em;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #aaa;
+            margin-bottom: 2px;
+        }
+
+        .contadores-campanas {
+            font-size: 1.2em;
+            font-weight: bold;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 6px 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .btn-limpiar-pizarra {
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid #FF0000;
+            color: #FF0000;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            font-size: 1em;
+        }
+        .btn-limpiar-pizarra:hover { background: #FF0000; color: white; box-shadow: 0 0 15px rgba(255, 0, 0, 0.6); }
+
+        .pizza-cayendo {
+            position: fixed;
+            top: -50px;
+            font-size: 30px;
+            z-index: 9999;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        @keyframes animacionPizza {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* Estilos del modal bonos tamaño completo */
+        .imagen-bonos-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .imagen-bonos {
+            width: 100%;
+            height: 100%;
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(50, 205, 50, 0.4);
+            border: 2px solid rgba(50, 205, 50, 0.5);
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+
+    <video autoplay loop muted playsinline class="video-fondo">
+        <source src="tigre.mp4" type="video/mp4">
+    </video>
+
+    <div class="overlay"></div>
+
+    <h1>🏆 RANKING DE VENTAS 🏆</h1>
+
+    <div class="container">
+        <div class="chart-wrapper">
+            <canvas id="rankingVentas"></canvas>
+        </div>
+
+        <div class="botones-container">
+            <button id="btnAbrirStats" class="btn-estadisticas">📊 TABLA DE DESGLOSE</button>
+            <button id="btnAbrirBreak" class="btn-break">⏱️ ADMINISTRAR BREAKS</button>
+            <button id="btnAbrirPizarra" class="btn-pizarra">📋 PIZARRA</button>
+            <button id="btnAbrirBonos" class="btn-bonos">🎁 VER BONOS</button>
+        </div>
+    </div>
+
+    <div id="modalStats" class="modal">
+        <div class="modal-contenido">
+            <span class="btn-cerrar" onclick="cerrarModal('modalStats')">✖</span>
+            <h2 class="modal-titulo">REPORTE DETALLADO DEL EQUIPO</h2>
+            <p class="frase-motivacional">"Hoy es una oportunidad para ser mejor que el día anterior"</p>
+            <div class="contenedor-tabla">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="col-asesor border-right">ASESOR</th>
+                            <th class="col-naranja border-right">INGRESOS</th>
+                            <th class="col-rojo">CANC. CLIENTE</th>
+                            <th class="col-rojo border-right">CANC. OP</th>
+                            <th class="col-azul border-right">PROGRAMADA</th>
+                            <th class="col-verde border-right">INSTALADAS</th>
+                            <th class="col-naranja border-right">TOTAL</th>
+                            <th class="col-naranja">CONVERTIBILIDAD</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cuerpoTabla"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalBreak" class="modal">
+        <div class="modal-contenido">
+            <span class="btn-cerrar" onclick="cerrarModal('modalBreak')">✖</span>
+            <h2 class="modal-titulo break-title">⏱️ ADMINISTRACIÓN DE BREAKS</h2>
+            <p class="info-break">Solo el administrador puede iniciar el tiempo con contraseña.</p>
+            <div id="gridAsesores" class="grid-asesores"></div>
+        </div>
+    </div>
+
+    <div id="modalPizarra" class="modal">
+        <div class="modal-contenido">
+            <span class="btn-cerrar" onclick="cerrarModal('modalPizarra')">✖</span>
+            <h2 class="modal-titulo pizarra-title" style="display:none;">📋 PIZARRA DE VENTAS</h2>
+            
+            <div class="header-pizarra">
+                <div class="meta-pizza" style="flex-direction: column; align-items: center; justify-content: center; min-width: 150px;">
+                    <div style="font-size: 0.6em; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; margin-bottom: 2px;">⭐ General: <span id="totalEstrellasGeneral">0</span></div>
+                    <div>🍕 <span id="metaPizzaContador" style="color: #FFD700;">Faltan 28</span></div>
+                </div>
+                
+                <div class="contadores-bloque">
+                    <div class="contador-etiqueta-turno">☀️ Turno Mañana</div>
+                    <div class="contadores-campanas">
+                        <span style="color: #FF0000; text-shadow: 0 0 5px #FF0000;">★ <span id="contadorClaroAM">0</span></span>
+                        <span style="color: #9933FF; text-shadow: 0 0 5px #9933FF;">★ <span id="contadorWowAM">0</span></span>
+                        <span style="color: #0099FF; text-shadow: 0 0 5px #0099FF;">★ <span id="contadorMovistarAM">0</span></span>
+                    </div>
+                </div>
+
+                <div class="contadores-bloque">
+                    <div class="contador-etiqueta-turno">🌙 Turno Tarde</div>
+                    <div class="contadores-campanas">
+                        <span style="color: #FF0000; text-shadow: 0 0 5px #FF0000;">★ <span id="contadorClaroPM">0</span></span>
+                        <span style="color: #9933FF; text-shadow: 0 0 5px #9933FF;">★ <span id="contadorWowPM">0</span></span>
+                        <span style="color: #0099FF; text-shadow: 0 0 5px #0099FF;">★ <span id="contadorMovistarPM">0</span></span>
+                    </div>
+                </div>
+
+                <button id="btnResetPizarra" class="btn-limpiar-pizarra">♻️ REINICIAR</button>
+            </div>
+
+            <div class="pizarra-container" id="pizarraContainer"></div>
+        </div>
+    </div>
+
+    <div id="modalBonos" class="modal">
+        <div class="modal-contenido" style="max-width: 95vw; height: 90vh; text-align: center; padding: 0; overflow: hidden;">
+            <span class="btn-cerrar" onclick="cerrarModal('modalBonos')" style="top: 15px; right: 25px; background: rgba(0,0,0,0.5); border-radius: 50%; width: 40px; height: 40px; line-height: 40px; text-align: center;">✖</span>
+            <div class="imagen-bonos-container">
+                <img src="mis-bonos.png" alt="Imagen de Bonos" class="imagen-bonos" onerror="this.onerror=null; this.src='https://via.placeholder.com/1200x600/141419/32CD32?text=IMAGEN+NO+ENCONTRADA';">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // === CONFIGURACIÓN DE FIREBASE ===
+        const firebaseConfig = {
+          apiKey: "AIzaSyAgtu5-MT9OcKY5nvoq-yxpnUXiZSEz7io",
+          authDomain: "proyecttiger.firebaseapp.com",
+          projectId: "proyecttiger",
+          storageBucket: "proyecttiger.firebasestorage.app",
+          messagingSenderId: "272290320977",
+          appId: "1:272290320977:web:72ada1dfd86501ca6d9e70",
+          databaseURL: "https://proyecttiger-default-rtdb.firebaseio.com/"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // === VARIABLES Y CONSTANTES ===
+        const URL_SHEET = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTfvuQqIcH6Zv8rqvsqeolWoX7Z3lIKZqz2nX-Q0aCRBZcPRvXAXz8rjKyoAZ-OmiI9GfpNkMjK9Uht/pub?output=csv';
+        const URL_SHEET_PIZARRA = 'https://docs.google.com/spreadsheets/d/1u37Zs5aSHL62Z1whx1ixBdrnoiaVf3xztf_FU_w0RKw/export?gid=543637953&format=csv';
+        const PASS_ADMIN = "tiger123@";
+        
+        const ASESORES_SIN_BREAKS = [
+            "ISABELLE GARCIA", "LEONARDO CASTILLO", "HENRY MAMANI", 
+            "ARMANDO ZAVALETA", "PEDRO LOPEZ", "DIEGO OLIVARES", 
+            "LEONARDO YOBERA", "ROMINA SOLIS", "RICKSON FIGUEROA",
+            "JESUS", "KORAL PANTA", "GERSON GONZALES", 
+            "VALERIA VALDERRAMA", "VALENTINA VICH", "CECILIA ARRUNATEGUI"
+        ];
+
+        const LIDERES = [
+            "MIKE ROMERO", "RAMIRO FLORES", "JEYKO BAZALAR", 
+            "PAULINA SUTTI", "ICEL MORENO", "ISRAEL OSORIO", 
+            "RICKSON FIGUEROA"
+        ];
+        
+        let miGrafico = null;
+        let asesoresList = [];
+        let asesoresBreaks = [];
+        let breaksActivos = {};
+        let intervalosActivos = {};
+        let pizarraData = { claro: [], wow: [], movistar: [] };
+        
+        let estrellasData = {};
+        let metaLogradaPreviamente = false; 
+
+        function abrirModal(idModal) { document.getElementById(idModal).classList.add('mostrar'); }
+        function cerrarModal(idModal) { document.getElementById(idModal).classList.remove('mostrar'); }
+        function esAsesorSinBreaks(nombre) { return ASESORES_SIN_BREAKS.some(excluido => nombre.toUpperCase() === excluido); }
+        function esLider(nombre) { return LIDERES.some(lider => nombre.toUpperCase() === lider); }
+
+        // === FUNCIONES DE FIREBASE PARA LA PIZARRA ===
+        function guardarEstrellas() { 
+            database.ref('pizarra/estrellas').set(estrellasData);
+        }
+
+        database.ref('pizarra/estrellas').on('value', (snapshot) => {
+            estrellasData = snapshot.val() || {};
+            construirPizarra(); 
+        });
+
+        window.agregarEstrella = function(nombre, campana) {
+            const n = nombre.trim();
+            if (!estrellasData[n]) { estrellasData[n] = []; } 
+            estrellasData[n].push(campana);
+            guardarEstrellas();
+        };
+
+        window.restarEstrella = function(nombre) {
+            const n = nombre.trim();
+            if (estrellasData[n] && estrellasData[n].length > 0) {
+                estrellasData[n].pop();
+                guardarEstrellas();
+            }
+        };
+
+        document.getElementById('btnResetPizarra').addEventListener('click', () => {
+            const pwd = prompt("Ingrese la contraseña de administrador para limpiar la pizarra:");
+            if (pwd === PASS_ADMIN) {
+                if(confirm("¿Está seguro? Esto borrará TODAS las estrellas de todos los usuarios en tiempo real.")) {
+                    estrellasData = {};
+                    metaLogradaPreviamente = false; 
+                    guardarEstrellas();
+                }
+            } else if (pwd !== null) {
+                alert("Contraseña incorrecta.");
+            }
+        });
+
+        // === LLUVIA DE PIZZAS ===
+        function lluviaDePizzas() {
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const pizza = document.createElement('div');
+                    pizza.innerText = '🍕';
+                    pizza.className = 'pizza-cayendo';
+                    pizza.style.left = Math.random() * 100 + 'vw';
+                    pizza.style.animation = `animacionPizza ${2 + Math.random() * 3}s linear forwards`;
+                    document.body.appendChild(pizza);
+                    
+                    setTimeout(() => pizza.remove(), 5000);
+                }, i * 150); 
+            }
+        }
+
+        // === ACTUALIZAR CONTADORES POR TURNO Y GENERAL ===
+        function actualizarContadores() {
+            let totalEstrellasGeneral = 0;
+            
+            let amClaro = 0, amWow = 0, amMovistar = 0;
+            let pmClaro = 0, pmWow = 0, pmMovistar = 0;
+
+            // Recorremos las estrellas que están guardadas en Firebase
+            Object.keys(estrellasData).forEach(nombre => {
+                const historial = estrellasData[nombre] || [];
+                const esAM = nombre.toUpperCase().includes('(AM)');
+                const esPM = nombre.toUpperCase().includes('(PM)');
+
+                totalEstrellasGeneral += historial.length;
+
+                historial.forEach(campana => {
+                    if (esAM) {
+                        if (campana === 'claro') amClaro++;
+                        if (campana === 'wow') amWow++;
+                        if (campana === 'movistar') amMovistar++;
+                    } else if (esPM) {
+                        if (campana === 'claro') pmClaro++;
+                        if (campana === 'wow') pmWow++;
+                        if (campana === 'movistar') pmMovistar++;
+                    } else {
+                        // Por si hay algún asesor sin etiqueta (AM) o (PM), se suma por defecto al AM o se procesa aparte
+                        if (campana === 'claro') amClaro++;
+                        if (campana === 'wow') amWow++;
+                        if (campana === 'movistar') amMovistar++;
+                    }
+                });
+            });
+            
+            // Renderizamos los datos calculados en los elementos del Header
+            document.getElementById('totalEstrellasGeneral').innerText = totalEstrellasGeneral;
+            
+            // Turno Mañana Display
+            document.getElementById('contadorClaroAM').innerText = amClaro;
+            document.getElementById('contadorWowAM').innerText = amWow;
+            document.getElementById('contadorMovistarAM').innerText = amMovistar;
+
+            // Turno Tarde Display
+            document.getElementById('contadorClaroPM').innerText = pmClaro;
+            document.getElementById('contadorWowPM').innerText = pmWow;
+            document.getElementById('contadorMovistarPM').innerText = pmMovistar;
+
+            // Lógica de la Meta General
+            const faltantes = 28 - totalEstrellasGeneral;
+            const metaContador = document.getElementById('metaPizzaContador');
+            
+            if (faltantes > 0) {
+                metaContador.innerText = `Faltan ${faltantes}`;
+                metaContador.style.color = "#FFD700"; 
+                metaContador.style.textShadow = "none";
+                metaLogradaPreviamente = false; 
+            } else {
+                metaContador.innerText = "¡LOGRADO! 🎉";
+                metaContador.style.color = "#00FF7F"; 
+                metaContador.style.textShadow = "0 0 10px #00FF7F";
+                
+                if (!metaLogradaPreviamente) {
+                    metaLogradaPreviamente = true;
+                    lluviaDePizzas();
+                }
+            }
         }
 
         async function cargarDatosPizarra() {
