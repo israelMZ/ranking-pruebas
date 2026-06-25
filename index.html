@@ -62,7 +62,7 @@
         }
 
         #rankingVentas { 
-            filter: drop-shadow(0px 0px 10px rgba(255, 255, 255, 0.25)); 
+            filter: drop-shadow(0px 0px 15px rgba(255, 255, 255, 0.15)); 
         }
 
         @keyframes flotarYBrillar {
@@ -307,7 +307,6 @@
             100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
         }
 
-        /* Estilos del modal bonos tamaño completo */
         .imagen-bonos-container {
             width: 100%;
             height: 100%;
@@ -725,7 +724,6 @@
                     const programada = parseInt(c[4]) || 0;
                     const instaladas = parseInt(c[5]) || 0;
 
-                    // Si el nombre ya está registrado en el ciclo, se suman todos los puntos matemáticamente
                     if (asesoresMap.has(nombre)) {
                         const asExistente = asesoresMap.get(nombre);
                         asesoresMap.set(nombre, { 
@@ -769,6 +767,7 @@
             });
         }
 
+        // === GENERADOR DE COLORES VARIADOS CON DEGRADADOS (NUEVA PALETA) ===
         function dibujarGrafico(asesores) {
             const ctx = document.getElementById('rankingVentas').getContext('2d');
             const nombresInsignia = asesores.map((as, i) => {
@@ -778,21 +777,108 @@
                 return as.nombre;
             });
             const ventas = asesores.map(as => as.instaladas);
-            const coloresVentas = ventas.map(v => v >= 10 ? 'rgba(255, 215, 0, 0.8)' : v >= 7 ? 'rgba(0, 255, 127, 0.8)' : v >= 4 ? 'rgba(0, 191, 255, 0.8)' : 'rgba(138, 43, 226, 0.6)');
-            const bordes = ventas.map(v => v >= 10 ? '#FFD700' : v >= 7 ? '#00FF7F' : v >= 4 ? '#00BFFF' : '#8A2BE2');
-            const coloresTxt = ventas.map(v => v >= 10 ? '#FFD700' : v >= 7 ? '#00FF7F' : v >= 4 ? '#00BFFF' : '#E066FF');
+
+            // Generar colores de fondo usando degradados dinámicos de Chart.js
+            const coloresBackground = ventas.map((v) => {
+                let gradient = ctx.createLinearGradient(0, 0, 800, 0);
+                if (v >= 15) {
+                    // Oro / Fuego Neón para los más altos (15 a más)
+                    gradient.addColorStop(0, 'rgba(255, 69, 0, 0.85)');
+                    gradient.addColorStop(1, 'rgba(255, 215, 0, 0.95)');
+                } else if (v >= 10) {
+                    // Esmeralda Brillante (10 a 14)
+                    gradient.addColorStop(0, 'rgba(0, 128, 128, 0.85)');
+                    gradient.addColorStop(1, 'rgba(0, 255, 127, 0.95)');
+                } else if (v >= 7) {
+                    // Cyan / Eléctrico (7 a 9)
+                    gradient.addColorStop(0, 'rgba(30, 144, 255, 0.85)');
+                    gradient.addColorStop(1, 'rgba(0, 191, 255, 0.95)');
+                } else if (v >= 4) {
+                    // Violeta Magenta (4 a 6)
+                    gradient.addColorStop(0, 'rgba(75, 0, 130, 0.75)');
+                    gradient.addColorStop(1, 'rgba(218, 112, 214, 0.95)');
+                } else {
+                    // Ruby / Carmín sutil (0 a 3)
+                    gradient.addColorStop(0, 'rgba(139, 0, 0, 0.65)');
+                    gradient.addColorStop(1, 'rgba(255, 99, 71, 0.85)');
+                }
+                return gradient;
+            });
+
+            // Colores sólidos para los bordes neón correspondientes
+            const bordes = ventas.map(v => 
+                v >= 15 ? '#FFD700' : 
+                v >= 10 ? '#00FF7F' : 
+                v >= 7  ? '#00BFFF' : 
+                v >= 4  ? '#DA70D6' : '#FF6347'
+            );
+
+            // Colores de las etiquetas de texto del eje Y
+            const coloresTxt = ventas.map(v => 
+                v >= 15 ? '#FFD700' : 
+                v >= 10 ? '#00FF7F' : 
+                v >= 7  ? '#00BFFF' : 
+                v >= 4  ? '#E066FF' : '#FF8247'
+            );
 
             Chart.defaults.font.family = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
             if (miGrafico) { miGrafico.destroy(); }
             let delayed;
             miGrafico = new Chart(ctx, {
                 type: 'bar',
-                data: { labels: nombresInsignia, datasets: [{ label: 'Ventas Instaladas', data: ventas, backgroundColor: coloresVentas, borderColor: bordes, borderWidth: 2, borderRadius: 10, barPercentage: 0.7 }] },
+                data: { 
+                    labels: nombresInsignia, 
+                    datasets: [{ 
+                        label: 'Ventas Instaladas', 
+                        data: ventas, 
+                        backgroundColor: coloresBackground, 
+                        borderColor: bordes, 
+                        borderWidth: 2, 
+                        borderRadius: 8, 
+                        barPercentage: 0.65 
+                    }] 
+                },
                 options: {
                     indexAxis: 'y', responsive: true, maintainAspectRatio: false,
-                    animation: { onComplete: () => { delayed = true; }, delay: (context) => { let delay = 0; if (context.type === 'data' && context.mode === 'default' && !delayed) { delay = context.dataIndex * 150; } return delay; } },
-                    plugins: { legend: { display: false }, tooltip: { backgroundColor: 'rgba(0, 0, 0, 0.95)', titleFont: { size: 18, weight: 'bold' }, bodyFont: { size: 15 }, padding: 15, displayColors: false, callbacks: { label: function(context) { const as = asesores[context.dataIndex]; const conv = as.ingresos > 0 ? ((as.instaladas / as.ingresos) * 100).toFixed(1) : "0.0"; return [' ✅ Instaladas: ' + as.instaladas, ' 📥 Ingresadas: ' + as.ingresos, ' 📊 Convertibilidad: ' + conv + '%']; } } } },
-                    scales: { x: { beginAtZero: true, max: 30, grid: { color: 'rgba(255,255,255,0.08)' }, ticks: { color: '#bbbbbb', stepSize: 5 } }, y: { grid: { display: false }, ticks: { color: coloresTxt, font: { weight: 'bold' } } } }
+                    animation: { 
+                        onComplete: () => { delayed = true; }, 
+                        delay: (context) => { 
+                            let delay = 0; 
+                            if (context.type === 'data' && context.mode === 'default' && !delayed) { 
+                                delay = context.dataIndex * 150; 
+                            } 
+                            return delay; 
+                        } 
+                    },
+                    plugins: { 
+                        legend: { display: false }, 
+                        tooltip: { 
+                            backgroundColor: 'rgba(0, 0, 0, 0.95)', 
+                            titleFont: { size: 18, weight: 'bold' }, 
+                            bodyFont: { size: 15 }, 
+                            padding: 15, 
+                            displayColors: false, 
+                            callbacks: { 
+                                label: function(context) { 
+                                    const as = asesores[context.dataIndex]; 
+                                    const conv = as.ingresos > 0 ? ((as.instaladas / as.ingresos) * 100).toFixed(1) : "0.0"; 
+                                    return [' ✅ Instaladas: ' + as.instaladas, ' 📥 Ingresadas: ' + as.ingresos, ' 📊 Convertibilidad: ' + conv + '%']; 
+                                } 
+                            } 
+                        } 
+                    },
+                    scales: { 
+                        x: { 
+                            beginAtZero: true, 
+                            max: 50, 
+                            grid: { color: 'rgba(255,255,255,0.08)' }, 
+                            ticks: { color: '#bbbbbb', stepSize: 5 } 
+                        }, 
+                        y: { 
+                            grid: { display: false }, 
+                            ticks: { color: coloresTxt, font: { weight: 'bold' } } 
+                        } 
+                    }
                 }
             });
         }
