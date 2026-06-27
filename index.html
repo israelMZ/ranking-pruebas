@@ -630,7 +630,8 @@
             } catch (error) { console.error("Error cargando datos pizarra:", error); }
         }
 
-        function generarHTMLAsesor(asesor, campanaSeccion) {
+        // === SE ACTUALIZA PARA MOSTRAR SIEMPRE LOS 4 BOTONES EN TODOS LOS ASESORES ===
+        function generarHTMLAsesor(asesor) {
             const nombreLimpio = asesor.trim();
             const nEscapado = nombreLimpio.replace(/'/g, "\\'");
             const historial = estrellasData[nombreLimpio] || [];
@@ -644,19 +645,6 @@
                 if (campana === 'movistar_movil') estrellasDisplay += `<span style="color: #33ccff; text-shadow: 0 0 8px #33ccff; font-size: 1.1em;" title="Movistar Móvil">●</span>`;
             });
 
-            // Botones interactivos según la sección en la que se renderice
-            let botonesAsignacion = '';
-            if (campanaSeccion === 'claro') {
-                botonesAsignacion = `<button class="btn-mini-estrella btn-mini-claro" onclick="agregarEstrella('${nEscapado}', 'claro')">+</button>`;
-            } else if (campanaSeccion === 'wow') {
-                botonesAsignacion = `<button class="btn-mini-estrella btn-mini-wow" onclick="agregarEstrella('${nEscapado}', 'wow')">+</button>`;
-            } else if (campanaSeccion === 'movistar') {
-                botonesAsignacion = `
-                    <button class="btn-mini-estrella btn-mini-movistar-hogar" onclick="agregarEstrella('${nEscapado}', 'movistar_hogar')" title="Añadir Hogar (★)">+🏠</button>
-                    <button class="btn-mini-estrella btn-mini-movistar-movil" onclick="agregarEstrella('${nEscapado}', 'movistar_movil')" title="Añadir Móvil (●)">+📱</button>
-                `;
-            }
-
             return `
                 <div class="pizarra-asesor">
                     <div class="pizarra-asesor-nombre">
@@ -665,7 +653,10 @@
                     </div>
                     <div class="pizarra-asesor-estrellas">
                         <div class="estrellas-display">${estrellasDisplay}</div>
-                        ${botonesAsignacion}
+                        <button class="btn-mini-estrella btn-mini-claro" onclick="agregarEstrella('${nEscapado}', 'claro')" title="Añadir Claro (★)">+🟥</button>
+                        <button class="btn-mini-estrella btn-mini-wow" onclick="agregarEstrella('${nEscapado}', 'wow')" title="Añadir WOW (★)">+🟪</button>
+                        <button class="btn-mini-estrella btn-mini-movistar-hogar" onclick="agregarEstrella('${nEscapado}', 'movistar_hogar')" title="Añadir Hogar (★)">+🏠</button>
+                        <button class="btn-mini-estrella btn-mini-movistar-movil" onclick="agregarEstrella('${nEscapado}', 'movistar_movil')" title="Añadir Móvil (●)">+📱</button>
                     </div>
                 </div>`;
         }
@@ -697,7 +688,7 @@
                 htmlContenido += `<div style="text-align: center; margin: 10px 0 5px 0; font-size: 0.9em; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; border-bottom: 1px dashed rgba(255,255,255,0.2); padding-bottom: 3px;">☀️ Turno Mañana</div>`;
                 htmlContenido += '<div class="pizarra-asesores" style="margin-bottom: 20px;">';
                 if (manana.length > 0) {
-                    htmlContenido += manana.map(a => generarHTMLAsesor(a, camp.clave)).join('');
+                    htmlContenido += manana.map(a => generarHTMLAsesor(a)).join('');
                 } else {
                     htmlContenido += '<div class="pizarra-asesor" style="justify-content: center; opacity: 0.5; font-size: 0.85em;">Sin asesores AM</div>';
                 }
@@ -707,7 +698,7 @@
                 htmlContenido += `<div style="text-align: center; margin: 15px 0 5px 0; font-size: 0.9em; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; border-bottom: 1px dashed rgba(255,255,255,0.2); padding-bottom: 3px;">🌙 Turno Tarde</div>`;
                 htmlContenido += '<div class="pizarra-asesores">';
                 if (tarde.length > 0) {
-                    htmlContenido += tarde.map(a => generarHTMLAsesor(a, camp.clave)).join('');
+                    htmlContenido += tarde.map(a => generarHTMLAsesor(a)).join('');
                 } else {
                     htmlContenido += '<div class="pizarra-asesor" style="justify-content: center; opacity: 0.5; font-size: 0.85em;">Sin asesores PM</div>';
                 }
@@ -716,7 +707,7 @@
                 if (otros.length > 0) {
                     htmlContenido += `<div style="text-align: center; margin: 15px 0 5px 0; font-size: 0.9em; font-weight: bold; opacity: 0.6;">Otros</div>`;
                     htmlContenido += '<div class="pizarra-asesores">';
-                    htmlContenido += otros.map(a => generarHTMLAsesor(a, camp.clave)).join('');
+                    htmlContenido += otros.map(a => generarHTMLAsesor(a)).join('');
                     htmlContenido += '</div>';
                 }
 
