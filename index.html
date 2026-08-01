@@ -453,7 +453,7 @@
 
         // === VARIABLES Y CONSTANTES ===
         const URL_SHEET = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTfvuQqIcH6Zv8rqvsqeolWoX7Z3lIKZqz2nX-Q0aCRBZcPRvXAXz8rjKyoAZ-OmiI9GfpNkMjK9Uht/pub?output=csv';
-        const URL_SHEET_PIZARRA = 'https://docs.google.com/spreadsheets/d/1mj97aLNDoxUfpqazRCGTpKXCeL-qbUy9/export?gid=294883686&format=csv';
+        const URL_SHEET_PIZARRA = 'https://docs.google.com/spreadsheets/d/1u37Zs5aSHL62Z1whx1ixBdrnoiaVf3xztf_FU_w0RKw/export?gid=543637953&format=csv';
         const PASS_ADMIN = "tiger123@";
         
         const ASESORES_SIN_BREAKS = [
@@ -605,6 +605,23 @@
             }
         }
 
+        // === FILTRO DE NOMBRE VALIDO (Descarta cabeceras y métricas de reporte) ===
+        function esNombreValido(texto) {
+            if (!texto) return false;
+            const t = texto.toUpperCase().trim();
+            
+            // Si contiene números, es un dato o métrica de reporte
+            if (/\d/.test(t)) return false;
+
+            // Palabras clave de tablas de reporte a descartar
+            const palabrasProhibidas = [
+                "ASESOR", "INGRESOS", "CANCELADA", "PROGRAMADA", 
+                "INSTALADAS", "TOTAL", "CONVERTIBILIDAD", "CLIENTE", "OP"
+            ];
+
+            return !palabrasProhibidas.some(p => t.includes(p));
+        }
+
         async function cargarDatosPizarra() {
             try {
                 const urlConFiltro = URL_SHEET_PIZARRA + '&t=' + new Date().getTime();
@@ -622,15 +639,14 @@
                     const col1 = c[1].replace(/"/g, '').trim();
                     const col2 = c[2].replace(/"/g, '').trim();
 
-                    if (col0 && col0.toUpperCase() !== 'CLARO') pizarraData.claro.push(col0);
-                    if (col1 && col1.toUpperCase() !== 'WOW') pizarraData.wow.push(col1);
-                    if (col2 && col2.toUpperCase() !== 'MOVISTAR') pizarraData.movistar.push(col2);
+                    if (esNombreValido(col0)) pizarraData.claro.push(col0);
+                    if (esNombreValido(col1)) pizarraData.wow.push(col1);
+                    if (esNombreValido(col2)) pizarraData.movistar.push(col2);
                 });
                 construirPizarra();
             } catch (error) { console.error("Error cargando datos pizarra:", error); }
         }
 
-        // === SE ACTUALIZA PARA MOSTRAR SIEMPRE LOS 4 BOTONES EN TODOS LOS ASESORES ===
         function generarHTMLAsesor(asesor) {
             const nombreLimpio = asesor.trim();
             const nEscapado = nombreLimpio.replace(/'/g, "\\'");
