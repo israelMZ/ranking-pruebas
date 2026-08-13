@@ -54,11 +54,23 @@
             align-items: center;
         }
 
+        /* Ajustado para permitir Scroll Interno si la gráfica es muy alta */
         .chart-wrapper { 
             position: relative; 
-            height: 80vh; 
-            min-height: 1000px; 
+            max-height: 75vh; 
             width: 100%; 
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-right: 10px;
+        }
+
+        /* Personalización de la barra de scroll de la gráfica */
+        .chart-wrapper::-webkit-scrollbar {
+            width: 8px;
+        }
+        .chart-wrapper::-webkit-scrollbar-thumb {
+            background: rgba(255, 215, 0, 0.5);
+            border-radius: 10px;
         }
 
         #rankingVentas { 
@@ -343,7 +355,7 @@
     <h1>🏆 RANKING DE VENTAS 🏆</h1>
 
     <div class="container">
-        <div class="chart-wrapper">
+        <div class="chart-wrapper" id="chartWrapper">
             <canvas id="rankingVentas"></canvas>
         </div>
 
@@ -605,7 +617,7 @@
             }
         }
 
-        // === FILTRO DE NOMBRE VALIDO (Descarta cabeceras y métricas de reporte) ===
+        // === FILTRO DE NOMBRE VALIDO ===
         function esNombreValido(texto) {
             if (!texto) return false;
             const t = texto.toUpperCase().trim();
@@ -732,7 +744,7 @@
             actualizarContadores();
         }
 
-        // === LÓGICA GRÁFICOS Y TABLAS (CONSOLIDACIÓN Y SUMA DE DUPLICADOS CORREGIDA) ===
+        // === LÓGICA GRÁFICOS Y TABLAS (CON PARSEFLOAT Y SUMA PRECISA) ===
         async function cargarDatos() {
             try {
                 const urlConFiltro = URL_SHEET + '&t=' + new Date().getTime();
@@ -752,11 +764,12 @@
                     
                     if (nombre === '' || nombre === 'ASESOR') return;
 
-                    const ingresos = parseInt(c[1]) || 0;
-                    const cancCliente = parseInt(c[2]) || 0;
-                    const cancOp = parseInt(c[3]) || 0;
-                    const programada = parseInt(c[4]) || 0;
-                    const instaladas = parseInt(c[5]) || 0;
+                    // Cambiado a parseFloat para aceptar decimales si existen en el Excel (ej: 17.5)
+                    const ingresos = parseFloat(c[1]) || 0;
+                    const cancCliente = parseFloat(c[2]) || 0;
+                    const cancOp = parseFloat(c[3]) || 0;
+                    const programada = parseFloat(c[4]) || 0;
+                    const instaladas = parseFloat(c[5]) || 0;
 
                     if (asesoresMap.has(nombre)) {
                         const asExistente = asesoresMap.get(nombre);
@@ -782,6 +795,7 @@
 
                 let asesoresUnicos = Array.from(asesoresMap.values());
                 
+                // Ordenar de mayor a menor por ventas instaladas
                 asesoresUnicos.sort((a, b) => b.instaladas - a.instaladas);
                 
                 asesoresList = asesoresUnicos.map(a => a.nombre);
@@ -804,11 +818,11 @@
             cuerpo.innerHTML = '';
             
             asesores.forEach(as => {
-                const ingresos = parseInt(as.ingresos) || 0;
-                const cancCliente = parseInt(as.cancCliente) || 0;
-                const cancOp = parseInt(as.cancOp) || 0;
-                const programada = parseInt(as.programada) || 0;
-                const instaladas = parseInt(as.instaladas) || 0;
+                const ingresos = as.ingresos;
+                const cancCliente = as.cancCliente;
+                const cancOp = as.cancOp;
+                const programada = as.programada;
+                const instaladas = as.instaladas;
 
                 const totalCalculado = cancCliente + cancOp + programada + instaladas;
                 const convertibilidad = ingresos > 0 ? ((instaladas / ingresos) * 100).toFixed(2) : "0.00";
@@ -829,7 +843,13 @@
         }
 
         function dibujarGrafico(asesores) {
-            const ctx = document.getElementById('rankingVentas').getContext('2d');
+            const canvas = document.getElementById('rankingVentas');
+            const ctx = canvas.getContext('2d');
+            
+            // Calculamos altura dinámica: 35px por cada asesor para dar espacio holgado a todos
+            const alturaMinima = Math.max(800, asesores.length * 35);
+            canvas.parentNode.style.height = alturaMinima + 'px';
+
             const nombresInsignia = asesores.map((as, i) => {
                 if (i === 0) return '👑 ' + as.nombre;
                 if (i === 1) return '🥈 ' + as.nombre;
@@ -887,7 +907,7 @@
                         borderColor: bordes, 
                         borderWidth: 2, 
                         borderRadius: 8, 
-                        barPercentage: 0.65 
+                        barPercentage: 0.75 
                     }] 
                 },
                 options: {
@@ -897,7 +917,7 @@
                         delay: (context) => { 
                             let delay = 0; 
                             if (context.type === 'data' && context.mode === 'default' && !delayed) { 
-                                delay = context.dataIndex * 150; 
+                                delay = context.dataIndex * 50; 
                             } 
                             return delay; 
                         } 
@@ -922,7 +942,6 @@
                     scales: { 
                         x: { 
                             beginAtZero: true, 
-                            max: 50, 
                             grid: { color: 'rgba(255,255,255,0.08)' }, 
                             ticks: { color: '#bbbbbb', stepSize: 5 } 
                         }, 
