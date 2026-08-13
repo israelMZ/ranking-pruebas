@@ -610,10 +610,8 @@
             if (!texto) return false;
             const t = texto.toUpperCase().trim();
             
-            // Si contiene números, es un dato o métrica de reporte
             if (/\d/.test(t)) return false;
 
-            // Palabras clave de tablas de reporte a descartar
             const palabrasProhibidas = [
                 "ASESOR", "INGRESOS", "CANCELADA", "PROGRAMADA", 
                 "INSTALADAS", "TOTAL", "CONVERTIBILIDAD", "CLIENTE", "OP"
@@ -734,21 +732,26 @@
             actualizarContadores();
         }
 
-        // === LÓGICA GRÁFICOS Y TABLAS (CONSOLIDACIÓN Y SUMA DE DUPLICADOS) ===
+        // === LÓGICA GRÁFICOS Y TABLAS (CONSOLIDACIÓN Y SUMA DE DUPLICADOS CORREGIDA) ===
         async function cargarDatos() {
             try {
                 const urlConFiltro = URL_SHEET + '&t=' + new Date().getTime();
                 const respuesta = await fetch(urlConFiltro);
                 const dataRaw = await respuesta.text();
-                const filas = dataRaw.split('\n').slice(1);
+                
+                const filas = dataRaw.split('\n');
 
                 let asesoresMap = new Map();
 
                 filas.forEach(linea => {
                     const c = linea.replace(/\r/g, '').split(',');
-                    if(c.length < 6 || c[0].trim() === '' || c[0].trim().toUpperCase() === 'ASESOR') return;
+                    
+                    if(c.length < 6) return;
+                    
+                    const nombre = c[0].replace(/"/g, '').trim().toUpperCase();
+                    
+                    if (nombre === '' || nombre === 'ASESOR') return;
 
-                    const nombre = c[0].replace(/"/g, '').trim();
                     const ingresos = parseInt(c[1]) || 0;
                     const cancCliente = parseInt(c[2]) || 0;
                     const cancOp = parseInt(c[3]) || 0;
@@ -758,22 +761,30 @@
                     if (asesoresMap.has(nombre)) {
                         const asExistente = asesoresMap.get(nombre);
                         asesoresMap.set(nombre, { 
-                            nombre, 
-                            ingresos: parseInt(asExistente.ingresos) + ingresos, 
-                            cancCliente: parseInt(asExistente.cancCliente) + cancCliente, 
-                            cancOp: parseInt(asExistente.cancOp) + cancOp, 
-                            programada: parseInt(asExistente.programada) + programada, 
-                            instaladas: parseInt(asExistente.instaladas) + instaladas 
+                            nombre: nombre, 
+                            ingresos: asExistente.ingresos + ingresos, 
+                            cancCliente: asExistente.cancCliente + cancCliente, 
+                            cancOp: asExistente.cancOp + cancOp, 
+                            programada: asExistente.programada + programada, 
+                            instaladas: asExistente.instaladas + instaladas 
                         });
                     } else { 
-                        asesoresMap.set(nombre, { nombre, ingresos, cancCliente, cancOp, programada, instaladas }); 
+                        asesoresMap.set(nombre, { 
+                            nombre: nombre, 
+                            ingresos: ingresos, 
+                            cancCliente: cancCliente, 
+                            cancOp: cancOp, 
+                            programada: programada, 
+                            instaladas: instaladas 
+                        }); 
                     }
                 });
 
                 let asesoresUnicos = Array.from(asesoresMap.values());
-                asesoresUnicos.sort((a, b) => b.instaladas - a.instaladas);
-                asesoresList = asesoresUnicos.map(a => a.nombre);
                 
+                asesoresUnicos.sort((a, b) => b.instaladas - a.instaladas);
+                
+                asesoresList = asesoresUnicos.map(a => a.nombre);
                 asesoresBreaks = asesoresUnicos.filter(a => !esAsesorSinBreaks(a.nombre)).map(a => a.nombre);
                 
                 LIDERES.forEach(lider => { 
