@@ -612,6 +612,7 @@
                             id: idLider,
                             lider: lider,
                             color: color,
+                            esListaSimple: lider.toUpperCase().includes("TARDE") || lider.toUpperCase().includes("PM"),
                             asesores: []
                         });
                     }
@@ -670,8 +671,12 @@
                 const divSeccion = document.createElement('div');
                 divSeccion.className = "pizarra-seccion " + eq.color;
                 
-                const historialTL = estrellasData[eq.lider] || [];
-                let estrellasEquipo = historialTL.length;
+                let estrellasEquipo = 0;
+
+                if (!eq.esListaSimple) {
+                    const historialTL = estrellasData[eq.lider] || [];
+                    estrellasEquipo += historialTL.length;
+                }
 
                 eq.asesores.forEach(as => {
                     const h = estrellasData[as] || [];
@@ -682,13 +687,18 @@
                 const faltanEq = metaEq - estrellasEquipo;
                 const txtFaltanEq = faltanEq > 0 ? ("Faltan " + faltanEq) : "¡COMPLETADO! 🎀";
 
-                let html = '<div class="pizarra-titulo">👑 TL: ' + eq.lider + '</div>' +
+                const tituloTarjeta = eq.esListaSimple ? ("🌙 " + eq.lider) : ("👑 TL: " + eq.lider);
+
+                let html = '<div class="pizarra-titulo">' + tituloTarjeta + '</div>' +
                            '<div class="pizarra-objetivo-tl" onclick="cambiarMetaEquipo(\'' + eq.id + '\', \'' + eq.lider + '\')" title="Clic para cambiar objetivo">' +
                            '🎯 Objetivo: <span>' + estrellasEquipo + ' / ' + metaEq + '</span> (' + txtFaltanEq + ')' +
                            '</div>' +
-                           '<div class="pizarra-asesores">' +
-                           generarHTMLAsesor(eq.lider) +
-                           '<div style="border-bottom: 1px dashed rgba(255,182,193,0.3); margin: 6px 0 2px 0;"></div>';
+                           '<div class="pizarra-asesores">';
+
+                if (!eq.esListaSimple) {
+                    html += generarHTMLAsesor(eq.lider) +
+                            '<div style="border-bottom: 1px dashed rgba(255,182,193,0.3); margin: 6px 0 2px 0;"></div>';
+                }
 
                 eq.asesores.forEach(as => {
                     html += generarHTMLAsesor(as);
