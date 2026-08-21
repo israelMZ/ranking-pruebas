@@ -459,62 +459,10 @@
         const database = firebase.database();
 
         const URL_SHEET = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTfvuQqIcH6Zv8rqvsqeolWoX7Z3lIKZqz2nX-Q0aCRBZcPRvXAXz8rjKyoAZ-OmiI9GfpNkMjK9Uht/pub?output=csv';
+        const URL_SHEET_PIZARRA = 'https://docs.google.com/spreadsheets/d/1u37Zs5aSHL62Z1whx1ixBdrnoiaVf3xztf_FU_w0RKw/export?gid=543637953&format=csv';
         const PASS_ADMIN = "tiger123@";
         
-        const EQUIPOS_DATA = [
-            {
-                id: "valeria",
-                lider: "VALERIA M (AM)",
-                color: "rojo",
-                asesores: [
-                    "EVA (AM)",
-                    "JOSEPH (AM)",
-                    "MARIANA (AM)",
-                    "CARLOS (AM)",
-                    "DIEGO (AM)"
-                ]
-            },
-            {
-                id: "ramiro",
-                lider: "RAMIRO FLORES (AM)",
-                color: "morado",
-                asesores: [
-                    "FRANCCINI (AM)",
-                    "MATEO (AM)",
-                    "FABIAN (AM)",
-                    "JOSE (AM)",
-                    "JESUS (AM)",
-                    "CESAR (AM)"
-                ]
-            },
-            {
-                id: "leito",
-                lider: "LEITO (AM)",
-                color: "morado",
-                asesores: [
-                    "JULIAN (AM)",
-                    "ANIEL (AM)",
-                    "CLAUDIA (AM)",
-                    "FABIANA (AM)",
-                    "SAMANTHA (AM)",
-                    "ALEJANDRA (AM)",
-                    "BRIANNA (AM)"
-                ]
-            },
-            {
-                id: "gianella",
-                lider: "GIANELLA (AM)",
-                color: "morado",
-                asesores: [
-                    "KARLIN (AM)",
-                    "FRANCKY (AM)",
-                    "MONICA (AM)",
-                    "BETSY (AM)",
-                    "MARTIN (AM)",
-                    "NICOL (AM)"
-                ]
-            }
-        ];
+        let EQUIPOS_DATA = [];
 
         const ASESORES_SIN_BREAKS = [
             "ISABELLE GARCIA", "LEONARDO CASTILLO", "HENRY MAMANI", 
@@ -635,6 +583,48 @@
                     
                     setTimeout(() => mono.remove(), 5000);
                 }, i * 150); 
+            }
+        }
+
+        async function cargarDatosPizarra() {
+            try {
+                const urlConFiltro = URL_SHEET_PIZARRA + '&t=' + new Date().getTime();
+                const respuesta = await fetch(urlConFiltro);
+                const dataRaw = await respuesta.text();
+                const filas = dataRaw.split('\n').slice(1);
+
+                const mapaEquipos = new Map();
+
+                filas.forEach(linea => {
+                    const c = linea.replace(/\r/g, '').split(',');
+                    if (c.length < 3) return;
+
+                    const lider = c[0].replace(/"/g, '').trim();
+                    const color = c[1].replace(/"/g, '').trim().toLowerCase() || 'morado';
+                    const asesor = c[2].replace(/"/g, '').trim();
+
+                    if (!lider || !asesor || lider.toUpperCase() === 'TEAM LEADER' || lider.toUpperCase() === 'LIDER') return;
+
+                    const idLider = lider.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+                    if (!mapaEquipos.has(idLider)) {
+                        mapaEquipos.set(idLider, {
+                            id: idLider,
+                            lider: lider,
+                            color: color,
+                            asesores: []
+                        });
+                    }
+
+                    if (asesor.toUpperCase() !== lider.toUpperCase()) {
+                        mapaEquipos.get(idLider).asesores.push(asesor);
+                    }
+                });
+
+                EQUIPOS_DATA = Array.from(mapaEquipos.values());
+                construirPizarra();
+            } catch (error) {
+                console.error("Error cargando equipos de la pizarra:", error);
             }
         }
 
@@ -1086,7 +1076,9 @@
         document.getElementById('btnAbrirBonos').addEventListener('click', () => abrirModal('modalBonos'));
 
         cargarDatos();
+        cargarDatosPizarra();
         setInterval(cargarDatos, 120000);
+        setInterval(cargarDatosPizarra, 120000);
     </script>
 </body>
 </html>
